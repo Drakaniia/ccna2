@@ -1,0 +1,200 @@
+---
+---
+<!-- Mount point is #qBody (inside QuestionView). Options are rendered client-side
+     so they can react to the shared quiz state (answers + Check feedback). -->
+
+<style is:global>
+  /* Option list — built dynamically, so rules are global. */
+  .options {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+
+  .option {
+    min-height: 68px;
+    border: 2px solid var(--border);
+    border-radius: 8px;
+    background: #fafafa;
+    display: flex;
+    align-items: center;
+    padding: 0 27px;
+    gap: 29px;
+    cursor: pointer;
+    transition: 0.15s;
+    position: relative;
+  }
+
+  /* hover feedback only applies while the option can still be changed */
+  .option:not(.locked):hover {
+    border-color: #9fb5bf;
+  }
+
+  .option.locked {
+    cursor: default;
+  }
+
+  .options input:disabled {
+    opacity: 0.55;
+    cursor: default;
+  }
+
+  .option.selected {
+    border-color: var(--cyan);
+    background: #cfe7ef;
+  }
+
+  .option.selected:after {
+    content: "";
+    position: absolute;
+    right: 0;
+    top: 0;
+    width: 42px;
+    height: 42px;
+    background: linear-gradient(45deg, transparent 49%, var(--cyan) 50%);
+  }
+
+  /* Check-feedback states */
+  .option.correct {
+    border-color: var(--green);
+    background: #eef7e9;
+  }
+
+  .option.correct:after {
+    content: "✓";
+    position: absolute;
+    right: 8px;
+    top: 4px;
+    color: var(--green-dark);
+    font-weight: 700;
+    font-size: 17px;
+    line-height: 1;
+    background: none;
+    width: auto;
+    height: auto;
+  }
+
+  .option.wrong {
+    border-color: var(--red);
+    background: #fdeeee;
+  }
+
+  .option.wrong:after {
+    content: "✕";
+    position: absolute;
+    right: 8px;
+    top: 4px;
+    color: var(--red);
+    font-weight: 700;
+    font-size: 17px;
+    line-height: 1;
+    background: none;
+    width: auto;
+    height: auto;
+  }
+
+  .options input[type="radio"],
+  .options input[type="checkbox"] {
+    appearance: none;
+    -webkit-appearance: none;
+    width: 19px;
+    height: 19px;
+    border: 2px solid #24292d;
+    background: #fff;
+    margin: 0;
+    flex: none;
+    cursor: pointer;
+  }
+
+  .options input[type="radio"] {
+    border-radius: 50%;
+  }
+
+  .options input[type="radio"]:checked:after {
+    content: "";
+    display: block;
+    width: 9px;
+    height: 9px;
+    background: #20262a;
+    border-radius: 50%;
+    margin: 3px;
+  }
+
+  .options input[type="checkbox"] {
+    border-radius: 2px;
+  }
+
+  .options input[type="checkbox"]:checked:after {
+    content: "✓";
+    display: block;
+    font-size: 14px;
+    line-height: 14px;
+    text-align: center;
+    color: #1f2a2f;
+  }
+</style>
+
+<script>
+  import { getModule, getState, subscribe, toggleChoice } from "../lib/quiz-state";
+
+  function renderOptions(): void {
+    const st = getState();
+    const mod = getModule();
+    const host = document.getElementById("qBody");
+    if (!st || !mod || !host) return;
+
+    const p = st.current;
+    const q = mod.questions[st.order[p]];
+    if (!q || q.type === "pair") return;
+
+    const order = st.optionOrders[p] ?? [];
+    const selected = st.answers[p] ?? [];
+    const isChecked = !!st.checked[p];
+    const inputType = q.type === "single" ? "radio" : "checkbox";
+
+    const box = document.createElement("div");
+    box.className = "options";
+
+    order.forEach((sourceIdx, displayIdx) => {
+      const isSelected = selected.includes(displayIdx);
+      const isCorrectOption = q.correct.includes(sourceIdx);
+
+      const label = document.createElement("label");
+      label.className = "option";
+      if (isSelected) label.classList.add("selected");
+      if (isChecked) {
+        // feedback is showing — the question is locked until Retry Question
+        label.classList.add("locked");
+        if (isCorrectOption) label.classList.add("correct");
+        else if (isSelected) label.classList.add("wrong");
+      }
+
+      const input = document.createElement("input");
+      input.type = inputType;
+      input.name = "question";
+      input.checked = isSelected;
+      input.disabled = isChecked;
+      input.addEventListener("change", () => {
+        const res = toggleChoice(displayIdx);
+        if (res === "cap") {
+          // cap reached for multi questions — match the sample's alert
+          alert(`Please choose only ${q.choose ?? 2} answers.`);
+          renderOptions(); // reset the native toggle that was not recorded
+        } else if (res === "locked") {
+          renderOptions(); // keep the disabled visual state in sync
+        }
+      });
+
+      const span = document.createElement("span");
+      span.textContent = q.options[sourceIdx];
+
+      label.append(input, span);
+      box.appendChild(label);
+    });
+
+    host.replaceChildren(box);
+  }
+
+  subscribe(renderOptions);
+  renderOptions();
+</script>

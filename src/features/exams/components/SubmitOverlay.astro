@@ -1,0 +1,111 @@
+---
+import { FileTextIcon } from "./lucide-icons.tsx";
+---
+
+<section class="center-screen submit" id="screenSubmit" aria-label="Submit assessment">
+  <div class="submit-card">
+    <div class="doc-icon">
+      <FileTextIcon size={50} strokeWidth={1.5} />
+    </div>
+    <h2>Submit My Assessment</h2>
+    <div class="unanswered-text" id="submitUnanswered"></div>
+    <div class="review-tabs" id="submitReviewTabs"></div>
+    <div class="confirm">
+      <div>Are you sure you want to submit the quiz?</div>
+      <label>
+        <input type="checkbox" id="confirmSubmit" />
+        Yes, confirm my submission.
+      </label>
+    </div>
+    <button class="primary" id="doSubmitBtn" type="button">Submit</button>
+  </div>
+</section>
+
+<style is:global>
+  /* submit confirmation screen */
+  .center-screen.submit {
+    display: none;
+    position: fixed;
+    inset: 0;
+    z-index: 60;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    background: #fff;
+  }
+
+  body[data-phase="submit"] .center-screen.submit {
+    display: flex;
+  }
+
+  .submit-card {
+    max-width: 640px;
+    padding: 0 24px;
+  }
+
+  .doc-icon {
+    color: #77ae6c;
+    margin-bottom: 15px;
+    line-height: 1;
+  }
+
+  .doc-icon svg {
+    display: block;
+    margin: 0 auto;
+  }
+
+  .submit-card h2 {
+    font-size: 23px;
+    font-weight: 400;
+    margin: 0 0 17px;
+  }
+
+  .unanswered-text {
+    color: #cf1d1d;
+    margin-bottom: 10px;
+  }
+
+  .review-tabs {
+    display: flex;
+    justify-content: center;
+    gap: 7px;
+    margin: 8px 0 22px;
+    flex-wrap: wrap;
+    min-height: 28px;
+  }
+
+  .review-tabs button {
+    border: 1px solid #d4d8dc;
+    background: #f8f8f8;
+    border-radius: 4px;
+    padding: 6px 9px;
+    font-size: 12px;
+    cursor: pointer;
+    color: inherit;
+    font-family: inherit;
+  }
+
+  .review-tabs button:hover {
+    border-color: var(--green);
+  }
+
+  .confirm {
+    font-size: 14px;
+    margin-bottom: 38px;
+    line-height: 1.6;
+  }
+
+  .confirm input {
+    appearance: auto;
+    width: 15px;
+    height: 15px;
+    vertical-align: middle;
+    margin-right: 7px;
+  }
+
+  .submit-card .primary {
+    font-size: 16px;
+    font-weight: 400;
+    padding: 10px 38px;
+  }
+</style>

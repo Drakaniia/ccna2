@@ -1,0 +1,400 @@
+/* ==========================================================================
+   CCNA Quiz App — global styles
+   Design tokens + shared page shell (kept from sample_UI.html).
+   Component-specific sections live in their own Astro components.
+   ========================================================================== */
+
+:root {
+  --green: #65ae4b;
+  --green-dark: #4d9838;
+  --cyan: #12a0c6;
+  --cyan-soft: #cfeaf2;
+  --border: #d6dce1;
+  --text: #171b1e;
+  --muted: #666;
+  --bg: #f7f7f6;
+  --red: #d11111;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html,
+body {
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  background: #fff;
+  color: var(--text);
+  font-family: "Segoe UI", Arial, sans-serif;
+  font-size: 15px;
+}
+
+button {
+  font-family: inherit;
+}
+
+/* ---------- page shell (mirrors sample_UI.html layout) ---------- */
+
+.app {
+  min-height: 100vh;
+  background: var(--bg);
+  border: 1px solid #d7d7d7;
+  position: relative;
+}
+
+main {
+  max-width: 1030px;
+  margin: 35px auto 115px;
+  padding: 0 2px;
+}
+
+/* ---------- shared buttons ---------- */
+
+button.link-btn {
+  border: 0;
+  background: none;
+  text-decoration: underline;
+  font-weight: 600;
+  font-size: 14px;
+  cursor: pointer;
+  color: inherit;
+}
+
+button.primary {
+  border: 0;
+  border-radius: 25px;
+  background: var(--green);
+  padding: 11px 31px;
+  min-width: 101px;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  color: #111;
+}
+
+button.primary:hover {
+  background: var(--green-dark);
+  color: white;
+}
+
+button.primary:disabled {
+  opacity: 0.35;
+  cursor: not-allowed;
+}
+
+/* ---------- fixed footer / progress / side arrows ---------- */
+
+.progress {
+  position: fixed;
+  bottom: 74px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: #faf7f0;
+  border-radius: 5px;
+  padding: 9px 12px;
+  font-size: 12px;
+  z-index: 3;
+}
+
+footer.quiz-footer {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 73px;
+  background: #fafafa;
+  border-top: 1px solid #ddd;
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  padding: 0 74px;
+  gap: 16px;
+  z-index: 2;
+}
+
+/* ---------- responsive base ---------- */
+
+@media (max-width: 800px) {
+  main {
+    margin: 28px 20px 120px;
+  }
+
+  footer.quiz-footer {
+    padding: 0 18px;
+  }
+}
+
+/* ==========================================================================
+   Header utilities — theme attribute + "full view" (hides the top bar).
+   ========================================================================== */
+
+header.topbar {
+  overflow: hidden;
+  transition: height 260ms ease, padding 260ms ease;
+}
+
+/* let React islands inside the top bar participate in its flex layout */
+astro-island {
+  display: contents;
+}
+
+/* full view: collapse the whole top bar away; Esc (handled in HeaderActions)
+   restores it */
+html.full-view header.topbar {
+  height: 0;
+  min-height: 0;
+  padding-top: 0;
+  padding-bottom: 0;
+  border-bottom: 0;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  header.topbar {
+    transition: none;
+  }
+}
+
+/* ==========================================================================
+   Dark theme. Component defaults stay light-first; these higher-specificity
+   overrides flip each surface when <html data-theme="dark"> is set.
+   ========================================================================== */
+
+html[data-theme="dark"] {
+  color-scheme: dark;
+  --bg: #161a1f;
+  --text: #e3e6ea;
+  --muted: #98a1aa;
+  --border: #3c454f;
+  --green-dark: #76bf5c;
+}
+
+html[data-theme="dark"] body {
+  background: #0f1215;
+}
+
+html[data-theme="dark"] .app {
+  border-color: #2a3038;
+}
+
+/* shared bar surfaces */
+html[data-theme="dark"] header.topbar,
+html[data-theme="dark"] .quiz-nav,
+html[data-theme="dark"] footer.quiz-footer {
+  background: #1a1e24;
+}
+
+html[data-theme="dark"] header.topbar {
+  border-bottom-color: #2a3038;
+}
+
+html[data-theme="dark"] .quiz-nav {
+  border-bottom-color: #2a3038;
+}
+
+html[data-theme="dark"] footer.quiz-footer {
+  border-top-color: #2a3038;
+}
+
+html[data-theme="dark"] .hdr-btn:hover {
+  background: rgba(255, 255, 255, 0.08);
+}
+
+html[data-theme="dark"] .hdr-btn:active {
+  background: rgba(255, 255, 255, 0.14);
+}
+
+html[data-theme="dark"] .progress {
+  background: #29281d;
+  color: #e9e5d6;
+}
+
+/* question tab strip */
+html[data-theme="dark"] .qtab {
+  background: #2a3038;
+}
+
+html[data-theme="dark"] .qtab.unanswered {
+  background: #23272d;
+  border-color: #434d58;
+}
+
+html[data-theme="dark"] .qtab.wrong {
+  background: #4a262a;
+  border-color: #e57373;
+  color: #ff9d9d;
+}
+
+/* question body */
+html[data-theme="dark"] .question-view .instruction {
+  color: #9ba4ad;
+}
+
+html[data-theme="dark"] .question-view .code-block {
+  background: #262c34;
+  color: #e2e6ea;
+  border-color: #333b44;
+}
+
+html[data-theme="dark"] .question-view .explanation {
+  background: #12262e;
+  border-color: #28505f;
+  color: #a9d5e1;
+}
+
+html[data-theme="dark"] .question-view .check-actions .link-btn {
+  color: #86c6d8;
+}
+
+/* single / multiple choice options */
+html[data-theme="dark"] .option {
+  background: #1e2228;
+}
+
+html[data-theme="dark"] .option.selected {
+  background: #1d3a45;
+}
+
+html[data-theme="dark"] .option.correct {
+  background: #22301d;
+}
+
+html[data-theme="dark"] .option.wrong {
+  background: #3a2225;
+}
+
+html[data-theme="dark"] .options input[type="radio"],
+html[data-theme="dark"] .options input[type="checkbox"] {
+  border-color: #98a1aa;
+  background: #23272d;
+}
+
+html[data-theme="dark"] .options input[type="radio"]:checked:after {
+  background: #e3e6ea;
+}
+
+html[data-theme="dark"] .options input[type="checkbox"]:checked:after {
+  color: #e3e6ea;
+}
+
+/* click-to-pair board */
+html[data-theme="dark"] .pair-item {
+  background: #1e2228;
+  border-color: #3c454f;
+}
+
+html[data-theme="dark"] .pair-item.active,
+html[data-theme="dark"] .pair-item.matched.active {
+  background: #1d3b46;
+}
+
+html[data-theme="dark"] .pair-item.wrong {
+  background: #3a2225;
+}
+
+html[data-theme="dark"] .pair-item.reveal-correct {
+  background: #22301d;
+}
+
+html[data-theme="dark"] .pair-status {
+  color: #98a1aa;
+}
+
+html[data-theme="dark"] .pair-answer-table {
+  background: #23272d;
+}
+
+html[data-theme="dark"] .pair-answer-table thead th {
+  background: #2a3238;
+}
+
+/* matched-pair connector lines (JS sets the stroke as an SVG attribute,
+   which CSS overrides) */
+html[data-theme="dark"] .pair-lines line[stroke="#3f4c52"] {
+  stroke: #8fa1ad;
+}
+
+/* exam module drawer */
+html[data-theme="dark"] .drawer {
+  background: rgba(30, 34, 40, 0.85);
+  border-right-color: rgba(255, 255, 255, 0.07);
+  box-shadow: 0 0 0 1px rgba(0, 0, 0, 0.5), 8px 0 40px rgba(0, 0, 0, 0.5);
+}
+
+html[data-theme="dark"] .drawer-close {
+  color: #cfd6dc;
+}
+
+html[data-theme="dark"] .drawer-close:hover {
+  background: rgba(255, 255, 255, 0.08);
+}
+
+html[data-theme="dark"] a.module-link:hover {
+  background: rgba(255, 255, 255, 0.06);
+}
+
+html[data-theme="dark"] .module-link .link-sub {
+  color: #98a1aa;
+}
+
+html[data-theme="dark"] .group-label,
+html[data-theme="dark"] .link-status.soon,
+html[data-theme="dark"] .drawer-foot {
+  color: #7e878f;
+}
+
+html[data-theme="dark"] .link-status.soon {
+  border-color: rgba(255, 255, 255, 0.22);
+}
+
+html[data-theme="dark"] .drawer-foot {
+  border-top-color: rgba(255, 255, 255, 0.08);
+}
+
+/* submit + result screens */
+html[data-theme="dark"] .center-screen.submit,
+html[data-theme="dark"] .result-screen {
+  background: #15181d;
+}
+
+html[data-theme="dark"] .unanswered-text {
+  color: #e06a72;
+}
+
+html[data-theme="dark"] .review-tabs button {
+  background: #23272d;
+  border-color: #39414a;
+}
+
+html[data-theme="dark"] .gauge-track {
+  stroke: #2c333b;
+}
+
+html[data-theme="dark"] .result-wrap .review {
+  color: #84c66f;
+}
+
+/* exam chooser (home page) */
+html[data-theme="dark"] .module-card {
+  background: #23272d;
+}
+
+html[data-theme="dark"] a.module-card:hover {
+  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.45);
+}
+
+html[data-theme="dark"] .module-card .card-badge {
+  color: #9aa3ab;
+  border-color: #3a424b;
+}
+
+html[data-theme="dark"] .module-card.disabled {
+  background: #1a1e24;
+}
+
+html[data-theme="dark"] .module-card.disabled h2 {
+  color: var(--muted);
+}

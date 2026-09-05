@@ -1,0 +1,402 @@
+---
+import "../../styles/global.css";
+import ExamHeader from "../../features/exams/components/ExamHeader.astro";
+import QuestionTabs from "../../features/exams/components/QuestionTabs.astro";
+import QuestionView from "../../features/exams/components/QuestionView.astro";
+import ChoiceOptions from "../../features/exams/components/ChoiceOptions.astro";
+import PairingBoard from "../../features/exams/components/PairingBoard.astro";
+import SubmitOverlay from "../../features/exams/components/SubmitOverlay.astro";
+import ResultScreen from "../../features/exams/components/ResultScreen.astro";
+import { availableModules, moduleRegistry } from "../../features/exams/data";
+
+export async function getStaticPaths() {
+  // Only modules with question data get a route; everything else 404s.
+  return moduleRegistry
+    .filter((m) => m.available)
+    .map((m) => ({ params: { module: m.id } }));
+}
+
+const { module: moduleId } = Astro.params;
+const mod = availableModules[moduleId] ?? null;
+if (!mod) {
+  return Astro.redirect(abs(""));
+}
+const headerTitle = `${mod.title}: ${mod.subtitle}`;
+
+// Absolute-path helper that stays correct under a repo-name `base` (GitHub Pages).
+const abs = (p: string) => `${import.meta.env.BASE_URL.replace(/\/?$/, "/")}${p}`;
+---
+
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <script is:inline>
+      (function () {
+        try {
+          let t = localStorage.getItem("ccna-theme");
+          if (t !== "dark" && t !== "light") {
+            t = window.matchMedia("(prefers-color-scheme: dark)").matches
+              ? "dark"
+              : "light";
+          }
+          document.documentElement.dataset.theme = t;
+        } catch {
+          document.documentElement.dataset.theme = "light";
+        }
+      })();
+    </script>
+    <link rel="icon" type="image/svg+xml" href={abs("favicon.svg")} />
+    <link rel="icon" href={abs("favicon.ico")} />
+    <title>{headerTitle} — CCNA 1 v7 Practice Exam</title>
+  </head>
+  <body data-module={mod.id} data-phase="quiz">
+    <div class="app" id="quizApp">
+      <ExamHeader title={headerTitle} currentId={mod.id} />
+      <QuestionTabs />
+      <main>
+        <QuestionView />
+      </main>
+
+      <div class="progress" id="progress"></div>
+
+      <footer class="quiz-footer">
+        <button type="button" class="link-btn" id="skipAllBtn">Skip All</button>
+        <button type="button" class="link-btn" id="skipQBtn">Skip Question</button>
+        <button type="button" class="primary" id="footerNextBtn">Submit</button>
+      </footer>
+    </div>
+
+    <SubmitOverlay />
+    <ResultScreen />
+
+    {/** question-type renderers mount into #qBody (inside QuestionView) */}
+    <ChoiceOptions />
+    <PairingBoard />
+
+    <script>
+      import { availableModules } from "../../features/exams/data";
+      import { exhibitList } from "../../features/exams/lib/types";
+      import { isQuestionCorrect } from "../../features/exams/lib/scoring";
+      import {
+        backToQuiz,
+        bootQuiz,
+        clearCurrentAnswer,
+        currentQuestion,
+        getModule,
+        getState,
+        goNext,
+        goTo,
+        openSubmit,
+        questionCount,
+        resetQuiz,
+        reviewAssessment,
+        skipAll,
+        skipCurrent,
+        submitQuiz,
+        subscribe,
+        unansweredPositions,
+      } from "../../features/exams/lib/quiz-state";
+
+      function main(): void {
+        const moduleId = document.body.dataset.module ?? "";
+        const mod = availableModules[moduleId];
+        if (!mod) return;
+
+        // Site root when deployed under a repo-name base path (GitHub Pages).
+        const siteRoot = import.meta.env.BASE_URL.replace(/\/$/, "");
+
+        const $ = (id: string): HTMLElement | null => document.getElementById(id);
+
+        /* ---------------- static chrome that needs re-rendering ---------------- */
+
+        let lastShellPos = -1;
+
+        subscribe(chrome);
+        bootQuiz(moduleId, mod);
+
+        function chrome(): void {
+          const st = getState();
+          const m = getModule();
+          if (!st || !m) return;
+
+          document.body.dataset.phase = st.phase;
+
+          renderTabs();
+          renderProgress();
+
+          if (st.current !== lastShellPos) {
+            lastShellPos = st.current;
+            renderQuestionShell();
+          }
+          syncExplanation();
+          syncExhibitVisibility();
+          syncRetryBar();
+
+          if (st.phase === "submit") renderSubmitView();
+          if (st.phase === "result") renderResultView();
+        }
+
+        /** Reveal-only exhibit images are shown once the question is checked. */
+        function syncExhibitVisibility(): void {
+          const st = getState();
+          const exhibit = $("qExhibit");
+          if (!st || !exhibit) return;
+          const reveal = !!st.checked[st.current];
+          let anyVisible = false;
+          exhibit.querySelectorAll("img").forEach((im) => {
+            const el = im as HTMLImageElement;
+            if (el.dataset.reveal === "1") {
+              el.hidden = !reveal;
+              anyVisible = anyVisible || reveal;
+            } else {
+              anyVisible = true;
+            }
+          });
+          exhibit.hidden = !anyVisible;
+        }
+
+        /** The retry control appears after the current question has been checked. */
+        function syncRetryBar(): void {
+          const st = getState();
+          const bar = $("retryBar");
+          if (!st || !bar) return;
+          bar.hidden = !st.checked[st.current];
+        }
+
+        function renderProgress(): void {
+          const st = getState();
+          const el = $("progress");
+          if (!st || !el) return;
+          el.textContent = `${st.current + 1} of ${questionCount()} Questions`;
+        }
+
+        function renderTabs(): void {
+          const st = getState();
+          const m = getModule();
+          const tabs = $("tabs");
+          if (!st || !m || !tabs) return;
+
+          const p = st.current;
+          tabs.replaceChildren();
+
+          m.questions.forEach((_, idx) => {
+            const btn = document.createElement("button");
+            btn.type = "button";
+            btn.className = "qtab";
+            btn.textContent = `Q${idx + 1}`;
+
+            const answered =
+              m.questions[st.order[idx]].type === "pair"
+                ? !!st.pairs[idx] && Object.keys(st.pairs[idx] ?? {}).length > 0
+                : (st.answers[idx]?.length ?? 0) > 0;
+
+            if (idx === p) {
+              btn.classList.add("current");
+            } else if (st.skipped[idx] || !answered) {
+              btn.classList.add("unanswered");
+            } else if (st.checked[idx] && !isQuestionCorrect(m.questions[st.order[idx]], st, idx)) {
+              btn.classList.add("wrong");
+            } else {
+              // answered (and not wrong) — filled green
+              btn.classList.add("answered");
+            }
+
+            btn.addEventListener("click", () => goTo(idx));
+            tabs.appendChild(btn);
+          });
+
+          // keep the current tab visible in the scroll strip
+          const cur = tabs.querySelector(".qtab.current");
+          if (cur) {
+            const el = cur as HTMLElement;
+            const target = el.offsetLeft - (tabs.clientWidth - el.clientWidth) / 2;
+            tabs.scrollLeft = Math.max(0, target);
+          }
+        }
+
+        function renderQuestionShell(): void {
+          const q = currentQuestion();
+          const st = getState();
+          if (!q || !st) return;
+
+          const title = $("qTitle");
+          const code = $("qCode");
+          const text = $("qText");
+          const exhibit = $("qExhibit");
+          const instruction = $("qInstruction");
+
+          if (title) title.textContent = `Question ${st.current + 1}`;
+
+          const hasCode = "code" in q && !!q.code;
+          if (code) {
+            if (hasCode) {
+              code.textContent = q.code ?? "";
+              code.hidden = false;
+            } else {
+              code.hidden = true;
+            }
+          }
+
+          if (text) text.textContent = q.text;
+
+          if (exhibit) {
+            const images = exhibitList("exhibit" in q ? q.exhibit : undefined);
+            exhibit.replaceChildren();
+            if (images.length > 0) {
+              images.forEach((img, i) => {
+                const el = document.createElement("img");
+                el.src = siteRoot + img.src;
+                el.alt = img.alt;
+                if (i > 0) el.loading = "lazy";
+                if (img.width) el.width = img.width;
+                if (img.height) el.height = img.height;
+                // answer-revealing screenshots stay hidden until the user presses Check
+                if (img.revealOnly) el.dataset.reveal = "1";
+                exhibit.appendChild(el);
+              });
+              exhibit.hidden = false;
+            } else {
+              exhibit.hidden = true;
+            }
+          }
+
+          if (instruction) {
+            if (q.type === "multi") {
+              instruction.textContent = `(Choose ${q.choose ?? 2}.)`;
+            } else {
+              instruction.textContent = "";
+            }
+          }
+        }
+
+        function syncExplanation(): void {
+          const st = getState();
+          const el = $("qExplanation");
+          if (!st || !el) return;
+          const q = currentQuestion();
+          if (st.checked[st.current] && q?.explanation) {
+            el.textContent = q.explanation;
+            el.hidden = false;
+          } else {
+            el.hidden = true;
+          }
+        }
+
+        /* ------------------------------ submit screen ----------------------------- */
+
+        function renderSubmitView(): void {
+          const host = $("submitUnanswered");
+          const tabs = $("submitReviewTabs");
+          const confirm = $("confirmSubmit") as HTMLInputElement | null;
+          if (confirm) confirm.checked = false;
+
+          const unanswered = unansweredPositions();
+          if (host) {
+            if (unanswered.length > 0) {
+              host.textContent = `You have ${unanswered.length} unanswered question${
+                unanswered.length !== 1 ? "s" : ""
+              }.`;
+              host.style.display = "";
+            } else {
+              host.textContent = "";
+              host.style.display = "none";
+            }
+          }
+
+          if (tabs) {
+            tabs.replaceChildren();
+            unanswered.forEach((pos) => {
+              const btn = document.createElement("button");
+              btn.type = "button";
+              btn.textContent = `Q${pos + 1}`;
+              btn.addEventListener("click", () => backToQuiz(pos));
+              tabs.appendChild(btn);
+            });
+          }
+        }
+
+        /* ------------------------------- result screen ----------------------------- */
+
+        function renderResultView(): void {
+          const st = getState();
+          if (!st?.result) return;
+
+          const score = st.result.score;
+          const passed = st.result.passed;
+
+          // sweeping semicircle arc: dash length = score% of the arc length (π × radius)
+          const svg = document.querySelector(".gauge-svg");
+          if (svg) {
+            svg.setAttribute("aria-valuenow", String(score));
+          }
+          const arc = $("gaugeArc") as SVGPathElement | null;
+          if (arc) {
+            const length = Math.PI * 86; // arc radius from the viewBox path
+            arc.style.strokeDasharray = `0 ${length}`;
+            arc.style.stroke = passed ? "#65ae4b" : "#d11111";
+            requestAnimationFrame(() => {
+              arc.style.strokeDasharray = `${(length * score) / 100} ${length}`;
+            });
+          }
+          const scoreText = $("scoreText");
+          if (scoreText) scoreText.textContent = `${score}%`;
+          const scoreMsg = $("scoreMessage");
+          if (scoreMsg) scoreMsg.textContent = `You have scored ${score}%.`;
+          const passMsg = $("passMessage");
+          if (passMsg) {
+            passMsg.textContent = passed
+              ? "You have passed the exam."
+              : "You have not passed the exam.";
+          }
+        }
+
+        /* ------------------------------ event wiring ------------------------------ */
+
+        const el = (id: string): HTMLElement | null => document.getElementById(id);
+
+        el("retryQBtn")?.addEventListener("click", () => {
+          clearCurrentAnswer();
+        });
+
+        el("footerNextBtn")?.addEventListener("click", () => {
+          const st = getState();
+          if (!st) return;
+          if (st.current < st.order.length - 1) {
+            goNext();
+          } else {
+            openSubmit();
+          }
+        });
+        el("skipAllBtn")?.addEventListener("click", () => skipAll());
+        el("skipQBtn")?.addEventListener("click", () => skipCurrent());
+
+        el("doSubmitBtn")?.addEventListener("click", () => {
+          const confirm = document.getElementById("confirmSubmit") as HTMLInputElement | null;
+          if (!confirm?.checked) {
+            alert("Please confirm your submission.");
+            return;
+          }
+          submitQuiz();
+        });
+
+        const tabsEl = document.getElementById("tabs");
+        el("navLeft")?.addEventListener("click", () => {
+          if (tabsEl) tabsEl.scrollBy({ left: -360, behavior: "smooth" });
+        });
+        el("navRight")?.addEventListener("click", () => {
+          if (tabsEl) tabsEl.scrollBy({ left: 360, behavior: "smooth" });
+        });
+
+        el("resetBtn")?.addEventListener("click", () => {
+          resetQuiz();
+        });
+        el("reviewBtn")?.addEventListener("click", () => {
+          reviewAssessment();
+        });
+      }
+
+      main();
+    </script>
+  </body>
+</html>

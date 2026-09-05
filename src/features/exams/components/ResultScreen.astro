@@ -1,0 +1,116 @@
+---
+---
+
+<section class="result-screen" id="screenResult" aria-label="Exam result">
+  <div class="result-wrap">
+    <div class="gauge">
+      <svg
+        class="gauge-svg"
+        viewBox="0 0 240 132"
+        role="progressbar"
+        aria-valuemin="0"
+        aria-valuemax="100"
+        aria-valuenow="0"
+        aria-label="Exam score"
+      >
+        <path class="gauge-track" d="M 34 120 A 86 86 0 0 1 206 120" />
+        <path class="gauge-arc" id="gaugeArc" d="M 34 120 A 86 86 0 0 1 206 120" />
+      </svg>
+    </div>
+    <div class="score" id="scoreText">0%</div>
+    <p id="scoreMessage"></p>
+    <p id="passMessage"></p>
+    <p class="detail">
+      Select Reset to retake the exam. Remember that you can return to the module for
+      reference or to retake the exam at any time.
+    </p>
+    <button class="primary reset" id="resetBtn" type="button">Reset</button>
+    <br />
+    <button class="review" id="reviewBtn" type="button">Review Assessment</button>
+  </div>
+</section>
+
+<style is:global>
+  /* result screen */
+  .result-screen {
+    display: none;
+    position: fixed;
+    inset: 0;
+    z-index: 60;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    background: #fff;
+  }
+
+  body[data-phase="result"] .result-screen {
+    display: flex;
+  }
+
+  .result-wrap {
+    max-width: 560px;
+    padding: 0 24px;
+  }
+
+  .gauge {
+    width: 240px;
+    height: 120px;
+    margin: 0 auto;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .gauge-svg {
+    width: 100%;
+    height: 120px;
+    display: block;
+  }
+
+  .gauge-track,
+  .gauge-arc {
+    fill: none;
+    stroke-width: 24;
+    stroke-linecap: round;
+  }
+
+  .gauge-track {
+    stroke: #dfe1e3;
+  }
+
+  .gauge-arc {
+    stroke: var(--red);
+    stroke-dasharray: 0 540; /* dash fills in from the left as the score animates */
+    transition: stroke-dasharray 0.9s ease, stroke 0.3s ease;
+  }
+
+  .score {
+    font-size: 28px;
+    font-weight: 600;
+    margin-top: -13px;
+    position: relative;
+  }
+
+  .result-wrap p {
+    font-size: 16px;
+    margin: 22px 0;
+  }
+
+  .result-wrap .detail {
+    margin-top: 17px;
+  }
+
+  .result-wrap .reset {
+    margin: 31px 0 44px;
+    font-size: 16px;
+    font-weight: 400;
+  }
+
+  .result-wrap .review {
+    color: #587d51;
+    text-decoration: underline;
+    background: none;
+    border: 0;
+    font-size: 15px;
+    cursor: pointer;
+  }
+</style>

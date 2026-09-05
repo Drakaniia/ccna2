@@ -1,0 +1,515 @@
+---
+import { moduleRegistry } from "../data";
+import HeaderActions from "./HeaderActions.tsx";
+import { MenuIcon, CloseIcon, ArrowRightIcon } from "./lucide-icons.tsx";
+
+interface Props {
+  title: string;
+  /** Registry id of the module currently being taken (for highlighting). */
+  currentId?: string;
+}
+
+const { title, currentId } = Astro.props;
+
+// Absolute-path helper that stays correct under a repo-name `base` (GitHub Pages).
+const abs = (p: string) => `${import.meta.env.BASE_URL.replace(/\/?$/, "/")}${p}`;
+
+// Group modules by their exam-group label so the drawer reads like an index.
+const groups: { label: string; items: typeof moduleRegistry }[] = [];
+for (const m of moduleRegistry) {
+  const last = groups[groups.length - 1];
+  if (last && last.label === m.groupLabel) {
+    last.items.push(m);
+  } else {
+    groups.push({ label: m.groupLabel, items: [m] });
+  }
+}
+---
+
+<header class="topbar">
+  <button
+    type="button"
+    class="hamburger"
+    id="menuBtn"
+    aria-haspopup="dialog"
+    aria-controls="moduleDrawer"
+    aria-expanded="false"
+    aria-label="Browse exams"
+    title="Browse exams"
+  >
+    <MenuIcon size={21} strokeWidth={2.1} />
+  </button>
+  <div class="title">{title}</div>
+  <HeaderActions client:load />
+</header>
+
+<!-- Apple-style frosted slide-in drawer revealing all exam groups -->
+<div class="drawer-scrim" id="drawerScrim" hidden></div>
+<div
+  class="drawer"
+  id="moduleDrawer"
+  role="dialog"
+  aria-modal="true"
+  aria-label="Browse exams"
+  aria-hidden="true"
+>
+  <div class="drawer-head">
+    <div class="drawer-brand">
+      <span class="brand-top">CCNA 1 v7 — ITN</span>
+      <span class="brand-sub">Practice Exams</span>
+    </div>
+    <button type="button" class="drawer-close" id="drawerClose" aria-label="Close menu">
+      <CloseIcon size={17} strokeWidth={2} />
+    </button>
+  </div>
+
+  <nav class="drawer-nav" aria-label="Exam groups">
+    {
+      groups.map((g) => (
+        <section class="drawer-group">
+          <h2 class="group-label">{g.label}</h2>
+          <ul class="module-list">
+            {
+              g.items.map((m) =>
+                m.available ? (
+                  <li>
+                    <a
+                      class:list={[
+                        "module-link",
+                        { current: m.id === currentId },
+                      ]}
+                      href={abs(`exam/${m.id}`)}
+                    >
+                      <span class="link-main">
+                        <span class="link-title">{m.title}</span>
+                        <span class="link-sub">{m.subtitle}</span>
+                      </span>
+                      {m.id === currentId ? (
+                        <span class="link-status in-progress">In progress</span>
+                      ) : (
+                        <span class="link-status open" aria-hidden="true">
+                          <ArrowRightIcon size={15} strokeWidth={2.4} />
+                        </span>
+                      )}
+                    </a>
+                  </li>
+                ) : (
+                  <li>
+                    <div class="module-link disabled" aria-disabled="true">
+                      <span class="link-main">
+                        <span class="link-title">{m.title}</span>
+                        <span class="link-sub">{m.subtitle}</span>
+                      </span>
+                      <span class="link-status soon">Coming soon</span>
+                    </div>
+                  </li>
+                )
+              )
+            }
+          </ul>
+        </section>
+      ))
+    }
+  </nav>
+
+  <div class="drawer-foot">Select an exam group to begin practicing.</div>
+</div>
+
+<script>
+  function main(): void {
+    const btn = document.getElementById("menuBtn");
+    const drawer = document.getElementById("moduleDrawer");
+    const scrim = document.getElementById("drawerScrim");
+    const close = document.getElementById("drawerClose");
+    if (!btn || !drawer || !scrim || !close) return;
+
+    let open = false;
+    let lastFocused: HTMLElement | null = null;
+
+    const focusables = (): HTMLElement[] => {
+      const nodes = drawer?.querySelectorAll<HTMLElement>(
+        'a[href], button:not([disabled])'
+      );
+      return nodes ? Array.from(nodes) : [];
+    };
+
+    function setOpen(next: boolean): void {
+      if (next === open) return;
+      open = next;
+
+      btn.setAttribute("aria-expanded", String(open));
+      drawer.setAttribute("aria-hidden", String(!open));
+      scrim.hidden = false;
+
+      if (open) {
+        lastFocused = document.activeElement as HTMLElement | null;
+        // Lock page scroll behind the frosted panel.
+        document.body.style.overflow = "hidden";
+        document.addEventListener("keydown", onKey);
+      }
+
+      // Flip to visible first so the CSS transition actually runs, then move
+      // focus into the dialog (Chrome ignores focus while visibility is hidden).
+      requestAnimationFrame(() => {
+        drawer.classList.toggle("is-open", open);
+        scrim.classList.toggle("is-open", open);
+        if (open) close.focus();
+      });
+
+      if (!open) {
+        document.body.style.overflow = "";
+        document.removeEventListener("keydown", onKey);
+        // Return focus to the hamburger once the panel has slid back out.
+        window.setTimeout(() => lastFocused?.focus(), 260);
+        window.setTimeout(() => {
+          scrim.hidden = true;
+        }, 400);
+      }
+    }
+
+    function onKey(e: KeyboardEvent): void {
+      if (e.key === "Escape") {
+        setOpen(false);
+        return;
+      }
+      if (e.key !== "Tab") return;
+      // Trap Tab within the drawer while it is open.
+      const items = focusables();
+      if (items.length === 0) return;
+      const first = items[0];
+      const last = items[items.length - 1];
+      const active = document.activeElement;
+      if (e.shiftKey) {
+        if (active === first || active === drawer || !drawer?.contains(active)) {
+          e.preventDefault();
+          last.focus();
+        }
+      } else if (active === last || !drawer?.contains(active)) {
+        e.preventDefault();
+        first.focus();
+      }
+    }
+
+    btn.addEventListener("click", () => setOpen(!open));
+    close.addEventListener("click", () => setOpen(false));
+    scrim.addEventListener("click", () => setOpen(false));
+    drawer.addEventListener("click", (e) => {
+      // Close when a real module link is chosen (page will navigate away).
+      if ((e.target as HTMLElement).closest("a.module-link")) setOpen(false);
+    });
+  }
+
+  main();
+</script>
+
+<style>
+  .topbar {
+    height: 62px;
+    background: #fafafa;
+    border-bottom: 1px solid #d9d9d9;
+    display: flex;
+    align-items: center;
+    padding: 0 22px;
+    gap: 14px;
+  }
+
+  .hamburger {
+    display: grid;
+    place-items: center;
+    background: none;
+    border: 0;
+    padding: 6px 8px;
+    margin-left: -8px;
+    cursor: pointer;
+    color: var(--text);
+    border-radius: 8px;
+    transition: background 120ms ease-out;
+  }
+
+  :global(.hamburger svg) {
+    display: block;
+  }
+
+  .hamburger:hover {
+    background: rgba(0, 0, 0, 0.05);
+  }
+
+  .hamburger:active {
+    background: rgba(0, 0, 0, 0.1);
+  }
+
+  .title {
+    font-size: 15px;
+    letter-spacing: 0.2px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  :global(.header-actions) {
+    margin-left: auto;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    flex: none;
+    color: var(--text);
+  }
+
+  :global(.hdr-btn) {
+    display: grid;
+    place-items: center;
+    width: 34px;
+    height: 34px;
+    padding: 0;
+    background: none;
+    border: 0;
+    border-radius: 8px;
+    color: inherit;
+    cursor: pointer;
+    transition: background 120ms ease-out;
+  }
+
+  :global(.hdr-btn:hover) {
+    background: rgba(0, 0, 0, 0.05);
+  }
+
+  :global(.hdr-btn:active) {
+    background: rgba(0, 0, 0, 0.1);
+  }
+
+  :global(.hdr-btn svg) {
+    display: block;
+  }
+
+  /* ------------------------------------------------------------------
+     Slide-in drawer — frosted Apple-style material over a dimmed scrim.
+     ------------------------------------------------------------------ */
+
+  .drawer-scrim {
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.32);
+    z-index: 200;
+    opacity: 0;
+    visibility: hidden;
+    transition: opacity 300ms ease, visibility 0s linear 300ms;
+  }
+
+  .drawer-scrim.is-open {
+    opacity: 1;
+    visibility: visible;
+    transition: opacity 300ms ease, visibility 0s linear 0s;
+  }
+
+  .drawer {
+    position: fixed;
+    top: 0;
+    bottom: 0;
+    left: 0;
+    width: min(360px, 88vw);
+    background: rgba(250, 250, 250, 0.72);
+    -webkit-backdrop-filter: blur(22px) saturate(180%);
+    backdrop-filter: blur(22px) saturate(180%);
+    border-right: 1px solid rgba(255, 255, 255, 0.35);
+    box-shadow: 0 0 0 1px rgba(0, 0, 0, 0.04), 8px 0 40px rgba(0, 0, 0, 0.18);
+    z-index: 210;
+    transform: translateX(-103%);
+    visibility: hidden;
+    transition:
+      transform 480ms cubic-bezier(0.32, 0.72, 0, 1),
+      visibility 0s linear 480ms;
+    display: flex;
+    flex-direction: column;
+    color: var(--text);
+  }
+
+  .drawer.is-open {
+    transform: translateX(0);
+    visibility: visible;
+    transition:
+      transform 480ms cubic-bezier(0.32, 0.72, 0, 1),
+      visibility 0s linear 0s;
+  }
+
+  .drawer-head {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 22px 20px 16px 24px;
+    flex: none;
+  }
+
+  .drawer-brand {
+    display: flex;
+    flex-direction: column;
+    gap: 3px;
+  }
+
+  .brand-top {
+    font-size: 12px;
+    font-weight: 600;
+    letter-spacing: 0.6px;
+    color: var(--cyan);
+    text-transform: uppercase;
+  }
+
+  .brand-sub {
+    font-size: 19px;
+    font-weight: 700;
+    letter-spacing: -0.2px;
+  }
+
+  .drawer-close {
+    display: grid;
+    place-items: center;
+    background: none;
+    border: 0;
+    color: #444;
+    width: 34px;
+    height: 34px;
+    border-radius: 50%;
+    cursor: pointer;
+    transition: background 120ms ease-out;
+  }
+
+  :global(.drawer-close svg) {
+    display: block;
+  }
+
+  .drawer-close:hover {
+    background: rgba(0, 0, 0, 0.07);
+  }
+
+  .drawer-nav {
+    flex: 1;
+    overflow-y: auto;
+    padding: 4px 12px 18px;
+  }
+
+  .drawer-group + .drawer-group {
+    margin-top: 22px;
+  }
+
+  .group-label {
+    margin: 0 12px 8px;
+    font-size: 12px;
+    font-weight: 600;
+    letter-spacing: 0.7px;
+    text-transform: uppercase;
+    color: #8a8f94;
+  }
+
+  .module-list {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+  }
+
+  .module-link {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 12px 12px;
+    border-radius: 12px;
+    text-decoration: none;
+    color: var(--text);
+    transition: background 140ms ease-out;
+  }
+
+  .module-link.current {
+    background: rgba(18, 160, 198, 0.12);
+  }
+
+  a.module-link:hover {
+    background: rgba(0, 0, 0, 0.05);
+  }
+
+  .module-link.disabled {
+    cursor: default;
+    opacity: 0.58;
+  }
+
+  .link-main {
+    display: flex;
+    flex-direction: column;
+    gap: 3px;
+    min-width: 0;
+  }
+
+  .link-title {
+    font-size: 15px;
+    font-weight: 600;
+  }
+
+  .module-link.current .link-title {
+    color: var(--cyan);
+  }
+
+  .link-sub {
+    font-size: 12.5px;
+    line-height: 1.35;
+    color: #6d7277;
+  }
+
+  .link-status {
+    flex: none;
+    margin-left: auto;
+    font-size: 12px;
+    font-weight: 600;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+  }
+
+  .link-status.open {
+    color: var(--green-dark);
+    display: inline-flex;
+    align-items: center;
+  }
+
+  :global(.link-status.open svg) {
+    display: block;
+  }
+
+  .link-status.in-progress {
+    color: var(--cyan);
+    background: rgba(18, 160, 198, 0.15);
+    border-radius: 20px;
+    padding: 4px 10px;
+    font-size: 11.5px;
+    font-weight: 600;
+  }
+
+  .link-status.soon {
+    color: #8a8f94;
+    border: 1px solid rgba(0, 0, 0, 0.14);
+    border-radius: 20px;
+    padding: 4px 10px;
+    font-size: 11px;
+  }
+
+  .drawer-foot {
+    flex: none;
+    padding: 14px 24px 18px;
+    font-size: 12px;
+    color: #8a8f94;
+    border-top: 1px solid rgba(0, 0, 0, 0.06);
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .drawer,
+    .drawer.is-open,
+    .drawer-scrim,
+    .drawer-scrim.is-open {
+      transition: opacity 180ms ease;
+    }
+    .drawer,
+    .drawer.is-open {
+      transform: none;
+    }
+    .drawer:not(.is-open),
+    .drawer-scrim:not(.is-open) {
+      opacity: 0;
+    }
+  }
+</style>

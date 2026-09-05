@@ -1,0 +1,474 @@
+---
+---
+<!-- Mount point is #qBody (inside QuestionView). Click-to-pair matching board
+     is rendered client-side per click-to-pair.md and reacts to shared state. -->
+
+<style is:global>
+  /* ================================
+     CLICK TO PAIR / MATCHING QUESTION
+  ================================ */
+  .pairing-board {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 70px;
+    position: relative;
+    min-height: 270px;
+  }
+
+  .pair-column {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+
+  .pair-item {
+    min-height: 52px;
+    padding: 0 14px 0 18px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    background: #fafafa;
+    border: 2px solid #d6dce1;
+    border-radius: 7px;
+    cursor: pointer;
+    transition: 0.2s ease;
+    font-size: 14px;
+  }
+
+  /* hover feedback only applies while the item can still be changed */
+  .pair-item:not(.locked):hover {
+    border-color: #9fb5bf;
+  }
+
+  .pair-item.locked {
+    cursor: default;
+  }
+
+  .pair-item.active {
+    border-color: #12a0c6;
+    background: #d9eef4;
+  }
+
+  /* matched items are tinted with their own pair color */
+  .pair-item.matched {
+    border-color: var(--pb, #8fc783);
+    background: var(--pt, #eef7ea);
+  }
+
+  /* selecting a (matched) left item highlights it in cyan */
+  .pair-item.matched.active {
+    border-color: #12a0c6;
+    background: #d9eef4;
+  }
+
+  /* check feedback */
+  .pair-item.wrong {
+    border-color: var(--red);
+    background: #fdeeee;
+  }
+
+  .pair-item.reveal-correct {
+    border-color: var(--green);
+    background: #eef7e9;
+  }
+
+  .pair-right {
+    flex-direction: row-reverse;
+    justify-content: flex-end;
+    gap: 14px;
+  }
+
+  .pair-badge {
+    width: 25px;
+    height: 25px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: #d9f0e4;
+    color: #397448;
+    font-size: 13px;
+    font-weight: 600;
+    flex-shrink: 0;
+  }
+
+  .pair-right .pair-badge {
+    background: #e5f4f6;
+    color: #337783;
+  }
+
+  /* distinct light colors per pair letter (shared by left + matched right badge) */
+  .pair-badge.letter-0 { background: #ffe0bf; color: #8a4a0f; }
+  .pair-badge.letter-1 { background: #d3e6ff; color: #123f6e; }
+  .pair-badge.letter-2 { background: #d6f0d3; color: #1e5b1e; }
+  .pair-badge.letter-3 { background: #fbd8ec; color: #8c2c61; }
+  .pair-badge.letter-4 { background: #e2d9fb; color: #452a92; }
+  .pair-badge.letter-5 { background: #fbdada; color: #8f2020; }
+  .pair-badge.letter-6 { background: #fdf0c2; color: #7a5d08; }
+
+  .pair-lines {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
+    z-index: 5;
+  }
+
+  .pair-status {
+    margin-top: 14px;
+    color: #666;
+    font-size: 13px;
+  }
+
+  .pair-answer-title {
+    margin-top: 22px;
+    font-size: 13px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.6px;
+    color: var(--green-dark);
+  }
+
+  .pair-answer-table {
+    width: 100%;
+    margin-top: 8px;
+    border-collapse: collapse;
+    background: #fff;
+    font-size: 14px;
+  }
+
+  .pair-answer-table th,
+  .pair-answer-table td {
+    border: 1px solid var(--border);
+    padding: 10px 14px;
+    text-align: left;
+    vertical-align: top;
+  }
+
+  .pair-answer-table thead th {
+    background: #eef4f6;
+    font-size: 12px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    color: var(--muted);
+  }
+
+  .pair-answer-table td.pair-arrow {
+    width: 40px;
+    text-align: center;
+    color: var(--green);
+    font-size: 16px;
+    padding-left: 4px;
+    padding-right: 4px;
+  }
+
+  .pair-answer-table td:last-child {
+    font-weight: 600;
+    color: var(--green-dark);
+  }
+
+  @media (max-width: 800px) {
+    .pairing-board {
+      gap: 26px;
+    }
+  }
+</style>
+
+<script>
+  import { clickLeftItem, clickRightItem, getActiveLeft, getModule, getState, subscribe } from "../lib/quiz-state";
+
+  const LETTERS = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
+
+  // per-letter colors for the matched border + background tint
+  const PAIR_COLORS = [
+    { border: "#e68a2e", tint: "#fff3e4" },
+    { border: "#4a90d9", tint: "#eaf3ff" },
+    { border: "#5aa84f", tint: "#edf8ec" },
+    { border: "#d76ba0", tint: "#fdf0f7" },
+    { border: "#7d5fd1", tint: "#f4f0fd" },
+    { border: "#d15757", tint: "#fdf0f0" },
+    { border: "#cfa92e", tint: "#fdf9e8" },
+  ];
+
+  // darker letters for html[data-theme="dark"] (translucent tints keep text readable)
+  const PAIR_COLORS_DARK = [
+    { border: "#f0a35c", tint: "rgba(230, 138, 46, 0.20)" },
+    { border: "#7ab0ef", tint: "rgba(74, 144, 217, 0.20)" },
+    { border: "#8fd184", tint: "rgba(90, 168, 79, 0.20)" },
+    { border: "#ef9ac5", tint: "rgba(215, 107, 160, 0.20)" },
+    { border: "#aa94ec", tint: "rgba(125, 95, 209, 0.20)" },
+    { border: "#f08a8a", tint: "rgba(209, 87, 87, 0.20)" },
+    { border: "#e8c95e", tint: "rgba(207, 169, 46, 0.20)" },
+  ];
+
+  function pairColors(): typeof PAIR_COLORS {
+    return document.documentElement.dataset.theme === "dark"
+      ? PAIR_COLORS_DARK
+      : PAIR_COLORS;
+  }
+
+  function pairBoardArea(): HTMLElement | null {
+    return document.getElementById("qBody");
+  }
+
+  function renderBoard(): void {
+    const st = getState();
+    const mod = getModule();
+    const host = pairBoardArea();
+    if (!st || !mod || !host) return;
+
+    const p = st.current;
+    const q = mod.questions[st.order[p]];
+    if (!q || q.type !== "pair") return;
+
+    const rightOrder = st.rightOrders[p] ?? [];
+    const pairs = st.pairs[p] ?? {};
+    const checked = !!st.checked[p];
+    const active = getActiveLeft();
+
+    // what display position holds the correct source-right for each left item
+    const expected = new Map<number, number>();
+    q.left.forEach((_, L) => {
+      expected.set(L, rightOrder.indexOf(q.correctPairs[L]));
+    });
+
+    const wrap = document.createElement("div");
+
+    const board = document.createElement("div");
+    board.className = "pairing-board";
+
+    const svg = document.createElementNS("http://www.w3.org/2000/svg", "svg");
+    svg.classList.add("pair-lines");
+
+    const leftColumn = document.createElement("div");
+    leftColumn.className = "pair-column";
+    const rightColumn = document.createElement("div");
+    rightColumn.className = "pair-column";
+
+    // LEFT items (source order; letter badges A, B, C, ... each with its own color)
+    q.left.forEach((text, L) => {
+      const item = document.createElement("div");
+      item.className = "pair-item";
+      item.dataset.left = String(L);
+
+      const userRight = pairs[L];
+      if (active === L) item.classList.add("active");
+      if (checked) item.classList.add("locked");
+      if (userRight !== undefined) {
+        item.classList.add("matched");
+        applyPairColor(item, L);
+        if (checked) {
+          item.classList.add(userRight === expected.get(L) ? "reveal-correct" : "wrong");
+        }
+      }
+
+      const label = document.createElement("span");
+      label.textContent = text;
+      const badge = document.createElement("span");
+      badge.className = `pair-badge letter-${L % PAIR_COLORS.length}`;
+      badge.textContent = LETTERS[L] ?? String(L + 1);
+
+      item.append(label, badge);
+      item.addEventListener("click", () => clickLeftItem(L));
+      leftColumn.appendChild(item);
+    });
+
+    // RIGHT items (shuffled display order; badge shows the paired left letter)
+    rightOrder.forEach((sourceIdx, R) => {
+      const item = document.createElement("div");
+      item.className = "pair-item pair-right";
+      item.dataset.right = String(R);
+
+      const pairedLeftRaw = Object.keys(pairs).find((l) => pairs[Number(l)] === R);
+      const pairedLeft = pairedLeftRaw !== undefined ? Number(pairedLeftRaw) : undefined;
+      const badgeLetter = pairedLeft !== undefined ? LETTERS[pairedLeft] : "";
+      if (checked) item.classList.add("locked");
+
+      const badge = document.createElement("span");
+      badge.className = "pair-badge";
+      if (pairedLeft !== undefined) {
+        // matched right badges echo the left partner's light color
+        badge.classList.add(`letter-${pairedLeft % PAIR_COLORS.length}`);
+      }
+      badge.textContent = badgeLetter;
+      const label = document.createElement("span");
+      label.textContent = q.right[sourceIdx];
+
+      if (pairedLeft !== undefined) {
+        item.classList.add("matched");
+        applyPairColor(item, pairedLeft);
+      }
+
+      item.append(badge, label);
+      item.addEventListener("click", () => clickRightItem(R));
+      rightColumn.appendChild(item);
+    });
+
+    board.append(leftColumn, rightColumn, svg);
+    wrap.appendChild(board);
+
+    const status = document.createElement("div");
+    status.className = "pair-status";
+    status.textContent = `${Object.keys(pairs).length} of ${q.left.length} pairs matched`;
+    wrap.appendChild(status);
+
+    // Check mode: aligned table of the correct matches under the board
+    if (checked) {
+      const title = document.createElement("div");
+      title.className = "pair-answer-title";
+      title.textContent = "Correct matches";
+      wrap.appendChild(title);
+
+      const table = document.createElement("table");
+      table.className = "pair-answer-table";
+
+      const head = document.createElement("thead");
+      const headRow = document.createElement("tr");
+      const thItem = document.createElement("th");
+      thItem.textContent = "Item";
+      const thArrow = document.createElement("th");
+      thArrow.className = "pair-arrow";
+      thArrow.textContent = "";
+      const thMatch = document.createElement("th");
+      thMatch.textContent = "Correct match";
+      headRow.append(thItem, thArrow, thMatch);
+      head.appendChild(headRow);
+      table.appendChild(head);
+
+      const body = document.createElement("tbody");
+      q.left.forEach((leftText, L) => {
+        const row = document.createElement("tr");
+        const cellItem = document.createElement("td");
+        cellItem.textContent = leftText;
+        const cellArrow = document.createElement("td");
+        cellArrow.className = "pair-arrow";
+        cellArrow.textContent = "→";
+        const rightSrc = q.correctPairs[L];
+        const cellMatch = document.createElement("td");
+        cellMatch.textContent = q.right[rightSrc];
+        row.append(cellItem, cellArrow, cellMatch);
+        body.appendChild(row);
+      });
+      table.appendChild(body);
+      wrap.appendChild(table);
+    }
+
+    host.replaceChildren(wrap);
+
+    requestAnimationFrame(() => drawLines(wrap, svg, pairs, checked, expected));
+  }
+
+  /** Tint a matched item with its own pair color (border + background). */
+  function applyPairColor(item: HTMLElement, leftIndex: number): void {
+    const colors = pairColors();
+    const c = colors[leftIndex % colors.length];
+    item.style.setProperty("--pb", c.border);
+    item.style.setProperty("--pt", c.tint);
+  }
+
+  function drawLines(
+    wrap: HTMLElement,
+    svg: SVGSVGElement,
+    pairs: Record<number, number>,
+    checked: boolean,
+    expected: Map<number, number>
+  ): void {
+    const board = wrap.querySelector(".pairing-board");
+    if (!board) return;
+
+    const boardRect = board.getBoundingClientRect();
+    svg.setAttribute("viewBox", `0 0 ${boardRect.width} ${boardRect.height}`);
+    svg.replaceChildren();
+
+    const anchor = (selector: string, index: number): { x: number; y: number } | null => {
+      const el = board.querySelector(`[data-${selector}="${index}"]`) as HTMLElement | null;
+      if (!el) return null;
+      const r = el.getBoundingClientRect();
+      return {
+        x: r.left - boardRect.left,
+        y: r.top - boardRect.top,
+      };
+    };
+
+    const addLine = (
+      x1: number, y1: number, x2: number, y2: number,
+      stroke: string, dashed = false
+    ): void => {
+      const line = document.createElementNS("http://www.w3.org/2000/svg", "line");
+      line.setAttribute("x1", String(x1));
+      line.setAttribute("y1", String(y1));
+      line.setAttribute("x2", String(x2));
+      line.setAttribute("y2", String(y2));
+      line.setAttribute("stroke", stroke);
+      line.setAttribute("stroke-width", "2");
+      if (dashed) line.setAttribute("stroke-dasharray", "6 4");
+      svg.appendChild(line);
+    };
+
+    const lineEndpoints = (index: number): { a: { x: number; y: number } | null; b: { x: number; y: number } | null } => {
+      const leftEl = board.querySelector(`[data-left="${index}"]`) as HTMLElement | null;
+      const rightEl = board.querySelector(`[data-right="${index}"]`) as HTMLElement | null;
+      const lr = leftEl?.getBoundingClientRect();
+      const rr = rightEl?.getBoundingClientRect();
+      return {
+        a: lr
+          ? { x: lr.right - boardRect.left - 10, y: lr.top - boardRect.top + lr.height / 2 }
+          : null,
+        b: rr
+          ? { x: rr.left - boardRect.left + 10, y: rr.top - boardRect.top + rr.height / 2 }
+          : null,
+      };
+    };
+
+    // user pairings
+    Object.entries(pairs).forEach(([left, right]) => {
+      const L = Number(left);
+      const lpt = lineEndpoints(L).a;
+      const rpt = board.querySelector(`[data-right="${right}"]`) as HTMLElement | null;
+      if (!lpt || !rpt) return;
+      const rr = rpt.getBoundingClientRect();
+      const x2 = rr.left - boardRect.left + 10;
+      const y2 = rr.top - boardRect.top + rr.height / 2;
+
+      let color = "#3f4c52";
+      if (checked) color = right === expected.get(L) ? "#65ae4b" : "#d11111";
+      addLine(lpt.x, lpt.y, x2, y2, color);
+    });
+
+    // when checked: reveal the correct pairing for any wrong or unpaired left
+    if (checked) {
+      expected.forEach((expRight, L) => {
+        const userRight = pairs[L];
+        if (userRight === expRight) return;
+        const lpt = lineEndpoints(L).a;
+        const rightEl = board.querySelector(`[data-right="${expRight}"]`) as HTMLElement | null;
+        if (!lpt || !rightEl) return;
+        const rr = rightEl.getBoundingClientRect();
+        const x2 = rr.left - boardRect.left + 10;
+        const y2 = rr.top - boardRect.top + rr.height / 2;
+        addLine(lpt.x, lpt.y, x2, y2, "#65ae4b", true);
+      });
+    }
+  }
+
+  // re-draw lines when the layout changes size
+  window.addEventListener("resize", () => {
+    const st = getState();
+    if (!st) return;
+    const area = pairBoardArea();
+    if (!area) return;
+    const svg = area.querySelector("svg.pair-lines");
+    if (!svg) return;
+    renderBoard();
+  });
+
+  subscribe(renderBoard);
+  renderBoard();
+
+  // matched tints are theme-aware (inline vars), so repaint when theme flips
+  new MutationObserver(() => renderBoard()).observe(document.documentElement, {
+    attributes: true,
+    attributeFilter: ["data-theme"],
+  });
+</script>

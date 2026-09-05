@@ -1,0 +1,121 @@
+---
+import { RetryIcon } from "./lucide-icons.tsx";
+---
+
+<div class="question-view">
+  <h1 id="qTitle"></h1>
+  <pre id="qCode" class="code-block" hidden></pre>
+  <div class="question" id="qText"></div>
+  <figure class="exhibit" id="qExhibit" hidden></figure>
+  <div class="instruction" id="qInstruction"></div>
+  <div class="question-body" id="qBody"></div>
+  <div class="explanation" id="qExplanation" hidden></div>
+  <div class="check-actions" id="retryBar" hidden>
+    <button type="button" class="link-btn retry-btn" id="retryQBtn">
+      <RetryIcon size={15} strokeWidth={2.2} />
+      Retry Question
+    </button>
+  </div>
+</div>
+
+<style is:global>
+  .question-view h1 {
+    font-size: 27px;
+    margin: 0 0 30px;
+    font-weight: 700;
+  }
+
+  .question-view .question {
+    font-size: 16px;
+    line-height: 1.5;
+    margin-bottom: 23px;
+    max-width: 1000px;
+  }
+
+  .question-view .instruction {
+    color: #555;
+    font-size: 13px;
+    margin: -16px 0 16px;
+  }
+
+  .question-view .code-block {
+    font-family: Consolas, Menlo, Monaco, "DejaVu Sans Mono", monospace;
+    font-size: 14px;
+    line-height: 1.5;
+    background: #f2f2f2;
+    color: #000;
+    border: 1px solid #e0e0e0;
+    border-radius: 6px;
+    padding: 14px 16px;
+    overflow-x: auto;
+    white-space: pre;
+    margin: 0 0 20px;
+    /* keep horizontal scrolling possible but hide the scrollbar entirely */
+    scrollbar-width: none;
+    -ms-overflow-style: none;
+  }
+
+  .question-view .code-block::-webkit-scrollbar {
+    display: none;
+    width: 0;
+    height: 0;
+  }
+
+  .question-view .exhibit {
+    margin: 0 0 20px;
+    text-align: center;
+  }
+
+  .question-view .exhibit img {
+    max-width: 100%;
+    height: auto;
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    background: #fff;
+  }
+
+  .question-view .exhibit + .exhibit {
+    margin-top: 10px;
+  }
+
+  .question-view .explanation {
+    margin-top: 26px;
+    padding: 16px 18px;
+    border: 1px solid #bfe0ea;
+    border-left: 5px solid var(--cyan);
+    background: #eef7fa;
+    border-radius: 6px;
+    color: #245b6b;
+    font-size: 14px;
+    line-height: 1.55;
+    white-space: pre-line;
+  }
+
+  .question-view .check-actions {
+    margin-top: 18px;
+  }
+
+  .question-view .check-actions:not([hidden]) {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+  }
+
+  .question-view .check-actions .link-btn {
+    color: #245b6b;
+  }
+
+  .question-view .check-actions .retry-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+  }
+
+  .question-view .check-actions .retry-btn svg {
+    display: block;
+  }
+
+  .question-view .check-actions .link-btn:hover {
+    color: var(--cyan);
+  }
+</style>

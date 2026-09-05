@@ -1,0 +1,125 @@
+---
+import { ChevronLeftIcon, ChevronRightIcon } from "./lucide-icons.tsx";
+---
+
+<div class="quiz-nav">
+  <button type="button" class="nav-arrow left" id="navLeft" aria-label="Scroll tabs left">
+    <ChevronLeftIcon size={32} strokeWidth={1.4} />
+  </button>
+  <div id="tabs" class="tabs"></div>
+  <button type="button" class="nav-arrow right" id="navRight" aria-label="Scroll tabs right">
+    <ChevronRightIcon size={32} strokeWidth={1.4} />
+  </button>
+</div>
+
+<style is:global>
+  /* Question tab strip — tab buttons are built client-side, so the rules are global. */
+  .quiz-nav {
+    height: 92px;
+    border-bottom: 1px solid #ddd;
+    display: flex;
+    align-items: flex-end;
+    padding: 0 34px 9px;
+    gap: 10px;
+    position: relative;
+    background: #fafafa;
+  }
+
+  .quiz-nav .tabs {
+    display: flex;
+    gap: 10px;
+    overflow-x: auto;
+    padding: 2px 0 6px;
+    max-width: 100%;
+    flex: 1;
+    scroll-behavior: smooth;
+    /* keep scrolling possible but hide the scrollbar entirely */
+    scrollbar-width: none;
+    -ms-overflow-style: none;
+  }
+
+  .quiz-nav .tabs::-webkit-scrollbar {
+    display: none;
+    width: 0;
+    height: 0;
+  }
+
+  .nav-arrow {
+    position: absolute;
+    bottom: 12px;
+    display: grid;
+    place-items: center;
+    width: 34px;
+    height: 34px;
+    cursor: pointer;
+    border: 0;
+    background: none;
+    color: inherit;
+    padding: 0;
+    z-index: 2;
+  }
+
+  .nav-arrow svg {
+    display: block;
+  }
+
+  .nav-arrow.left {
+    left: 5px;
+  }
+
+  .nav-arrow.right {
+    right: 10px;
+  }
+
+  .qtab {
+    width: 34px;
+    min-width: 34px;
+    height: 31px;
+    border: 1px solid #8bb780;
+    border-radius: 4px;
+    display: grid;
+    place-items: center;
+    font-size: 12px;
+    font-family: inherit;
+    background: #f4f6f4;
+    cursor: pointer;
+    color: var(--text);
+    transition: background 0.15s ease;
+  }
+
+  /* answered: filled green */
+  .qtab.answered {
+    background: var(--green);
+    border-color: var(--green);
+    color: #fff;
+  }
+
+  .qtab.current {
+    background: var(--green-dark);
+    border-color: var(--green-dark);
+    color: #fff;
+    font-weight: 600;
+  }
+
+  .qtab.wrong {
+    border-color: #e57373;
+    background: #ffc9c9;
+    color: #7a1616;
+  }
+
+  .qtab.unanswered {
+    border-color: #cfd5d8;
+    background: #fff;
+  }
+
+  @media (max-width: 800px) {
+    .quiz-nav {
+      height: 70px;
+      padding: 0 20px 6px;
+    }
+
+    .nav-arrow {
+      bottom: 9px;
+    }
+  }
+</style>

@@ -1,0 +1,174 @@
+---
+import "../styles/global.css";
+import ExamHeader from "../features/exams/components/ExamHeader.astro";
+import { ArrowRightIcon } from "../features/exams/components/lucide-icons.tsx";
+import { moduleRegistry } from "../features/exams/data";
+
+// Absolute-path helper that stays correct under a repo-name `base` (GitHub Pages).
+const abs = (p: string) => `${import.meta.env.BASE_URL.replace(/\/?$/, "/")}${p}`;
+---
+
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <script is:inline>
+      (function () {
+        try {
+          let t = localStorage.getItem("ccna-theme");
+          if (t !== "dark" && t !== "light") {
+            t = window.matchMedia("(prefers-color-scheme: dark)").matches
+              ? "dark"
+              : "light";
+          }
+          document.documentElement.dataset.theme = t;
+        } catch {
+          document.documentElement.dataset.theme = "light";
+        }
+      })();
+    </script>
+    <link rel="icon" type="image/svg+xml" href={abs("favicon.svg")} />
+    <link rel="icon" href={abs("favicon.ico")} />
+    <meta name="description" content="CCNA 1 v7 (ITN) practice exams — module checkpoint quizzes." />
+    <title>CCNA 1 v7 Practice Exams</title>
+  </head>
+  <body>
+    <div class="app">
+      <ExamHeader title="CCNA 1 v7 — ITN Practice Exams" />
+      <main class="chooser">
+        <h1>Choose an Exam</h1>
+        <p class="lead">
+          CCNA 1 v7 — Introduction to Networks (ITN) module checkpoint exams.
+          Select an exam group to start practicing.
+        </p>
+
+        <section class="module-grid" aria-label="Exam groups">
+          {
+            moduleRegistry.map((m) =>
+              m.available ? (
+                <a class="module-card" href={abs(`exam/${m.id}`)}>
+                  <span class="card-label">{m.groupLabel}</span>
+                  <h2>{m.title}</h2>
+                  <p>{m.subtitle}</p>
+                  <span class="card-cta">
+                    Start exam
+                    <ArrowRightIcon size={15} strokeWidth={2.4} />
+                  </span>
+                </a>
+              ) : (
+                <div class="module-card disabled" aria-disabled="true">
+                  <span class="card-label">{m.groupLabel}</span>
+                  <h2>{m.title}</h2>
+                  <p>{m.subtitle}</p>
+                  <span class="card-badge">Coming soon</span>
+                </div>
+              )
+            )
+          }
+        </section>
+      </main>
+    </div>
+  </body>
+</html>
+
+<style>
+  main.chooser {
+    padding: 0 10px;
+  }
+
+  main.chooser h1 {
+    font-size: 27px;
+    margin: 0 0 8px;
+    font-weight: 700;
+  }
+
+  .chooser .lead {
+    color: var(--muted);
+    font-size: 15px;
+    margin: 0 0 34px;
+    line-height: 1.5;
+  }
+
+  .module-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(290px, 1fr));
+    gap: 18px;
+  }
+
+  .module-card {
+    display: block;
+    background: #fff;
+    border: 2px solid var(--border);
+    border-radius: 12px;
+    padding: 22px 24px 20px;
+    text-decoration: none;
+    color: var(--text);
+    transition: 0.15s ease;
+    position: relative;
+  }
+
+  a.module-card:hover {
+    border-color: var(--green);
+    box-shadow: 0 6px 18px rgba(80, 130, 60, 0.15);
+    transform: translateY(-2px);
+  }
+
+  .module-card .card-label {
+    display: inline-block;
+    font-size: 11px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.8px;
+    color: var(--cyan);
+    margin-bottom: 10px;
+  }
+
+  .module-card h2 {
+    margin: 0 0 6px;
+    font-size: 20px;
+    font-weight: 700;
+  }
+
+  .module-card p {
+    margin: 0;
+    color: var(--muted);
+    font-size: 14px;
+    line-height: 1.45;
+    min-height: 40px;
+  }
+
+  .module-card .card-cta {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    margin-top: 16px;
+    font-weight: 600;
+    font-size: 14px;
+    color: var(--green-dark);
+  }
+
+  .module-card .card-cta svg {
+    display: block;
+  }
+
+  .module-card .card-badge {
+    display: inline-block;
+    margin-top: 16px;
+    font-size: 12px;
+    font-weight: 600;
+    color: #999;
+    border: 1px solid #d9d9d9;
+    border-radius: 20px;
+    padding: 4px 12px;
+  }
+
+  .module-card.disabled {
+    background: #fafafa;
+    cursor: not-allowed;
+    opacity: 0.72;
+  }
+
+  .module-card.disabled h2 {
+    color: #666;
+  }
+</style>
