@@ -1,0 +1,317 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Module Quiz - EtherChannel</title>
+<style>
+  :root{
+    --green:#65ae4b;
+    --green-dark:#4d9838;
+    --cyan:#12a0c6;
+    --cyan-soft:#cfeaf2;
+    --border:#d6dce1;
+    --text:#171b1e;
+    --muted:#666;
+    --bg:#f7f7f6;
+    --red:#d11111;
+  }
+  *{box-sizing:border-box}
+  body{
+    margin:0;background:#fff;color:var(--text);
+    font-family:"Segoe UI",Arial,sans-serif;font-size:15px;
+  }
+  .app{min-height:100vh;background:var(--bg);border:1px solid #d7d7d7;position:relative}
+  header{
+    height:62px;background:#fafafa;border-bottom:1px solid #d9d9d9;
+    display:flex;align-items:center;padding:0 22px;gap:14px;
+  }
+  .hamburger{font-size:22px;letter-spacing:-4px;transform:rotate(180deg)}
+  .title{font-size:15px;letter-spacing:.2px}
+  .top-icons{margin-left:auto;display:flex;align-items:center;gap:17px;color:#2f363a}
+  .top-icons span{font-size:19px}
+  .lang{font-size:14px!important;border-left:1px solid #ddd;padding-left:16px}
+  .banner{height:115px;overflow:hidden;background:
+    linear-gradient(90deg,rgba(0,40,80,.3),rgba(0,40,80,.1)),
+    url("https://images.unsplash.com/photo-1518770660439-4636190af475?auto=format&fit=crop&w=1600&q=70") center 45%/cover}
+  .quiz-nav{
+    height:92px;border-bottom:1px solid #ddd;display:flex;align-items:flex-end;
+    padding:0 34px 9px;gap:10px;position:relative;background:#fafafa
+  }
+  .nav-arrow{position:absolute;bottom:12px;font-size:38px;font-weight:200;line-height:28px;cursor:pointer}
+  .nav-arrow.left{left:5px}.nav-arrow.right{right:10px}
+  .qtab{
+    width:28px;height:31px;border:1px solid #8bb780;border-radius:4px;
+    display:grid;place-items:center;font-size:12px;background:#f4f6f4;cursor:pointer
+  }
+  .qtab.current{background:#70b75c;border-color:#70b75c}
+  .qtab.wrong{border-color:#e57373;background:#fff7f7}
+  .qtab.unanswered{border-color:#cfd5d8;background:#fff}
+  main{max-width:1030px;margin:35px auto 115px;padding:0 2px}
+  h1{font-size:27px;margin:0 0 30px;font-weight:700}
+  .question{font-size:16px;line-height:1.5;margin-bottom:23px;max-width:1000px}
+  .instruction{color:#555;font-size:13px;margin:-16px 0 16px}
+  .options{display:flex;flex-direction:column;gap:10px}
+  .option{
+    min-height:68px;border:2px solid var(--border);border-radius:8px;background:#fafafa;
+    display:flex;align-items:center;padding:0 27px;gap:29px;cursor:pointer;
+    transition:.15s;position:relative
+  }
+  .option:hover{border-color:#9fb5bf}
+  .option.selected{border-color:var(--cyan);background:#cfe7ef}
+  .option.selected:after{
+    content:"";position:absolute;right:0;top:0;width:42px;height:42px;
+    background:linear-gradient(45deg,transparent 49%,var(--cyan) 50%)
+  }
+  input[type=radio],input[type=checkbox]{
+    appearance:none;width:19px;height:19px;border:2px solid #24292d;background:#fff;margin:0;flex:none
+  }
+  input[type=radio]{border-radius:50%}
+  input[type=radio]:checked:after{
+    content:"";display:block;width:9px;height:9px;background:#20262a;border-radius:50%;
+    margin:3px
+  }
+  input[type=checkbox]{border-radius:2px}
+  input[type=checkbox]:checked:after{
+    content:"✓";display:block;font-size:14px;line-height:14px;text-align:center;color:#1f2a2f
+  }
+  .progress{
+    position:fixed;bottom:74px;left:50%;transform:translateX(-50%);
+    background:#faf7f0;border-radius:5px;padding:9px 12px;font-size:12px;z-index:3
+  }
+  footer{
+    position:fixed;bottom:0;left:0;right:0;height:73px;background:#fafafa;border-top:1px solid #ddd;
+    display:flex;align-items:center;justify-content:flex-end;padding:0 74px;gap:16px;z-index:2
+  }
+  button.link-btn{border:0;background:none;text-decoration:underline;font-weight:600;font-size:14px;cursor:pointer}
+  button.primary{
+    border:0;border-radius:25px;background:var(--green);padding:11px 31px;min-width:101px;
+    font-size:14px;font-weight:600;cursor:pointer;color:#111
+  }
+  button.primary:hover{background:var(--green-dark);color:white}
+  button.primary:disabled{opacity:.35;cursor:not-allowed}
+  .side{
+    position:fixed;top:50%;transform:translateY(-50%);width:28px;height:40px;
+    border:1px solid #6da65f;background:#fff;color:#6da65f;font-size:34px;
+    display:grid;place-items:center;z-index:2;box-shadow:0 2px 7px #bbb;cursor:pointer
+  }
+  .side.left{left:0;border-radius:0 4px 4px 0}.side.right{right:0;border-radius:4px 0 0 4px}
+
+  /* submit screen */
+  .center-screen{min-height:calc(100vh - 1px);display:none;align-items:center;justify-content:center;text-align:center;background:#fff}
+  .submit-card{margin-top:-80px}
+  .doc-icon{font-size:52px;color:#77ae6c;margin-bottom:15px}
+  .submit-card h2{font-size:23px;font-weight:400;margin:0 0 17px}
+  .unanswered-text{color:#cf1d1d;margin-bottom:10px}
+  .review-tabs{display:flex;justify-content:center;gap:7px;margin:8px 0 22px;flex-wrap:wrap}
+  .review-tabs button{border:1px solid #d4d8dc;background:#f8f8f8;border-radius:4px;padding:6px 9px;font-size:12px;cursor:pointer}
+  .confirm{font-size:14px;margin-bottom:38px}
+  .confirm input{appearance:auto;width:15px;height:15px;vertical-align:middle;margin-right:7px}
+  .submit-card .primary{font-size:16px;font-weight:400;padding:10px 38px}
+
+  /* result screen */
+  .result-screen{min-height:100vh;display:none;align-items:center;justify-content:center;text-align:center;background:#fff}
+  .result-wrap{margin-top:-35px}
+  .gauge{
+    width:240px;height:120px;border:9px solid #dfe1e3;border-bottom:0;border-radius:240px 240px 0 0;
+    margin:0 auto 0;position:relative;overflow:hidden
+  }
+  .gauge .fill{position:absolute;bottom:0;left:0;width:0;height:24px;background:var(--red)}
+  .score{font-size:28px;font-weight:600;margin-top:-13px;position:relative}
+  .result-wrap p{font-size:16px;margin:22px 0}
+  .result-wrap .detail{margin-top:17px}
+  .result-wrap .reset{margin:31px 0 44px;font-size:16px;font-weight:400}
+  .result-wrap .review{color:#587d51;text-decoration:underline;background:none;border:0;font-size:15px;cursor:pointer}
+
+  @media(max-width:800px){
+    main{margin:28px 20px 120px}.banner{height:80px}.quiz-nav{height:70px}
+    footer{padding:0 18px}.side{display:none}.option{padding:0 18px}
+  }
+</style>
+</head>
+<body>
+<div class="app" id="quizApp">
+  <header>
+    <div class="hamburger">☰</div>
+    <div class="title">6.4.4 Module Quiz - EtherChannel</div>
+    <div class="top-icons"><span>◐</span><span>⌕</span><span class="lang">⚑ EN</span><span>♿</span><span>↗</span></div>
+  </header>
+  <div class="banner"></div>
+
+  <div class="quiz-nav">
+    <div class="nav-arrow left" onclick="previousQuestion()">‹</div>
+    <div id="tabs" style="display:flex;gap:10px"></div>
+    <div class="nav-arrow right" onclick="nextQuestion()">›</div>
+  </div>
+
+  <main>
+    <h1 id="questionTitle"></h1>
+    <div class="question" id="questionText"></div>
+    <div class="instruction" id="instruction"></div>
+    <div class="options" id="options"></div>
+  </main>
+
+  <div class="side left" onclick="previousQuestion()">‹</div>
+  <div class="side right" onclick="nextQuestion()">›</div>
+  <div class="progress" id="progress"></div>
+
+  <footer>
+    <button class="link-btn" onclick="skipAll()">Skip All</button>
+    <button class="link-btn" onclick="skipQuestion()">Skip Question</button>
+    <button class="primary" onclick="openSubmit()">Submit</button>
+  </footer>
+</div>
+
+<div class="center-screen" id="submitScreen">
+  <div class="submit-card">
+    <div class="doc-icon">☷</div>
+    <h2>Submit My Assessment</h2>
+    <div class="unanswered-text" id="unansweredText"></div>
+    <div class="review-tabs" id="reviewTabs"></div>
+    <div class="confirm">
+      <div>Are you sure you want to submit the quiz?</div>
+      <label><input type="checkbox" id="confirmSubmit">Yes, confirm my submission.</label>
+    </div>
+    <button class="primary" onclick="submitQuiz()">Submit</button>
+  </div>
+</div>
+
+<div class="result-screen" id="resultScreen">
+  <div class="result-wrap">
+    <div class="gauge"><div class="fill" id="gaugeFill"></div></div>
+    <div class="score" id="scoreText">0%</div>
+    <p id="scoreMessage"></p>
+    <p id="passMessage"></p>
+    <p class="detail">Select Reset to retake the exam. Remember that you can return to the module for reference or to retake the exam at any time.</p>
+    <button class="primary reset" onclick="resetQuiz()">Reset</button><br>
+    <button class="review" onclick="reviewAssessment()">Review Assessment</button>
+  </div>
+</div>
+
+<script>
+const questions = [
+  {
+    text: "When a range of ports is being configured for EtherChannel, which mode will configure PAgP so that it initiates the EtherChannel negotiation?",
+    type: "single",
+    options: ["Auto", "Active", "Passive", "Desirable"],
+    correct: [3]
+  },
+  {
+    text: "Which three interface parameters must match for an EtherChannel to form?",
+    type: "multi", choose: 3,
+    options: ["EtherChannel mode", "Native VLAN", "Allowed VLANs", "Spanning-tree state", "Trunking mode", "PortFast mode"],
+    correct: [1,2,4]
+  },
+  {
+    text: "Which protocol is a Cisco proprietary protocol used to negotiate EtherChannel?",
+    type: "single",
+    options: ["LACP", "PAgP", "STP", "DTP"],
+    correct: [1]
+  },
+  {
+    text: "Choose two benefits of configuring EtherChannel.",
+    type: "multi", choose: 2,
+    options: ["Increases available bandwidth", "Provides redundancy", "Disables VLAN trunking", "Eliminates all switching loops"],
+    correct: [0,1]
+  }
+];
+
+let current = 0;
+let answers = Array(questions.length).fill(null).map(()=>[]);
+let skipped = Array(questions.length).fill(false);
+
+function render(){
+  const q = questions[current];
+  document.getElementById("questionTitle").textContent = `Question ${current+1}`;
+  document.getElementById("questionText").textContent = q.text;
+  document.getElementById("instruction").textContent = q.type==="multi" ? `(Choose ${q.choose}.)` : "";
+  const options = document.getElementById("options");
+  options.innerHTML = "";
+  q.options.forEach((label,i)=>{
+    const div = document.createElement("label");
+    div.className = "option" + (answers[current].includes(i) ? " selected" : "");
+    const input = document.createElement("input");
+    input.type = q.type==="single" ? "radio" : "checkbox";
+    input.name = "question";
+    input.checked = answers[current].includes(i);
+    input.addEventListener("change",()=>selectAnswer(i));
+    const span=document.createElement("span"); span.textContent=label;
+    div.append(input,span); options.appendChild(div);
+  });
+  renderTabs();
+  document.getElementById("progress").textContent = `${current+1} of ${questions.length} Questions`;
+}
+function selectAnswer(i){
+  const q=questions[current];
+  skipped[current]=false;
+  if(q.type==="single") answers[current]=[i];
+  else {
+    if(answers[current].includes(i)) answers[current]=answers[current].filter(x=>x!==i);
+    else if(answers[current].length < q.choose) answers[current].push(i);
+    else { alert(`Please choose only ${q.choose} answers.`); return; }
+  }
+  render();
+}
+function renderTabs(){
+  const tabs=document.getElementById("tabs"); tabs.innerHTML="";
+  questions.forEach((q,i)=>{
+    const b=document.createElement("button");
+    b.className="qtab";
+    if(i===current) b.classList.add("current");
+    else if(skipped[i] || answers[i].length===0) b.classList.add("unanswered");
+    b.textContent=`Q${i+1}`; b.onclick=()=>{current=i;render()}; tabs.appendChild(b);
+  });
+}
+function nextQuestion(){ if(current<questions.length-1){current++;render()} }
+function previousQuestion(){ if(current>0){current--;render()} }
+function skipQuestion(){ skipped[current]=true; if(current<questions.length-1) current++; else openSubmit(); render(); }
+function skipAll(){ skipped=skipped.map(()=>true); openSubmit(); }
+
+function openSubmit(){
+  document.getElementById("quizApp").style.display="none";
+  document.getElementById("submitScreen").style.display="flex";
+  const unanswered=answers.filter(a=>a.length===0).length;
+  document.getElementById("unansweredText").textContent=`You have ${unanswered} unanswered question${unanswered!==1?"s":""}.`;
+  const review=document.getElementById("reviewTabs");review.innerHTML="";
+  questions.forEach((q,i)=>{
+    if(answers[i].length===0){
+      const b=document.createElement("button");b.textContent=`Q${i+1}`;
+      b.onclick=()=>{current=i;document.getElementById("submitScreen").style.display="none";document.getElementById("quizApp").style.display="block";render()};
+      review.appendChild(b);
+    }
+  });
+}
+function submitQuiz(){
+  if(!document.getElementById("confirmSubmit").checked){alert("Please confirm your submission.");return;}
+  let correct=0;
+  questions.forEach((q,i)=>{
+    const a=[...answers[i]].sort().join(","), c=[...q.correct].sort().join(",");
+    if(a===c) correct++;
+  });
+  const score=Math.round(correct/questions.length*100);
+  showResults(score);
+}
+function showResults(score){
+  document.getElementById("submitScreen").style.display="none";
+  document.getElementById("resultScreen").style.display="flex";
+  document.getElementById("scoreText").textContent=score+"%";
+  document.getElementById("scoreMessage").textContent=`You have scored ${score}%.`;
+  const passed=score>=70;
+  document.getElementById("passMessage").textContent=passed?"You have passed the exam.":"You have not passed the exam.";
+  const fill=document.getElementById("gaugeFill");
+  fill.style.width=(score/100*100)+"%";
+  fill.style.background=passed?"#65ae4b":"#d11111";
+}
+function resetQuiz(){
+  current=0;answers=Array(questions.length).fill(null).map(()=>[]);skipped=Array(questions.length).fill(false);
+  document.getElementById("resultScreen").style.display="none";
+  document.getElementById("quizApp").style.display="block";render();
+}
+function reviewAssessment(){
+  current=0;document.getElementById("resultScreen").style.display="none";
+  document.getElementById("quizApp").style.display="block";render();
+}
+render();
+</script>
+</body>
+</html>
