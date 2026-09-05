@@ -164,8 +164,9 @@ export function goPrev(): void {
 export function toggleChoice(optionDisplayIndex: number): "ok" | "cap" | "locked" {
   const s = getState();
   if (!ctx || !s) return "locked";
-  const q = ctx.module.questions[s.order[s.current]] as ChoiceQuestion;
-  if (q.type === "pair") return "locked";
+  const qRaw = ctx.module.questions[s.order[s.current]];
+  if (qRaw.type === "pair") return "locked";
+  const q = qRaw as ChoiceQuestion;
   const p = s.current;
   if (s.checked[p]) return "locked"; // feedback shown — answers are final
   const selected = s.answers[p];
@@ -325,9 +326,10 @@ export function questionCount(): number {
 export function unansweredPositions(): number[] {
   const s = getState();
   if (!ctx || !s) return [];
+  const questions = ctx.module.questions;
   const out: number[] = [];
   s.order.forEach((sourceIndex, p) => {
-    const q = ctx.module.questions[sourceIndex];
+    const q = questions[sourceIndex];
     const pairs = s.pairs[p];
     const has =
       q.type === "pair"

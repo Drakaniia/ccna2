@@ -55,14 +55,6 @@ function normLine(s: string): string {
     .toLowerCase();
 }
 
-/** Multiset of normalized lines from a multi-line string. */
-function lineSet(s: string): string[] {
-  return s
-    .split("\n")
-    .map(normLine)
-    .filter((l) => l.length > 0)
-    .sort();
-}
 
 /** Multiset of normalized words from a multi-line string. */
 function wordSet(s: string): string[] {
@@ -410,10 +402,10 @@ function optKey(opt: string): string {
 }
 
 function compareModule(
-  name: string,
+  _name: string,
   htmlFile: string,
   tsQuestions: Question[],
-  moduleDir: string
+  _moduleDir?: string
 ): { issues: Issue[]; htmlNums: number[]; tsNums: number[] } {
   const html = parseHtml(htmlFile);
   const ts = loadTs(tsQuestions);
@@ -464,7 +456,7 @@ function compareModule(
       if (JSON.stringify(tsOpts) !== JSON.stringify(["true", "false"])) {
         issues.push({ q: n, kind: "OPTIONS", detail: `"Question as presented" options should be [True, False]; TS has: ${tsOpts.join(" | ")}` });
       }
-      const tsCorrect = (t.correct ?? []).map((i) => t.options?.[i]).filter(Boolean).map(normLine);
+      const tsCorrect = (t.correct ?? []).map((i) => t.options?.[i]).filter((s): s is string => Boolean(s)).map(normLine);
       if (tsCorrect.join(",") !== "true") {
         issues.push({ q: n, kind: "CORRECT", detail: `"Question as presented" should mark True correct; TS marks: ${tsCorrect.join(",")}` });
       }
@@ -495,7 +487,7 @@ function compareModule(
           detail: `Option lists differ.\n  Only in HTML:\n${fmtList(onlyA)}\n  Only in TS:\n${fmtList(onlyB)}`,
         });
       }
-      const tsCorrect = (t.correct ?? []).map((i) => t.options?.[i]).filter(Boolean).map(optKey).sort();
+      const tsCorrect = (t.correct ?? []).map((i) => t.options?.[i]).filter((opt): opt is string => Boolean(opt)).map(optKey).sort();
       const htmlCorrect = h.options.filter((o) => o.correct).map((o) => optKey(o.text)).sort();
       const cd = diff(htmlCorrect, tsCorrect);
       if (cd.onlyA.length > 0 || cd.onlyB.length > 0) {

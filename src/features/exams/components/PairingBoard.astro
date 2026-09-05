@@ -389,15 +389,6 @@
     svg.setAttribute("viewBox", `0 0 ${boardRect.width} ${boardRect.height}`);
     svg.replaceChildren();
 
-    const anchor = (selector: string, index: number): { x: number; y: number } | null => {
-      const el = board.querySelector(`[data-${selector}="${index}"]`) as HTMLElement | null;
-      if (!el) return null;
-      const r = el.getBoundingClientRect();
-      return {
-        x: r.left - boardRect.left,
-        y: r.top - boardRect.top,
-      };
-    };
 
     const addLine = (
       x1: number, y1: number, x2: number, y2: number,

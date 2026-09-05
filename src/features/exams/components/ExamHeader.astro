@@ -117,20 +117,24 @@ for (const m of moduleRegistry) {
 
 <script>
   function main(): void {
-    const btn = document.getElementById("menuBtn");
-    const drawer = document.getElementById("moduleDrawer");
-    const scrim = document.getElementById("drawerScrim");
-    const close = document.getElementById("drawerClose");
-    if (!btn || !drawer || !scrim || !close) return;
+    const btnEl = document.getElementById("menuBtn");
+    const drawerEl = document.getElementById("moduleDrawer");
+    const scrimEl = document.getElementById("drawerScrim");
+    const closeEl = document.getElementById("drawerClose");
+    if (!btnEl || !drawerEl || !scrimEl || !closeEl) return;
+    const btn = btnEl;
+    const drawer = drawerEl;
+    const scrim = scrimEl;
+    const close = closeEl;
 
     let open = false;
     let lastFocused: HTMLElement | null = null;
 
     const focusables = (): HTMLElement[] => {
-      const nodes = drawer?.querySelectorAll<HTMLElement>(
+      const nodes = drawer.querySelectorAll<HTMLElement>(
         'a[href], button:not([disabled])'
       );
-      return nodes ? Array.from(nodes) : [];
+      return Array.from(nodes);
     };
 
     function setOpen(next: boolean): void {
