@@ -1,14 +1,14 @@
-# CCNA 1 v7 — ITN Practice Exams
+# CCNA 2 v7 — SRWE Practice Exams
 
-![CCNA 1 v7 — ITN Practice Exams banner](./public/images/banner.png)
+![CCNA 2 v7 — SRWE Practice Exams banner](./public/images/banner.png)
 
-Interactive practice exams for the **CCNA 1 v7 (Introduction to Networks)** module checkpoint quizzes, built as a static site with [Astro](https://astro.build).
+Interactive practice exams for the **CCNA 2 v7 (Switching, Routing, and Wireless Essentials)** module checkpoint quizzes, built as a static site with [Astro](https://astro.build).
 
 Choose an exam group from the home page and work through its questions with instant checking, explanations, exhibit images, and a final score gauge — no account or backend required.
 
 ## Features
 
-- **Module chooser** home page listing all six CCNA 1 v7 checkpoint exam groups (unfinished groups are shown as "Coming soon")
+- **Module chooser** home page listing all eight CCNA 2 v7 exam groups (unfinished groups are shown as "Coming soon")
 - **In-browser quiz engine** with no server state — answers, checking, and results live entirely on the client
 - **Three question types**:
   - Single-answer multiple choice
@@ -25,12 +25,14 @@ Choose an exam group from the home page and work through its questions with inst
 
 | Module | Title | Status |
 | --- | --- | --- |
-| Modules 8 – 10 | Communicating Between Networks | ✅ Available (76 questions) |
-| Modules 1 – 3 | Basic Network Connectivity and Communications | 🚧 Coming soon |
-| Modules 4 – 7 | Ethernet Concepts | 🚧 Coming soon |
-| Modules 11 – 13 | IP Addressing | 🚧 Coming soon |
-| Modules 14 – 16 | Routing Concepts and Essentials | 🚧 Coming soon |
-| Modules 17 – 20 | Build a Small Cisco Network | 🚧 Coming soon |
+| System Test | — | 🚧 Coming soon |
+| Modules 1 – 4 | Switching Concepts, VLANs, and InterVLAN Routing | 🚧 Coming soon |
+| Modules 5 – 6 | Redundant Networks | 🚧 Coming soon |
+| Modules 7 – 9 | Available and Reliable Networks | ✅ Available |
+| Modules 10 – 13 | L2 Security and WLANs | ✅ Available |
+| Modules 14 – 16 | Routing Concepts and Configuration | ✅ Available |
+| SRWEv7 Practice Final Exam | CCNA 2 v7 (SRWE) | 🚧 Coming soon |
+| CCNA 2 v7 Course FINAL Exam | Switching, Routing, and Wireless Essentials | ✅ Available |
 
 > The deployed site is live at <https://Drakaniia.github.io/ccna2/>.
 
@@ -81,7 +83,7 @@ src/
                            #   choice options, pairing board, submit/result screens)
     data/
       index.ts             # module registry & availability list
-      modules-8-10/        # question data for the available exam group
+      <module-id>/         # question data per exam group (added as groups ship)
     lib/
       types.ts             # question/module types & exhibit helpers
       quiz-state.ts        # client-side quiz store & transitions
@@ -101,4 +103,4 @@ public/
 
 ## Disclaimer
 
-Practice questions for studying the CCNA 1 v7 curriculum. Cisco and CCNA are trademarks of Cisco Systems, Inc.; this project is not affiliated with or endorsed by Cisco.
+Practice questions for studying the CCNA 2 v7 curriculum. Cisco and CCNA are trademarks of Cisco Systems, Inc.; this project is not affiliated with or endorsed by Cisco.
