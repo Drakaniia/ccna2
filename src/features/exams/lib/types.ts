@@ -28,6 +28,12 @@ export interface PairQuestion {
   left: string[]; // descriptions (source order)
   right: string[]; // targets
   correctPairs: Record<number, number>; // leftIndex -> rightIndex (source order)
+  /**
+   * Allow several left items to pair to the same right target (classification
+   * questions, e.g. "match each description to Stateless/Stateful"). Without
+   * this flag each right target can be claimed by at most one left item.
+   */
+  allowMultiMatch?: boolean;
   explanation?: string;
   exhibit?: Exhibit | Exhibit[];
 }
@@ -35,7 +41,7 @@ export interface PairQuestion {
 export type Question = ChoiceQuestion | PairQuestion;
 
 export interface ExamModule {
-  id: string; // "modules-8-10"
+  id: string; // "modules-7-9"
   title: string; // "Modules 8 - 10"
   subtitle: string; // "Communicating Between Networks"
   groupLabel: string; // "Checkpoint Exam"

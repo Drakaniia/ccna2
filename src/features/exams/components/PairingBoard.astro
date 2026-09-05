@@ -79,7 +79,7 @@
   }
 
   .pair-badge {
-    width: 25px;
+    min-width: 25px;
     height: 25px;
     border-radius: 50%;
     display: flex;
@@ -90,6 +90,12 @@
     font-size: 13px;
     font-weight: 600;
     flex-shrink: 0;
+    padding: 0 7px;
+    white-space: nowrap;
+  }
+
+  .pair-badge.multi {
+    border-radius: 12px;
   }
 
   .pair-right .pair-badge {
@@ -280,24 +286,26 @@
       item.className = "pair-item pair-right";
       item.dataset.right = String(R);
 
-      const pairedLeftRaw = Object.keys(pairs).find((l) => pairs[Number(l)] === R);
-      const pairedLeft = pairedLeftRaw !== undefined ? Number(pairedLeftRaw) : undefined;
-      const badgeLetter = pairedLeft !== undefined ? LETTERS[pairedLeft] : "";
+      const pairedLefts = Object.keys(pairs)
+        .filter((l) => pairs[Number(l)] === R)
+        .map(Number);
+      const badgeText = pairedLefts.map((l) => LETTERS[l] ?? String(l + 1)).join(",");
       if (checked) item.classList.add("locked");
 
       const badge = document.createElement("span");
       badge.className = "pair-badge";
-      if (pairedLeft !== undefined) {
-        // matched right badges echo the left partner's light color
-        badge.classList.add(`letter-${pairedLeft % PAIR_COLORS.length}`);
+      if (pairedLefts.length > 0) {
+        // matched right badges echo their left partner(s)' light color
+        badge.classList.add(`letter-${pairedLefts[0] % PAIR_COLORS.length}`);
+        badge.classList.add("multi");
       }
-      badge.textContent = badgeLetter;
+      badge.textContent = badgeText;
       const label = document.createElement("span");
       label.textContent = q.right[sourceIdx];
 
-      if (pairedLeft !== undefined) {
+      if (pairedLefts.length > 0) {
         item.classList.add("matched");
-        applyPairColor(item, pairedLeft);
+        applyPairColor(item, pairedLefts[0]);
       }
 
       item.append(badge, label);

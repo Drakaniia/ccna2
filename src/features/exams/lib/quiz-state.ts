@@ -230,10 +230,13 @@ export function clickRightItem(rightDisplayIndex: number): void {
       }
       return;
     }
-    // remove any other left already claiming this right item
+    // For classification questions several left items may share one right
+    // target; otherwise evict any other left already claiming this right item.
     const next: Record<number, number> = {};
     Object.entries(cur).forEach(([l, r]) => {
-      if (Number(l) !== active && Number(r) !== rightDisplayIndex) next[Number(l)] = Number(r);
+      if (Number(l) !== active && (q.allowMultiMatch || Number(r) !== rightDisplayIndex)) {
+        next[Number(l)] = Number(r);
+      }
     });
     next[active] = rightDisplayIndex;
     st.pairs[p] = next;

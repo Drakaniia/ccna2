@@ -132,6 +132,19 @@
     text-align: center;
     color: #1f2a2f;
   }
+
+  /* multi-line command-set options keep their line breaks and code styling */
+  .option.code-option {
+    padding-top: 14px;
+    padding-bottom: 14px;
+  }
+
+  .option.code-option span {
+    white-space: pre-line;
+    font-family: Consolas, Menlo, Monaco, "DejaVu Sans Mono", monospace;
+    font-size: 13px;
+    line-height: 1.5;
+  }
 </style>
 
 <script>
@@ -187,6 +200,11 @@
 
       const span = document.createElement("span");
       span.textContent = q.options[sourceIdx];
+
+      // command-set options (multi-line) render in a code style with line breaks
+      if (q.options[sourceIdx].includes("\n")) {
+        label.classList.add("code-option");
+      }
 
       label.append(input, span);
       box.appendChild(label);
