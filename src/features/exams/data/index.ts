@@ -1,67 +1,87 @@
 import type { ExamModule } from "../lib/types";
-import { modules810 } from "./modules-8-10";
+import { modules79 } from "./modules-7-9";
+import { modules1013 } from "./modules-10-13";
+import { modules1416 } from "./modules-14-16";
+import { srweFinalExam } from "./srwe-final-exam";
 
 export interface ModuleMeta {
   id: string;
-  title: string; // "Modules 8 - 10"
-  subtitle: string; // "Communicating Between Networks"
+  title: string; // "Modules 1 - 4"
+  subtitle: string; // "Switching Concepts, VLANs, and InterVLAN Routing"
   groupLabel: string; // "Checkpoint Exam"
   available: boolean;
 }
 
 /**
- * Module registry — one entry per CCNA1 v7 exam group.
+ * Module registry — one entry per CCNA 2 v7 (SRWE) exam group.
  * The chooser page reads this list, so future modules appear automatically
  * once their data files exist and `available` is flipped to true.
  */
 export const moduleRegistry: ModuleMeta[] = [
   {
-    id: "modules-1-3",
-    title: "Modules 1 - 3",
-    subtitle: "Basic Network Connectivity and Communications",
+    id: "system-test",
+    title: "System Test Exam",
+    subtitle: "",
+    groupLabel: "Course Exam",
+    available: false,
+  },
+  {
+    id: "modules-1-4",
+    title: "Modules 1 - 4",
+    subtitle: "Switching Concepts, VLANs, and InterVLAN Routing",
     groupLabel: "Checkpoint Exam",
     available: false,
   },
   {
-    id: "modules-4-7",
-    title: "Modules 4 - 7",
-    subtitle: "Ethernet Concepts",
+    id: "modules-5-6",
+    title: "Modules 5 - 6",
+    subtitle: "Redundant Networks",
     groupLabel: "Checkpoint Exam",
     available: false,
   },
   {
-    id: "modules-8-10",
-    title: "Modules 8 - 10",
-    subtitle: "Communicating Between Networks",
+    id: "modules-7-9",
+    title: "Modules 7 - 9",
+    subtitle: "Available and Reliable Networks",
     groupLabel: "Checkpoint Exam",
     available: true,
   },
   {
-    id: "modules-11-13",
-    title: "Modules 11 - 13",
-    subtitle: "IP Addressing",
+    id: "modules-10-13",
+    title: "Modules 10 - 13",
+    subtitle: "L2 Security and WLANs",
     groupLabel: "Checkpoint Exam",
-    available: false,
+    available: true,
   },
   {
     id: "modules-14-16",
     title: "Modules 14 - 16",
-    subtitle: "Routing Concepts and Essentials",
+    subtitle: "Routing Concepts and Configuration",
     groupLabel: "Checkpoint Exam",
+    available: true,
+  },
+  {
+    id: "srwe-practice-final",
+    title: "SRWEv7 Practice Final Exam",
+    subtitle: "CCNA 2 v7 (SRWE)",
+    groupLabel: "Practice Exam",
     available: false,
   },
   {
-    id: "modules-17-20",
-    title: "Modules 17 - 20",
-    subtitle: "Build a Small Cisco Network",
-    groupLabel: "Checkpoint Exam",
-    available: false,
+    id: "srwe-final-exam",
+    title: "CCNA 2 v7 Course FINAL Exam",
+    subtitle: "Switching, Routing, and Wireless Essentials",
+    groupLabel: "Final Exam",
+    available: true,
   },
 ];
 
 /** Modules that currently ship question data (keyed by registry id). */
 export const availableModules: Record<string, ExamModule> = {
-  [modules810.id]: modules810,
+  [modules79.id]: modules79,
+  [modules1013.id]: modules1013,
+  [modules1416.id]: modules1416,
+  [srweFinalExam.id]: srweFinalExam,
 };
 
 /** Registry lookup helper for the module chooser. */
