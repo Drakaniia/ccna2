@@ -20,6 +20,9 @@ pnpm-debug.log*
 # macOS-specific files
 .DS_Store
 
+# reference sources — not part of the build
+public/reference/
+
 # jetbrains setting folder
 .idea/
 
