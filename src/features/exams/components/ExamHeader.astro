@@ -54,10 +54,10 @@ for (const m of moduleRegistry) {
   aria-hidden="true"
 >
   <div class="drawer-head">
-    <div class="drawer-brand">
+    <a class="drawer-brand" href={abs("")} aria-label="Back to exam selection">
       <span class="brand-top">CCNA 2 v7 — SRWE</span>
       <span class="brand-sub">Practice Exams</span>
-    </div>
+    </a>
     <button type="button" class="drawer-close" id="drawerClose" aria-label="Close menu">
       <CloseIcon size={17} strokeWidth={2} />
     </button>
@@ -347,6 +347,21 @@ for (const m of moduleRegistry) {
     display: flex;
     flex-direction: column;
     gap: 3px;
+    text-decoration: none;
+    color: inherit;
+    border-radius: 8px;
+    margin: -4px;
+    padding: 4px;
+    transition: background 140ms ease-out;
+  }
+
+  a.drawer-brand:hover {
+    background: rgba(0, 0, 0, 0.05);
+  }
+
+  a.drawer-brand:focus-visible {
+    outline: 2px solid var(--cyan);
+    outline-offset: 2px;
   }
 
   .brand-top {

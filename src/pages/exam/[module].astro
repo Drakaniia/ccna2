@@ -35,11 +35,7 @@ const abs = (p: string) => `${import.meta.env.BASE_URL.replace(/\/?$/, "/")}${p}
       (function () {
         try {
           let t = localStorage.getItem("ccna-theme");
-          if (t !== "dark" && t !== "light") {
-            t = window.matchMedia("(prefers-color-scheme: dark)").matches
-              ? "dark"
-              : "light";
-          }
+          if (t !== "dark" && t !== "light") t = "light";
           document.documentElement.dataset.theme = t;
         } catch {
           document.documentElement.dataset.theme = "light";
@@ -50,9 +46,22 @@ const abs = (p: string) => `${import.meta.env.BASE_URL.replace(/\/?$/, "/")}${p}
     <link rel="icon" href={abs("favicon.ico")} />
     <title>{headerTitle} — CCNA 2 v7 Practice Exam</title>
   </head>
-  <body data-module={mod.id} data-phase="quiz">
+  <body data-module={mod.id} data-phase="intro">
     <div class="app" id="quizApp">
       <ExamHeader title={headerTitle} currentId={mod.id} />
+
+      <!-- Intro — minimal centered, no box background -->
+      <section id="introScreen" class="intro-screen" aria-label="Exam instructions">
+        <div class="intro-center">
+          <span class="intro-label">{mod.groupLabel}</span>
+          <h1>{mod.title}: {mod.subtitle}</h1>
+          <p class="intro-qcount">{mod.questions.length} Questions</p>
+          <p class="intro-warn">Do not refresh the page during the exam — your progress will go back to zero. You can retake this exam as many times as you like.</p>
+          <p class="intro-shortcut desktop-only">Desktop: use <kbd>←</kbd> <kbd>→</kbd> to go back / next.</p>
+          <button type="button" class="primary intro-start" id="startExamBtn">Start Exam</button>
+        </div>
+      </section>
+
       <QuestionTabs />
       <main>
         <QuestionView />
@@ -74,6 +83,147 @@ const abs = (p: string) => `${import.meta.env.BASE_URL.replace(/\/?$/, "/")}${p}
     <ChoiceOptions />
     <PairingBoard />
 
+    <style is:global>
+      /* Intro screen — minimal centered, no box background */
+      .intro-screen {
+        display: none;
+        min-height: 56vh;
+        padding: 48px 24px 60px;
+        justify-content: center;
+        align-items: center;
+        text-align: center;
+      }
+
+      body[data-phase="intro"] .intro-screen {
+        display: flex;
+      }
+
+      body[data-phase="intro"] .quiz-nav,
+      body[data-phase="intro"] main,
+      body[data-phase="intro"] .progress,
+      body[data-phase="intro"] footer.quiz-footer {
+        display: none !important;
+      }
+
+      .intro-center {
+        max-width: 540px;
+        width: 100%;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 0;
+      }
+
+      .intro-label {
+        display: inline-block;
+        font-size: 11px;
+        font-weight: 700;
+        letter-spacing: 0.8px;
+        text-transform: uppercase;
+        color: var(--cyan);
+        margin-bottom: 10px;
+      }
+
+      .intro-center h1 {
+        margin: 0;
+        font-size: 26px;
+        line-height: 1.25;
+        font-weight: 800;
+        color: var(--text);
+      }
+
+      .intro-qcount {
+        margin: 10px 0 0;
+        font-size: 14px;
+        font-weight: 600;
+        color: var(--muted);
+      }
+
+      .intro-warn {
+        margin: 20px 0 0;
+        font-size: 14.5px;
+        line-height: 1.6;
+        color: var(--muted);
+        max-width: 460px;
+      }
+
+      .intro-shortcut {
+        margin: 12px 0 0;
+        font-size: 12.5px;
+        color: #8a9ba3;
+      }
+
+      .intro-shortcut kbd {
+        display: inline-block;
+        min-width: 22px;
+        text-align: center;
+        padding: 1px 5px;
+        font-family: inherit;
+        font-size: 11px;
+        font-weight: 700;
+        background: #fff;
+        border: 1px solid #d0d7db;
+        border-bottom-width: 2px;
+        border-radius: 4px;
+        line-height: 1.2;
+        vertical-align: middle;
+      }
+
+      .intro-start {
+        margin-top: 28px;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 16px !important;
+        font-weight: 700 !important;
+        padding: 12px 42px !important;
+        min-width: 160px;
+        background: var(--green) !important;
+        color: #111 !important;
+        box-shadow: 0 4px 14px rgba(77, 152, 56, 0.28);
+        transition: background 0.15s ease, transform 0.12s ease, box-shadow 0.15s ease;
+      }
+
+      .intro-start:hover {
+        background: var(--green-dark) !important;
+        color: #fff !important;
+        transform: translateY(-1px);
+        box-shadow: 0 6px 18px rgba(77, 152, 56, 0.32);
+      }
+
+      .intro-start:active {
+        transform: translateY(0);
+        box-shadow: 0 2px 8px rgba(77, 152, 56, 0.2);
+      }
+
+      .intro-start:focus-visible {
+        outline: 3px solid rgba(18, 160, 198, 0.35);
+        outline-offset: 2px;
+      }
+
+      html[data-theme="dark"] .intro-shortcut kbd {
+        background: #2a3038;
+        border-color: #434d58;
+        color: #e3e6ea;
+      }
+
+      @media (max-width: 800px) {
+        .intro-shortcut.desktop-only {
+          display: none;
+        }
+      }
+
+      @media (max-width: 600px) {
+        .intro-screen {
+          min-height: 50vh;
+          padding: 32px 18px 40px;
+        }
+        .intro-center h1 {
+          font-size: 22px;
+        }
+      }
+    </style>
+
     <script>
       import { availableModules } from "../../features/exams/data";
       import { exhibitList } from "../../features/exams/lib/types";
@@ -86,6 +236,7 @@ const abs = (p: string) => `${import.meta.env.BASE_URL.replace(/\/?$/, "/")}${p}
         getModule,
         getState,
         goNext,
+        goPrev,
         goTo,
         openSubmit,
         questionCount,
@@ -113,7 +264,33 @@ const abs = (p: string) => `${import.meta.env.BASE_URL.replace(/\/?$/, "/")}${p}
         let lastShellPos = -1;
 
         subscribe(chrome);
-        bootQuiz(moduleId, mod);
+
+        // Intro flow: quiz does not start until the user presses Start Exam.
+        const startBtn = $("startExamBtn") as HTMLButtonElement | null;
+        let started = false;
+
+        function startExam(): void {
+          if (started) return;
+          started = true;
+          bootQuiz(moduleId, mod);
+          // Move focus into the quiz for immediate keyboard navigation.
+          window.requestAnimationFrame(() => {
+            const firstTab = document.querySelector(".qtab.current") as HTMLElement | null;
+            if (firstTab) firstTab.focus?.();
+          });
+        }
+
+        startBtn?.addEventListener("click", startExam);
+
+        // Allow Enter/Space on the intro card to start as well (accessibility).
+        document.getElementById("introScreen")?.addEventListener("keydown", (e) => {
+          if (!started && (e.key === "Enter" || e.key === " ")) {
+            const target = e.target as HTMLElement;
+            if (target.tagName === "BUTTON") return;
+            e.preventDefault();
+            startExam();
+          }
+        });
 
         function chrome(): void {
           const st = getState();
@@ -389,10 +566,49 @@ const abs = (p: string) => `${import.meta.env.BASE_URL.replace(/\/?$/, "/")}${p}
         });
 
         el("resetBtn")?.addEventListener("click", () => {
+          // Reset brings a fresh shuffle and returns to quiz phase directly
           resetQuiz();
+          started = true;
         });
         el("reviewBtn")?.addEventListener("click", () => {
           reviewAssessment();
+        });
+
+        /* -------------------- keyboard shortcuts (desktop only) ------------------- */
+        // Left / Right arrows to move between questions. Disabled on mobile/tablet
+        // where swipe/scroll is the primary interaction.
+
+        function isDesktop(): boolean {
+          return window.matchMedia("(min-width: 801px)").matches;
+        }
+
+        function isTypingTarget(target: EventTarget | null): boolean {
+          if (!(target instanceof HTMLElement)) return false;
+          const tag = target.tagName;
+          if (tag === "INPUT" || tag === "TEXTAREA" || tag === "SELECT") return true;
+          if (target.isContentEditable) return true;
+          return false;
+        }
+
+        document.addEventListener("keydown", (e) => {
+          // Ignore when drawer is open, or when user is typing
+          if (isTypingTarget(e.target)) return;
+          // Ignore combos with modifiers (allow browser shortcuts)
+          if (e.ctrlKey || e.metaKey || e.altKey) return;
+          // Intro phase: Enter already handled; arrows do nothing until quiz starts
+          const st = getState();
+          if (!st) return;
+          if (st.phase !== "quiz") return;
+          // Desktop only
+          if (!isDesktop()) return;
+          if (e.key === "ArrowRight") {
+            e.preventDefault();
+            if (st.current < st.order.length - 1) goNext();
+            else openSubmit();
+          } else if (e.key === "ArrowLeft") {
+            e.preventDefault();
+            goPrev();
+          }
         });
       }
 

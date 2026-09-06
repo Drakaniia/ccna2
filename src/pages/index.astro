@@ -16,11 +16,7 @@ const abs = (p: string) => `${import.meta.env.BASE_URL.replace(/\/?$/, "/")}${p}
       (function () {
         try {
           let t = localStorage.getItem("ccna-theme");
-          if (t !== "dark" && t !== "light") {
-            t = window.matchMedia("(prefers-color-scheme: dark)").matches
-              ? "dark"
-              : "light";
-          }
+          if (t !== "dark" && t !== "light") t = "light";
           document.documentElement.dataset.theme = t;
         } catch {
           document.documentElement.dataset.theme = "light";

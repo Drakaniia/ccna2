@@ -277,7 +277,7 @@ html[data-theme="dark"] .options input[type="radio"]:checked:after {
 }
 
 html[data-theme="dark"] .options input[type="checkbox"]:checked:after {
-  color: #e3e6ea;
+  background: #e3e6ea;
 }
 
 /* click-to-pair board */

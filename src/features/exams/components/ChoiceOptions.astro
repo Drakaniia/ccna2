@@ -122,15 +122,17 @@
 
   .options input[type="checkbox"] {
     border-radius: 2px;
+    display: grid;
+    place-items: center;
   }
 
   .options input[type="checkbox"]:checked:after {
-    content: "✓";
+    content: "";
     display: block;
-    font-size: 14px;
-    line-height: 14px;
-    text-align: center;
-    color: #1f2a2f;
+    width: 9px;
+    height: 9px;
+    background: #20262a;
+    border-radius: 1px;
   }
 
   /* multi-line command-set options keep their line breaks and code styling */
