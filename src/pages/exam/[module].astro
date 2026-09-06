@@ -57,7 +57,7 @@ const abs = (p: string) => `${import.meta.env.BASE_URL.replace(/\/?$/, "/")}${p}
           <h1>{mod.title}: {mod.subtitle}</h1>
           <p class="intro-qcount">{mod.questions.length} Questions</p>
           <p class="intro-warn">Do not refresh the page during the exam — your progress will go back to zero. You can retake this exam as many times as you like.</p>
-          <p class="intro-shortcut desktop-only">Desktop: use <kbd>←</kbd> <kbd>→</kbd> to go back / next.</p>
+          <p class="intro-shortcut desktop-only">Desktop: use <kbd>←</kbd> <kbd>→</kbd> to go back / next · press <kbd>R</kbd> to retry question.</p>
           <button type="button" class="primary intro-start" id="startExamBtn">Start Exam</button>
         </div>
       </section>
@@ -608,6 +608,11 @@ const abs = (p: string) => `${import.meta.env.BASE_URL.replace(/\/?$/, "/")}${p}
           } else if (e.key === "ArrowLeft") {
             e.preventDefault();
             goPrev();
+          } else if (e.key === "r" || e.key === "R") {
+            if (st.checked[st.current]) {
+              e.preventDefault();
+              clearCurrentAnswer();
+            }
           }
         });
       }
