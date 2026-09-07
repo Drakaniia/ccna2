@@ -67,7 +67,7 @@ export interface AttemptResult {
 /** Equal weight per question; unanswered counts as wrong; round to nearest %; pass >= 70%. */
 export function scoreAttempt(module: ExamModule, state: AttemptState): AttemptResult {
   let correct = 0;
-  const total = module.questions.length;
+  const total = state.order.length;
   state.order.forEach((sourceIndex, p) => {
     const q = module.questions[sourceIndex];
     if (isQuestionCorrect(q, state, p)) correct++;
