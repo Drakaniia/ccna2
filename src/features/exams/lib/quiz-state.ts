@@ -1,6 +1,7 @@
 import type { ChoiceQuestion, ExamModule, Question } from "./types";
 import { mulberry32, range, seededShuffle } from "./shuffle";
 import { scoreAttempt, type AttemptResult } from "./scoring";
+import { getEffectiveLimit } from "./exam-limits";
 
 export interface AttemptState {
   seed: number; // shuffle seed for this attempt
@@ -55,9 +56,10 @@ function freshSeed(): number {
   return (Date.now() ^ Math.floor(Math.random() * 0x100000000)) >>> 0;
 }
 
-function buildAttempt(questions: Question[], seed: number): AttemptState {
+function buildAttempt(questions: Question[], seed: number, limit?: number): AttemptState {
   const rand = mulberry32(seed);
   const total = questions.length;
+  const effectiveTotal = limit !== undefined && limit !== null && limit > 0 && limit < total ? limit : total;
 
   // One shuffle per source question (options for choice, right column for pair).
   const perSourceOption: (number[] | null)[] = questions.map((q) =>
@@ -67,7 +69,9 @@ function buildAttempt(questions: Question[], seed: number): AttemptState {
     q.type === "pair" ? seededShuffle(range(q.right.length), rand) : null
   );
 
-  const order = seededShuffle(range(total), rand);
+  // Always random: shuffle full order then slice to limit for random subset.
+  const fullOrder = seededShuffle(range(total), rand);
+  const order = effectiveTotal < total ? fullOrder.slice(0, effectiveTotal) : fullOrder;
 
   // Slot shuffles into per-display-position arrays.
   const optionOrders: (number[] | null)[] = order.map((src) => perSourceOption[src]);
@@ -78,11 +82,11 @@ function buildAttempt(questions: Question[], seed: number): AttemptState {
     order,
     optionOrders,
     rightOrders,
-    answers: Array.from({ length: total }, () => []),
-    pairs: new Array(total).fill(null),
-    skipped: new Array(total).fill(false),
+    answers: Array.from({ length: effectiveTotal }, () => []),
+    pairs: new Array(effectiveTotal).fill(null),
+    skipped: new Array(effectiveTotal).fill(false),
     current: 0,
-    checked: new Array(total).fill(false),
+    checked: new Array(effectiveTotal).fill(false),
     phase: "quiz",
   };
 }
@@ -93,22 +97,44 @@ function buildAttempt(questions: Question[], seed: number): AttemptState {
  * Start a fresh, fully re-shuffled attempt on every page load. Nothing is
  * restored from a previous session, so question 1 is never always the same
  * after a refresh. Returns the active state.
+ * Applies per-module limit (random subset) if configured.
  */
 export function bootQuiz(moduleId: string, module: ExamModule): AttemptState {
   clearSaved(moduleId); // drop any previous session's stored attempt
-  const state = buildAttempt(module.questions, freshSeed());
+  const limit = getEffectiveLimit(moduleId, module.questions.length);
+  const effectiveLimit = limit === module.questions.length ? undefined : limit;
+  const state = buildAttempt(module.questions, freshSeed(), effectiveLimit);
   ctx = { moduleId, module, state, activeLeft: null };
   emit(); // initial paint for every subscribed view
   return state;
 }
 
-/** Start a brand-new attempt (new seed -> re-shuffle) and persist immediately. */
+/** Start a brand-new attempt (new seed -> re-shuffle) and persist immediately. Keeps full module and re-applies current limit. */
 export function resetQuiz(): AttemptState {
   if (!ctx) throw new Error("resetQuiz() called before bootQuiz()");
-  ctx.state = buildAttempt(ctx.module.questions, Date.now());
+  const limit = getEffectiveLimit(ctx.moduleId, ctx.module.questions.length);
+  const effectiveLimit = limit === ctx.module.questions.length ? undefined : limit;
+  ctx.state = buildAttempt(ctx.module.questions, Date.now(), effectiveLimit);
   ctx.activeLeft = null;
   emit();
   return ctx.state;
+}
+
+/**
+ * Re-boot with full module after limit changes mid-session.
+ * Preserves the same module object but picks a new random subset.
+ */
+export function rebootWithLimit(module: ExamModule): AttemptState {
+  if (!ctx) throw new Error("rebootWithLimit() called before bootQuiz()");
+  const limit = getEffectiveLimit(ctx.moduleId, module.questions.length);
+  const effectiveLimit = limit === module.questions.length ? undefined : limit;
+  clearSaved(ctx.moduleId);
+  const state = buildAttempt(module.questions, freshSeed(), effectiveLimit);
+  ctx.module = module;
+  ctx.state = state;
+  ctx.activeLeft = null;
+  emit();
+  return state;
 }
 
 export function getState(): AttemptState | null {
@@ -319,7 +345,7 @@ export function currentPosition(): number {
 }
 
 export function questionCount(): number {
-  return ctx?.module.questions.length ?? 0;
+  return ctx?.state.order.length ?? ctx?.module.questions.length ?? 0;
 }
 
 /** Display positions with no answer recorded (unanswered count for the submit screen). */
