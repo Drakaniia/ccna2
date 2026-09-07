@@ -8,4 +8,5 @@ export {
   RotateCcw as RetryIcon,
   ArrowRight as ArrowRightIcon,
   FileText as FileTextIcon,
+  Settings as SettingsIcon,
 } from "lucide-react";
