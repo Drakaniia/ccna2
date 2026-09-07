@@ -1,5 +1,5 @@
 ---
-import { moduleRegistry } from "../data";
+import { availableModules, moduleRegistry } from "../data";
 import HeaderActions from "./HeaderActions.tsx";
 import { MenuIcon, CloseIcon, ArrowRightIcon } from "./lucide-icons.tsx";
 
@@ -10,6 +10,7 @@ interface Props {
 }
 
 const { title, currentId } = Astro.props;
+const maxQuestions = currentId ? (availableModules[currentId]?.questions.length ?? undefined) : undefined;
 
 // Absolute-path helper that stays correct under a repo-name `base` (GitHub Pages).
 const abs = (p: string) => `${import.meta.env.BASE_URL.replace(/\/?$/, "/")}${p}`;
@@ -40,7 +41,7 @@ for (const m of moduleRegistry) {
     <MenuIcon size={21} strokeWidth={2.1} />
   </button>
   <div class="title">{title}</div>
-  <HeaderActions client:load />
+  <HeaderActions client:load moduleId={currentId} maxQuestions={maxQuestions} />
 </header>
 
 <!-- Apple-style frosted slide-in drawer revealing all exam groups -->

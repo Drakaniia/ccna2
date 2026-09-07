@@ -55,7 +55,7 @@ const abs = (p: string) => `${import.meta.env.BASE_URL.replace(/\/?$/, "/")}${p}
         <div class="intro-center">
           <span class="intro-label">{mod.groupLabel}</span>
           <h1>{mod.title}: {mod.subtitle}</h1>
-          <p class="intro-qcount">{mod.questions.length} Questions</p>
+          <p class="intro-qcount" id="introQCount">{mod.questions.length} Questions</p>
           <p class="intro-warn">Do not refresh the page during the exam — your progress will go back to zero. You can retake this exam as many times as you like.</p>
           <p class="intro-shortcut desktop-only">Desktop: use <kbd>←</kbd> <kbd>→</kbd> to go back / next · press <kbd>R</kbd> to retry question.</p>
           <button type="button" class="primary intro-start" id="startExamBtn">Start Exam</button>
@@ -228,6 +228,7 @@ const abs = (p: string) => `${import.meta.env.BASE_URL.replace(/\/?$/, "/")}${p}
       import { availableModules } from "../../features/exams/data";
       import { exhibitList } from "../../features/exams/lib/types";
       import { isQuestionCorrect } from "../../features/exams/lib/scoring";
+      import { getEffectiveCount, LIMIT_EVENT } from "../../features/exams/lib/exam-limits";
       import {
         backToQuiz,
         bootQuiz,
@@ -240,6 +241,7 @@ const abs = (p: string) => `${import.meta.env.BASE_URL.replace(/\/?$/, "/")}${p}
         goTo,
         openSubmit,
         questionCount,
+        rebootWithLimit,
         resetQuiz,
         reviewAssessment,
         skipAll,
@@ -264,6 +266,33 @@ const abs = (p: string) => `${import.meta.env.BASE_URL.replace(/\/?$/, "/")}${p}
         let lastShellPos = -1;
 
         subscribe(chrome);
+
+        // Intro question count reflects per-exam limit (random subset).
+        function renderIntroCount(): void {
+          const el = $("introQCount");
+          if (!el) return;
+          const effective = getEffectiveCount(moduleId, mod.questions.length);
+          el.textContent = `${effective} Question${effective !== 1 ? "s" : ""}`;
+        }
+        renderIntroCount();
+        document.addEventListener(LIMIT_EVENT, (e) => {
+          const detail = (e as CustomEvent).detail as { moduleId?: string } | undefined;
+          if (!detail || detail.moduleId === moduleId) renderIntroCount();
+        });
+        // Settings modal may request an immediate reboot with new random subset.
+        document.addEventListener("exam:limit-apply-restart", () => {
+          if (!started) {
+            renderIntroCount();
+            return;
+          }
+          try {
+            rebootWithLimit(mod);
+            started = true;
+            lastShellPos = -1;
+          } catch {
+            /* not booted yet */
+          }
+        });
 
         // Intro flow: quiz does not start until the user presses Start Exam.
         const startBtn = $("startExamBtn") as HTMLButtonElement | null;
