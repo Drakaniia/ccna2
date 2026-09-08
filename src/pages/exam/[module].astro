@@ -598,6 +598,7 @@ const abs = (p: string) => `${import.meta.env.BASE_URL.replace(/\/?$/, "/")}${p}
           // Reset brings a fresh shuffle and returns to quiz phase directly
           resetQuiz();
           started = true;
+          lastShellPos = -1;
         });
         el("reviewBtn")?.addEventListener("click", () => {
           reviewAssessment();

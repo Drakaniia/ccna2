@@ -114,7 +114,7 @@ export function resetQuiz(): AttemptState {
   if (!ctx) throw new Error("resetQuiz() called before bootQuiz()");
   const limit = getEffectiveLimit(ctx.moduleId, ctx.module.questions.length);
   const effectiveLimit = limit === ctx.module.questions.length ? undefined : limit;
-  ctx.state = buildAttempt(ctx.module.questions, Date.now(), effectiveLimit);
+  ctx.state = buildAttempt(ctx.module.questions, freshSeed(), effectiveLimit);
   ctx.activeLeft = null;
   emit();
   return ctx.state;
@@ -279,7 +279,9 @@ export function clickRightItem(rightDisplayIndex: number): void {
 /**
  * Retry the current question: clear its answer/pairings + feedback and
  * re-shuffle its items (option order for choice, right column for matching)
- * so a retry is not just the same layout.
+ * so a retry is not just the same layout. Uses a fresh seeded shuffle so
+ * the layout actually changes on every retry (including 2-option questions
+ * where a pure random shuffle would keep the original order 50% of the time).
  */
 export function clearCurrentAnswer(): void {
   if (!ctx) return;
@@ -287,10 +289,22 @@ export function clearCurrentAnswer(): void {
     const p = s.current;
     const q = ctx!.module.questions[s.order[p]];
     if (q.type === "pair") {
-      s.rightOrders[p] = seededShuffle(range(q.right.length), Math.random);
+      const prev = s.rightOrders[p] ?? [];
+      let next = seededShuffle(range(q.right.length), mulberry32(freshSeed()));
+      // Force a visible change when possible (2-4 items would otherwise stay identical ~25-50% of retries)
+      if (q.right.length > 1 && next.length === prev.length && next.every((v, i) => v === prev[i])) {
+        // Simple derangement guarantee: rotate by one
+        next = [...next.slice(1), next[0]!];
+      }
+      s.rightOrders[p] = next;
       s.pairs[p] = null;
     } else {
-      s.optionOrders[p] = seededShuffle(range(q.options.length), Math.random);
+      const prev = s.optionOrders[p] ?? [];
+      let next = seededShuffle(range(q.options.length), mulberry32(freshSeed()));
+      if (q.options.length > 1 && next.length === prev.length && next.every((v, i) => v === prev[i])) {
+        next = [...next.slice(1), next[0]!];
+      }
+      s.optionOrders[p] = next;
       s.answers[p] = [];
     }
     s.checked[p] = false;
