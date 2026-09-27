@@ -229,6 +229,11 @@
     if (!q || q.type !== "pair") return;
 
     const rightOrder = st.rightOrders[p] ?? [];
+    // Left column is shuffled per attempt as well: display position -> source left.
+    const leftOrder = st.leftOrders[p] ?? q.left.map((_, i) => i);
+    // source left index -> its display position (drives the letter badges)
+    const leftPos = new Map<number, number>();
+    leftOrder.forEach((srcLeft, pos) => leftPos.set(srcLeft, pos));
     const pairs = st.pairs[p] ?? {};
     const checked = !!st.checked[p];
     const active = getActiveLeft();
@@ -252,31 +257,32 @@
     const rightColumn = document.createElement("div");
     rightColumn.className = "pair-column";
 
-    // LEFT items (source order; letter badges A, B, C, ... each with its own color)
-    q.left.forEach((text, L) => {
+    // LEFT items (shuffled display order; letter badges A, B, C, ... follow the
+    // position on screen so they still read top-to-bottom)
+    leftOrder.forEach((srcLeft, pos) => {
       const item = document.createElement("div");
       item.className = "pair-item";
-      item.dataset.left = String(L);
+      item.dataset.left = String(srcLeft);
 
-      const userRight = pairs[L];
-      if (active === L) item.classList.add("active");
+      const userRight = pairs[srcLeft];
+      if (active === srcLeft) item.classList.add("active");
       if (checked) item.classList.add("locked");
       if (userRight !== undefined) {
         item.classList.add("matched");
-        applyPairColor(item, L);
+        applyPairColor(item, pos);
         if (checked) {
-          item.classList.add(userRight === expected.get(L) ? "reveal-correct" : "wrong");
+          item.classList.add(userRight === expected.get(srcLeft) ? "reveal-correct" : "wrong");
         }
       }
 
       const label = document.createElement("span");
-      label.textContent = text;
+      label.textContent = q.left[srcLeft];
       const badge = document.createElement("span");
-      badge.className = `pair-badge letter-${L % PAIR_COLORS.length}`;
-      badge.textContent = LETTERS[L] ?? String(L + 1);
+      badge.className = `pair-badge letter-${pos % PAIR_COLORS.length}`;
+      badge.textContent = LETTERS[pos] ?? String(pos + 1);
 
       item.append(label, badge);
-      item.addEventListener("click", () => clickLeftItem(L));
+      item.addEventListener("click", () => clickLeftItem(srcLeft));
       leftColumn.appendChild(item);
     });
 
@@ -288,15 +294,20 @@
 
       const pairedLefts = Object.keys(pairs)
         .filter((l) => pairs[Number(l)] === R)
-        .map(Number);
-      const badgeText = pairedLefts.map((l) => LETTERS[l] ?? String(l + 1)).join(",");
+        .map(Number)
+        // partners listed in on-screen order so the badge reads A,B (not B,A)
+        .sort((a, b) => (leftPos.get(a) ?? a) - (leftPos.get(b) ?? b));
+      // letter of each partner's position in the shuffled left column
+      const badgeText = pairedLefts
+        .map((l) => LETTERS[leftPos.get(l) ?? l] ?? String(l + 1))
+        .join(",");
       if (checked) item.classList.add("locked");
 
       const badge = document.createElement("span");
       badge.className = "pair-badge";
       if (pairedLefts.length > 0) {
         // matched right badges echo their left partner(s)' light color
-        badge.classList.add(`letter-${pairedLefts[0] % PAIR_COLORS.length}`);
+        badge.classList.add(`letter-${(leftPos.get(pairedLefts[0]!) ?? pairedLefts[0]!) % PAIR_COLORS.length}`);
         badge.classList.add("multi");
       }
       badge.textContent = badgeText;
@@ -305,7 +316,7 @@
 
       if (pairedLefts.length > 0) {
         item.classList.add("matched");
-        applyPairColor(item, pairedLefts[0]);
+        applyPairColor(item, leftPos.get(pairedLefts[0]!) ?? pairedLefts[0]!);
       }
 
       item.append(badge, label);

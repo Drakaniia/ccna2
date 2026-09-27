@@ -9,6 +9,7 @@ export interface AttemptState {
   order: number[]; // shuffled question order: display position -> source index
   optionOrders: (number[] | null)[]; // per display position: display index -> source option index
   rightOrders: (number[] | null)[]; // per display position: display index -> source right-column index
+  leftOrders: (number[] | null)[]; // per display position: display index -> source left-column index
   answers: number[][]; // per display position: selected option display indices
   pairs: (Record<number, number> | null)[]; // per display position: left source idx -> right display idx
   skipped: boolean[];
@@ -70,6 +71,9 @@ function buildAttempt(questions: Question[], seed: number, limit?: number): Atte
   const perSourceRight: (number[] | null)[] = questions.map((q) =>
     q.type === "pair" ? seededShuffle(range(q.right.length), rand) : null
   );
+  const perSourceLeft: (number[] | null)[] = questions.map((q) =>
+    q.type === "pair" ? seededShuffle(range(q.left.length), rand) : null
+  );
 
   // Always random: shuffle full order then slice to limit for random subset.
   const fullOrder = seededShuffle(range(total), rand);
@@ -78,12 +82,14 @@ function buildAttempt(questions: Question[], seed: number, limit?: number): Atte
   // Slot shuffles into per-display-position arrays.
   const optionOrders: (number[] | null)[] = order.map((src) => perSourceOption[src]);
   const rightOrders: (number[] | null)[] = order.map((src) => perSourceRight[src]);
+  const leftOrders: (number[] | null)[] = order.map((src) => perSourceLeft[src]);
 
   return {
     seed,
     order,
     optionOrders,
     rightOrders,
+    leftOrders,
     answers: Array.from({ length: effectiveTotal }, () => []),
     pairs: new Array(effectiveTotal).fill(null),
     skipped: new Array(effectiveTotal).fill(false),
@@ -97,9 +103,10 @@ function buildAttempt(questions: Question[], seed: number, limit?: number): Atte
 /* ---------------------------------- lifecycle --------------------------------- */
 
 /**
- * Start a fresh, fully re-shuffled attempt on every page load. Nothing is
- * restored from a previous session, so question 1 is never always the same
- * after a refresh. Returns the active state.
+ * Start a fresh, fully re-shuffled attempt and drop any saved session for this
+ * module. The page only calls this when the user explicitly picks "Start" /
+ * "Start New Exam" — a plain refresh goes through resumeQuiz() instead so the
+ * saved attempt survives. Returns the active state.
  * Applies per-module limit (random subset) if configured.
  */
 export function bootQuiz(moduleId: string, module: ExamModule): AttemptState {
@@ -308,8 +315,22 @@ export function toggleReview(): void {
 }
 
 /**
+ * Fresh seeded shuffle for one column/option list. When the new order comes out
+ * identical to the previous one (a pure random shuffle keeps 2-option lists in
+ * the same order half the time) it is rotated by one so the layout visibly
+ * changes on every retry / reshuffle.
+ */
+function rerollOrder(prev: number[] | null | undefined, length: number): number[] {
+  let next = seededShuffle(range(length), mulberry32(freshSeed()));
+  if (length > 1 && prev && next.length === prev.length && next.every((v, i) => v === prev[i])) {
+    next = [...next.slice(1), next[0]!];
+  }
+  return next;
+}
+
+/**
  * Retry the current question: clear its answer/pairings + feedback and
- * re-shuffle its items (option order for choice, right column for matching)
+ * re-shuffle its items (option order for choice, both columns for matching)
  * so a retry is not just the same layout. Uses a fresh seeded shuffle so
  * the layout actually changes on every retry (including 2-option questions
  * where a pure random shuffle would keep the original order 50% of the time).
@@ -320,27 +341,41 @@ export function clearCurrentAnswer(): void {
     const p = s.current;
     const q = ctx!.module.questions[s.order[p]];
     if (q.type === "pair") {
-      const prev = s.rightOrders[p] ?? [];
-      let next = seededShuffle(range(q.right.length), mulberry32(freshSeed()));
-      // Force a visible change when possible (2-4 items would otherwise stay identical ~25-50% of retries)
-      if (q.right.length > 1 && next.length === prev.length && next.every((v, i) => v === prev[i])) {
-        // Simple derangement guarantee: rotate by one
-        next = [...next.slice(1), next[0]!];
-      }
-      s.rightOrders[p] = next;
+      s.rightOrders[p] = rerollOrder(s.rightOrders[p], q.right.length);
+      s.leftOrders[p] = rerollOrder(s.leftOrders[p], q.left.length);
       s.pairs[p] = null;
     } else {
-      const prev = s.optionOrders[p] ?? [];
-      let next = seededShuffle(range(q.options.length), mulberry32(freshSeed()));
-      if (q.options.length > 1 && next.length === prev.length && next.every((v, i) => v === prev[i])) {
-        next = [...next.slice(1), next[0]!];
-      }
-      s.optionOrders[p] = next;
+      s.optionOrders[p] = rerollOrder(s.optionOrders[p], q.options.length);
       s.answers[p] = [];
     }
     s.checked[p] = false;
     s.reviewed[p] = false;
     s.skipped[p] = false;
+    ctx!.activeLeft = null;
+  });
+}
+
+/**
+ * Randomize the current question's layout without touching an answer: the
+ * option order for choice questions, both columns for matching questions.
+ * Only allowed while nothing is recorded for the question — answers/pairings
+ * are stored as display indices, so moving the items afterwards would
+ * silently re-point them. Once Check has run, Retry (clearCurrentAnswer)
+ * shuffles and clears at the same time instead.
+ */
+export function reshuffleCurrent(): void {
+  const s = getState();
+  if (!ctx || !s) return;
+  const p = s.current;
+  if (s.checked[p] || hasAnswerFor(p)) return;
+  mutate((st) => {
+    const q = ctx!.module.questions[st.order[p]];
+    if (q.type === "pair") {
+      st.rightOrders[p] = rerollOrder(st.rightOrders[p], q.right.length);
+      st.leftOrders[p] = rerollOrder(st.leftOrders[p], q.left.length);
+    } else {
+      st.optionOrders[p] = rerollOrder(st.optionOrders[p], q.options.length);
+    }
     ctx!.activeLeft = null;
   });
 }
@@ -448,4 +483,161 @@ export function clearSaved(moduleId: string): void {
   } catch {
     /* ignore */
   }
+}
+
+/* ----------------------------------- resume ---------------------------------- */
+
+/** True when the value is a permutation of 0..len-1 (a valid saved shuffle). */
+function isPermutation(value: unknown, len: number): value is number[] {
+  return (
+    Array.isArray(value) &&
+    value.length === len &&
+    value.every((x) => Number.isInteger(x) && x >= 0 && x < len) &&
+    new Set(value).size === len
+  );
+}
+
+/**
+ * Validate + normalize a parsed payload from localStorage against the module's
+ * question data. Anything structurally off (stale shuffle, wrong option counts,
+ * out-of-range indices) is repaired or rejected here so a corrupt save can
+ * never crash the renderers — worst case it returns null and a fresh attempt
+ * is offered instead.
+ */
+function normalizeSaved(data: unknown, module: ExamModule): AttemptState | null {
+  if (!data || typeof data !== "object") return null;
+  const d = data as Partial<AttemptState>;
+
+  // The order array is the backbone: display position -> source question index.
+  const order = d.order;
+  const sourceCount = module.questions.length;
+  if (
+    !Array.isArray(order) ||
+    order.length === 0 ||
+    !order.every((i) => Number.isInteger(i) && i >= 0 && i < sourceCount) ||
+    new Set(order).size !== order.length
+  ) {
+    return null;
+  }
+  const n = order.length;
+
+  // Per-position shuffles must line up with the question they belong to,
+  // otherwise answers would be graded against the wrong option layout.
+  const optionOrders: (number[] | null)[] = [];
+  const rightOrders: (number[] | null)[] = [];
+  const leftOrders: (number[] | null)[] = [];
+  for (let p = 0; p < n; p += 1) {
+    const q = module.questions[order[p]!];
+    const oo = d.optionOrders?.[p];
+    const ro = d.rightOrders?.[p];
+    if (q.type === "pair") {
+      if (!isPermutation(ro, q.right.length)) return null;
+      // Saves written before the left column was shuffled have no leftOrders:
+      // fall back to source order, which is exactly what they were showing.
+      // The left order never affects grading, so repairing is always safe.
+      const lo = d.leftOrders?.[p];
+      optionOrders.push(null);
+      rightOrders.push(ro);
+      leftOrders.push(isPermutation(lo, q.left.length) ? lo : range(q.left.length));
+    } else {
+      if (!isPermutation(oo, q.options.length)) return null;
+      optionOrders.push(oo);
+      rightOrders.push(null);
+      leftOrders.push(null);
+    }
+  }
+
+  // Selected display indices — drop anything outside the question's options.
+  const answers: number[][] = Array.from({ length: n }, (_, p) => {
+    const q = module.questions[order[p]!];
+    const raw = d.answers?.[p];
+    if (q.type === "pair" || !Array.isArray(raw)) return [];
+    return raw.filter(
+      (x, i) =>
+        Number.isInteger(x) && x >= 0 && x < q.options.length && raw.indexOf(x) === i,
+    );
+  });
+
+  // Pairings — keep only left/right indices the question actually has.
+  const pairs: (Record<number, number> | null)[] = Array.from({ length: n }, (_, p) => {
+    const q = module.questions[order[p]!];
+    const raw = d.pairs?.[p];
+    if (q.type !== "pair" || !raw || typeof raw !== "object") return null;
+    const out: Record<number, number> = {};
+    for (const [l, r] of Object.entries(raw)) {
+      const li = Number(l);
+      const ri = Number(r);
+      if (
+        Number.isInteger(li) && li >= 0 && li < q.left.length &&
+        Number.isInteger(ri) && ri >= 0 && ri < q.right.length
+      ) {
+        out[li] = ri;
+      }
+    }
+    return Object.keys(out).length > 0 ? out : null;
+  });
+
+  const bools = (v: unknown): boolean[] =>
+    Array.from({ length: n }, (_, i) => Array.isArray(v) && v[i] === true);
+
+  const phase = d.phase === "submit" || d.phase === "result" ? d.phase : "quiz";
+  let result: AttemptResult | undefined;
+  if (phase === "result") {
+    const r = d.result;
+    if (
+      !r || typeof r !== "object" ||
+      !Number.isFinite(r.score) || !Number.isFinite(r.correct) || !Number.isFinite(r.total)
+    ) {
+      return null; // a result screen without a grade is unusable — drop the save
+    }
+    result = {
+      score: Math.round(r.score),
+      correct: Math.round(r.correct),
+      total: Math.round(r.total),
+      passed: !!r.passed,
+    };
+  }
+
+  return {
+    seed: Number.isFinite(d.seed) ? (d.seed as number) : 0,
+    order,
+    optionOrders,
+    rightOrders,
+    leftOrders,
+    answers,
+    pairs,
+    skipped: bools(d.skipped),
+    current: Number.isInteger(d.current)
+      ? Math.min(Math.max(d.current as number, 0), n - 1)
+      : 0,
+    checked: bools(d.checked),
+    reviewed: bools(d.reviewed),
+    phase,
+    ...(result ? { result } : {}),
+  };
+}
+
+/** Read + validate the saved attempt without booting the quiz (intro screen). */
+export function loadSaved(moduleId: string, module: ExamModule): AttemptState | null {
+  try {
+    const raw = localStorage.getItem(storageKey(moduleId));
+    if (!raw) return null;
+    return normalizeSaved(JSON.parse(raw), module);
+  } catch {
+    return null;
+  }
+}
+
+/**
+ * Reinstate a previously saved attempt as the live session — answers, pairings,
+ * Check feedback, review flags, skip state, position and phase all come back
+ * exactly as they were. Returns null when there is no usable save (the caller
+ * falls back to bootQuiz for a fresh start).
+ */
+export function resumeQuiz(moduleId: string, module: ExamModule): AttemptState | null {
+  const state = loadSaved(moduleId, module);
+  if (!state) return null;
+  ctx = { moduleId, module, state, activeLeft: null };
+  emit(); // re-persist (normalized) and paint every subscribed view
+  return state;
 }

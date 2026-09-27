@@ -255,6 +255,7 @@ PAIRS = {
             "A message that is used to acknowledge that the lease is successful",
             "A message that is used to identify the explicit server and lease offer to accept",
             "A message that is used to suggest a lease to a client",
+            "A message is used by a server to finalize a successful lease with a client",
         ],
         right=[
             "DHCPREQUEST",
@@ -263,7 +264,10 @@ PAIRS = {
             "DHCPDISCOVER",
             "DHCPACK",
         ],
-        correctPairs={0: 3, 1: 4, 2: 0, 3: 2},
+        # DHCPACK answers both lease-finalization statements, so two left items
+        # share that target and DHCPNAK is the unused decoy.
+        correctPairs={0: 3, 1: 4, 2: 0, 3: 2, 4: 4},
+        allowMultiMatch=True,
         explanation=(
             "Explanation: Topic 7.1.3\n"
             "The correct pairings are:\n"
@@ -271,7 +275,8 @@ PAIRS = {
             "- a message that is used to suggest a lease to a client \u2192 DHCPOFFER\n"
             "- a message that is used to identify the explicit server and lease offer to accept \u2192 DHCPREQUEST\n"
             "- a message that is used to acknowledge that the lease is successful \u2192 DHCPACK\n"
-            "DHCPNAK is not used."
+            "- a message is used by a server to finalize a successful lease with a client \u2192 DHCPACK\n"
+            "DHCPACK finalizes the lease in both statements, so DHCPNAK is not used."
         ),
     ),
     97: dict(

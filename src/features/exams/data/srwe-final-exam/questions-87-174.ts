@@ -107,6 +107,7 @@ export const questions87to174: Question[] = [
       "A message that is used to acknowledge that the lease is successful",
       "A message that is used to identify the explicit server and lease offer to accept",
       "A message that is used to suggest a lease to a client",
+      "A message is used by a server to finalize a successful lease with a client",
     ],
     right: [
       "DHCPREQUEST",
@@ -115,8 +116,11 @@ export const questions87to174: Question[] = [
       "DHCPDISCOVER",
       "DHCPACK",
     ],
-    correctPairs: { 0: 3, 1: 4, 2: 0, 3: 2 },
-    explanation: "Explanation: Topic 7.1.3\nThe correct pairings are:\n- a message that is used to locate any available DHCP server on a network → DHCPDISCOVER\n- a message that is used to suggest a lease to a client → DHCPOFFER\n- a message that is used to identify the explicit server and lease offer to accept → DHCPREQUEST\n- a message that is used to acknowledge that the lease is successful → DHCPACK\nDHCPNAK is not used.",
+    // DHCPACK answers both lease-finalization statements, so two left items
+    // share that target and DHCPNAK is the unused decoy.
+    correctPairs: { 0: 3, 1: 4, 2: 0, 3: 2, 4: 4 },
+    allowMultiMatch: true,
+    explanation: "Explanation: Topic 7.1.3\nThe correct pairings are:\n- a message that is used to locate any available DHCP server on a network → DHCPDISCOVER\n- a message that is used to suggest a lease to a client → DHCPOFFER\n- a message that is used to identify the explicit server and lease offer to accept → DHCPREQUEST\n- a message that is used to acknowledge that the lease is successful → DHCPACK\n- A message is used by a server to finalize a successful lease with a client → DHCPACK\nDHCPACK finalizes the lease in both statements, so DHCPNAK is not used.",
   },
   {
     number: 94,

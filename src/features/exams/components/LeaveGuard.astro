@@ -3,19 +3,21 @@ import { WarnIcon } from "./lucide-icons.tsx";
 ---
 
 {/**
- * Leave guard — a mid-exam attempt is thrown away on reload (bootQuiz re-shuffles
- * every time), so two ways out ask first:
+ * Leave guard — two ways out ask first, both through this one modal:
  *
  *  - in-app links (drawer module links, the brand link): a real modal, because
  *    these are ordinary clicks we can cancel and re-ask with our own wording.
- *  - F5 / browser refresh button / mobile reload / close tab: `beforeunload`,
- *    which is the only hook those fire. Browsers render their own wording there
- *    and ignore anything we set, so the copy here is deliberately redundant
- *    with the intro screen's "do not refresh" warning.
+ *  - F5 / browser refresh button / mobile reload / close tab: the keyboard
+ *    shortcuts (F5, Ctrl/Cmd+R) are intercepted and asked through the same
+ *    modal, since the browser's native beforeunload dialog can't be styled or
+ *    reworded. The toolbar reload button and tab close can't be seen by page
+ *    script at all, so they now go through silently — safe, because every
+ *    answer is persisted to localStorage on each change and the intro screen
+ *    offers to resume afterwards.
  *
- * Both gates only stand while an attempt is in progress (phase quiz or submit).
- * On the intro screen there is nothing to lose, and after the result lands the
- * exam is over.
+ * The guard only stands while an attempt is in progress (phase quiz or submit).
+ * On the intro screen there is nothing live to interrupt, and after the result
+ * lands the exam is over (the saved result is restored on the next visit).
  */}
 
 <div class="leave-guard-scrim" id="leaveGuard" hidden>
@@ -31,8 +33,8 @@ import { WarnIcon } from "./lucide-icons.tsx";
     </div>
     <h2 id="leaveGuardTitle" class="confirm-title">Leave this exam?</h2>
     <p id="leaveGuardDesc" class="confirm-desc">
-      Your progress is not saved. Leaving now restarts this exam from question&nbsp;1 with a
-      brand-new random set of questions.
+      Your progress is saved. You can resume this exam with all your answers whenever you
+      come back to it.
     </p>
     <div class="leave-guard-actions">
       <button type="button" class="link-btn" id="leaveGuardStay">Keep taking exam</button>
@@ -54,10 +56,11 @@ import { WarnIcon } from "./lucide-icons.tsx";
   const stayBtn = document.getElementById("leaveGuardStay") as HTMLButtonElement | null;
   const goBtn = document.getElementById("leaveGuardGo") as HTMLButtonElement | null;
   const descEl = document.getElementById("leaveGuardDesc");
+  const titleEl = document.getElementById("leaveGuardTitle");
 
   if (scrim && stayBtn && goBtn && !scrim.dataset.ready) {
     scrim.dataset.ready = "1";
-    start(scrim, stayBtn, goBtn, descEl);
+    start(scrim, stayBtn, goBtn, descEl, titleEl);
   }
 
   function start(
@@ -65,10 +68,12 @@ import { WarnIcon } from "./lucide-icons.tsx";
     stay: HTMLButtonElement,
     go: HTMLButtonElement,
     desc: HTMLElement | null,
+    title: HTMLElement | null,
   ): void {
     /** Set once the user has said yes, so the hop out skips every gate. */
     let bypass = false;
-    let pendingHref: string | null = null;
+    /** What the user asked for: navigate away, or reload this page. */
+    let pending: { kind: "leave"; href: string } | { kind: "reload" } | null = null;
     let lastFocused: HTMLElement | null = null;
     let closing = false;
 
@@ -88,16 +93,21 @@ import { WarnIcon } from "./lucide-icons.tsx";
       return ` You have answered ${answered} of ${total} question${total !== 1 ? "s" : ""}.`;
     }
 
-    function open(href: string | null): void {
+    function open(next: { kind: "leave"; href: string } | { kind: "reload" }): void {
       if (!root.hidden) return;
       closing = false;
-      pendingHref = href;
+      pending = next;
       lastFocused = document.activeElement as HTMLElement | null;
+      const isReload = next.kind === "reload";
+      if (title) {
+        title.textContent = isReload ? "Reload the page?" : "Leave this exam?";
+      }
+      go.textContent = isReload ? "Reload page" : "Leave exam";
       if (desc) {
-        const lead = href
-          ? "Leaving now restarts this exam from question 1 with a brand-new random set of questions."
-          : "Reloading now restarts this exam from question 1 with a brand-new random set of questions.";
-        desc.textContent = "Your progress is not saved. " + lead + progressLine();
+        const lead = isReload
+          ? "Reloading won’t lose your answers — you can resume this exam right where you left off."
+          : "You can resume this exam with all your answers whenever you come back to it.";
+        desc.textContent = "Your progress is saved automatically. " + lead + progressLine();
       }
       root.hidden = false;
       document.body.style.overflow = "hidden";
@@ -112,7 +122,7 @@ import { WarnIcon } from "./lucide-icons.tsx";
     function close(): void {
       if (closing) return;
       closing = true;
-      pendingHref = null;
+      pending = null;
       root.classList.remove("is-open");
       document.body.style.overflow = "";
       window.removeEventListener("keydown", onKey, true);
@@ -122,11 +132,16 @@ import { WarnIcon } from "./lucide-icons.tsx";
       }, 180);
     }
 
-    function leave(): void {
-      const href = pendingHref;
+    function confirmLeave(): void {
+      const next = pending;
       bypass = true;
       close();
-      if (href) window.location.assign(href);
+      if (next?.kind === "leave") {
+        window.location.assign(next.href);
+      } else if (next?.kind === "reload") {
+        // After the modal has folded away, so the click feels acknowledged.
+        window.setTimeout(() => window.location.reload(), 200);
+      }
     }
 
     function onKey(e: KeyboardEvent): void {
@@ -151,16 +166,29 @@ import { WarnIcon } from "./lucide-icons.tsx";
       }
     }
 
-    /* ---------------- reload / F5 / refresh button / mobile reload ---------------- */
+    /* --------- custom refresh confirmation (F5 / Ctrl+R / Cmd+R) ---------- */
 
-    window.addEventListener("beforeunload", (e) => {
-      if (bypass || !inProgress()) return;
-      e.preventDefault();
-      // The spec prompts on the canceled flag alone; returnValue is the legacy
-      // belt-and-braces. Either way browsers use their own wording and ignore
-      // whatever string is assigned here.
-      (e as unknown as { returnValue: string }).returnValue = "";
-    });
+    // The native beforeunload dialog can't be styled or reworded, so keyboard
+    // refresh is caught here and asked through our own modal instead. Capture
+    // phase wins over the exam page's arrow/R shortcuts (and stops the reload
+    // before the browser sees it). The toolbar reload button can't be detected
+    // from page script — it reloads silently, which is fine now that every
+    // change is saved and the intro screen offers to resume.
+    window.addEventListener(
+      "keydown",
+      (e) => {
+        if (bypass || !inProgress()) return;
+        if (e.defaultPrevented) return;
+        const isRefresh =
+          e.key === "F5" ||
+          ((e.ctrlKey || e.metaKey) && !e.altKey && (e.key === "r" || e.key === "R"));
+        if (!isRefresh) return;
+        e.preventDefault();
+        e.stopPropagation();
+        open({ kind: "reload" });
+      },
+      true,
+    );
 
     /* ------------------------- in-app link navigation -------------------------- */
 
@@ -192,7 +220,7 @@ import { WarnIcon } from "./lucide-icons.tsx";
       if (url.pathname === window.location.pathname && url.search === window.location.search) return;
 
       e.preventDefault();
-      open(url.href);
+      open({ kind: "leave", href: url.href });
     });
 
     root.addEventListener("click", (e) => {
@@ -200,7 +228,7 @@ import { WarnIcon } from "./lucide-icons.tsx";
       if (e.target === root) close();
     });
     stay.addEventListener("click", close);
-    go.addEventListener("click", leave);
+    go.addEventListener("click", confirmLeave);
   }
 </script>
 
