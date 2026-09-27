@@ -1,0 +1,214 @@
+---
+import { FollowIcon } from "./lucide-icons.tsx";
+import { GITHUB_HANDLE, GITHUB_URL } from "../lib/follow-prompt";
+
+/**
+ * "Follow me on GitHub" prompt.
+ *
+ * Shows once per page load, counts down 5s, then dismisses itself. Dismissing
+ * is a deferral: the prompt returns on the next visit until the GitHub link is
+ * actually clicked (see `lib/follow-prompt.ts`).
+ *
+ * The GIF src is injected by the script only when the prompt is eligible to
+ * show, so visitors who have already followed never pay for the download.
+ */
+
+const abs = (p: string) => `${import.meta.env.BASE_URL.replace(/\/?$/, "/")}${p}`;
+const GIF_SRC = abs("images/cat-please.gif");
+const RING = 2 * Math.PI * 15.5; // r=15.5 on a 34px viewBox
+---
+
+<div class="follow-scrim" id="followScrim" data-gif={GIF_SRC} hidden>
+  <div
+    class="follow-modal"
+    role="dialog"
+    aria-modal="true"
+    aria-labelledby="followTitle"
+    aria-describedby="followDesc"
+  >
+    <div class="follow-media">
+      <img
+        id="followGif"
+        alt="A cat standing on its hind legs, asking for something please"
+        width="400"
+        height="303"
+        decoding="async"
+      />
+      <button type="button" class="follow-close" id="followClose" aria-label="Dismiss for now">
+        <svg class="follow-ring" viewBox="0 0 34 34" aria-hidden="true" focusable="false">
+          <circle class="follow-ring-track" cx="17" cy="17" r="15.5" />
+          <circle
+            class="follow-ring-arc"
+            id="followRing"
+            cx="17"
+            cy="17"
+            r="15.5"
+            stroke-dasharray={RING}
+            stroke-dashoffset="0"
+          />
+        </svg>
+        <svg class="follow-x" viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+          <path d="M6 6l12 12M18 6L6 18" />
+        </svg>
+      </button>
+    </div>
+
+    <div class="follow-body">
+      <h2 id="followTitle" class="follow-title">Did this help you pass?</h2>
+      <p id="followDesc" class="follow-desc">
+        These CCNA 2 v7 practice exams are free and open source. If this helped you pass
+        the exam, a follow would be greatly appreciated.
+      </p>
+
+      <div class="follow-actions">
+        <a
+          class="follow-cta"
+          id="followCta"
+          href={GITHUB_URL}
+          target="_blank"
+          rel="noopener noreferrer"
+        >
+          <FollowIcon size={18} strokeWidth={2.2} />
+          <span>Follow @{GITHUB_HANDLE}</span>
+        </a>
+        <button type="button" class="link-btn follow-later" id="followLater">Maybe later</button>
+      </div>
+
+      <p class="follow-foot" aria-live="off">
+        <span id="followCount">Closes in 5s</span>
+      </p>
+    </div>
+  </div>
+</div>
+
+<script>
+  import { GITHUB_URL, hasFollowed, markFollowed } from "../lib/follow-prompt";
+
+  const DURATION = 5000;
+
+  /**
+   * Two ways in, matching the app's existing CustomEvent convention:
+   *  - any element carrying `data-follow-open` (the credit). Always opens: the
+   *    visitor asked for it by clicking, so following is no longer required.
+   *  - `follow:open` on document, dispatched by the exam page when the score
+   *    lands. This one is an *ask*, not a request, so it goes quiet for good
+   *    once the visitor has followed.
+   */
+  const OPEN_EVENT = "follow:open";
+
+  const scrim = document.getElementById("followScrim");
+  if (scrim && !scrim.dataset.ready) {
+    scrim.dataset.ready = "1";
+    start(scrim);
+  }
+
+  function start(root: HTMLElement): void {
+    const modal = root.querySelector<HTMLElement>(".follow-modal")!;
+    const gif = root.querySelector<HTMLImageElement>("#followGif")!;
+    const cta = root.querySelector<HTMLAnchorElement>("#followCta")!;
+    const ring = root.querySelector<SVGElement>("#followRing")!;
+    const count = root.querySelector<HTMLElement>("#followCount")!;
+    const focusables = () =>
+      Array.from(
+        modal.querySelectorAll<HTMLElement>('a[href], button:not([disabled])'),
+      );
+
+    let raf = 0;
+    let openedAt = 0;
+    let closing = false;
+    let lastFocused: HTMLElement | null = null;
+
+    // The countdown is what earns the prompt its screen time: 5s of
+    // uninterrupted attention, then it gets out of the way on its own.
+    function tick(now: number): void {
+      const left = Math.max(0, DURATION - (now - openedAt));
+      ring.style.strokeDashoffset = String(94.248 * (left / DURATION));
+      const seconds = Math.ceil(left / 1000);
+      if (count.textContent !== `Closes in ${seconds}s`) {
+        count.textContent = `Closes in ${seconds}s`;
+      }
+      if (left > 0) {
+        raf = requestAnimationFrame(tick);
+      } else {
+        close(false);
+      }
+    }
+
+    function open(): void {
+      // Already up — don't yank it out from under whoever is reading it.
+      if (!root.hidden) return;
+      closing = false;
+      lastFocused = document.activeElement as HTMLElement | null;
+      // Deferred so visitors who already followed never download the GIF.
+      gif.src = root.dataset.gif ?? "";
+      root.hidden = false;
+      document.body.style.overflow = "hidden";
+      // Capture phase so this wins over the exam page's global Escape handler.
+      window.addEventListener("keydown", onKey, true);
+      requestAnimationFrame(() => {
+        root.classList.add("is-open");
+        cta.focus({ preventScroll: true });
+        openedAt = performance.now();
+        raf = requestAnimationFrame(tick);
+      });
+    }
+
+    function close(pressedCta: boolean): void {
+      if (closing) return;
+      closing = true;
+      cancelAnimationFrame(raf);
+      // Only a real click on the CTA retires the prompt; everything else defers.
+      if (pressedCta) markFollowed();
+      root.classList.remove("is-open");
+      document.body.style.overflow = "";
+      window.removeEventListener("keydown", onKey, true);
+      window.setTimeout(() => {
+        root.hidden = true;
+        gif.removeAttribute("src");
+        lastFocused?.focus?.({ preventScroll: true });
+      }, 260);
+    }
+
+    function onKey(e: KeyboardEvent): void {
+      if (e.key === "Escape") {
+        e.preventDefault();
+        e.stopPropagation();
+        close(false);
+        return;
+      }
+      if (e.key !== "Tab") return;
+      // Keep Tab inside the dialog — it is modal, so the page behind is inert.
+      const items = focusables();
+      if (items.length === 0) return;
+      const first = items[0];
+      const last = items[items.length - 1];
+      if (e.shiftKey && document.activeElement === first) {
+        e.preventDefault();
+        last.focus();
+      } else if (!e.shiftKey && document.activeElement === last) {
+        e.preventDefault();
+        first.focus();
+      }
+    }
+
+    root.addEventListener("click", (e) => {
+      // Backdrop click defers, same as the countdown.
+      if (e.target === root) close(false);
+    });
+    root.querySelector("#followClose")!.addEventListener("click", () => close(false));
+    root.querySelector("#followLater")!.addEventListener("click", () => close(false));
+    // The one interaction that retires the prompt for good.
+    cta.addEventListener("click", () => close(cta.href.startsWith(GITHUB_URL)));
+
+    document
+      .querySelectorAll<HTMLElement>("[data-follow-open]")
+      .forEach((el) => el.addEventListener("click", open));
+    document.addEventListener(OPEN_EVENT, () => {
+      if (!hasFollowed()) open();
+    });
+
+    // First load of a session asks once; after that only the result screen
+    // and the credit bring it back.
+    if (!hasFollowed()) open();
+  }
+</script>

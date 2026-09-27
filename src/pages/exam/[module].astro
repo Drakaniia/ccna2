@@ -7,6 +7,7 @@ import ChoiceOptions from "../../features/exams/components/ChoiceOptions.astro";
 import PairingBoard from "../../features/exams/components/PairingBoard.astro";
 import SubmitOverlay from "../../features/exams/components/SubmitOverlay.astro";
 import ResultScreen from "../../features/exams/components/ResultScreen.astro";
+import FollowModal from "../../features/exams/components/FollowModal.astro";
 import { availableModules, moduleRegistry } from "../../features/exams/data";
 
 export async function getStaticPaths() {
@@ -82,6 +83,14 @@ const abs = (p: string) => `${import.meta.env.BASE_URL.replace(/\/?$/, "/")}${p}
     {/** question-type renderers mount into #qBody (inside QuestionView) */}
     <ChoiceOptions />
     <PairingBoard />
+
+    <div class="site-credit site-credit-exam">
+      <button type="button" class="site-credit-btn" data-follow-open>
+        Made with 🧡 by Alistair Ybanez
+      </button>
+    </div>
+
+    <FollowModal />
 
     <style is:global>
       /* Intro screen — minimal centered, no box background */
@@ -268,6 +277,8 @@ const abs = (p: string) => `${import.meta.env.BASE_URL.replace(/\/?$/, "/")}${p}
         /* ---------------- static chrome that needs re-rendering ---------------- */
 
         let lastShellPos = -1;
+        let lastPhase = "";
+        let followTimer = 0;
 
         subscribe(chrome);
 
@@ -351,6 +362,21 @@ const abs = (p: string) => `${import.meta.env.BASE_URL.replace(/\/?$/, "/")}${p}
 
           if (st.phase === "submit") renderSubmitView();
           if (st.phase === "result") renderResultView();
+
+          // Edge-triggered, so the prompt asks once when the score lands and not
+          // again on every later quiz:change while the result screen is still up.
+          // Delayed so the gauge and score read first — the follow ask comes
+          // after the result lands, never on top of it. The prompt ignores the
+          // request once GitHub has been followed.
+          if (st.phase !== lastPhase) {
+            lastPhase = st.phase;
+            window.clearTimeout(followTimer);
+            if (st.phase === "result") {
+              followTimer = window.setTimeout(() => {
+                document.dispatchEvent(new CustomEvent("follow:open"));
+              }, 2200);
+            }
+          }
         }
 
         /** Reveal-only exhibit images are shown once the question is checked. */

@@ -1,6 +1,7 @@
 ---
 import "../styles/global.css";
 import ExamHeader from "../features/exams/components/ExamHeader.astro";
+import FollowModal from "../features/exams/components/FollowModal.astro";
 import { ArrowRightIcon } from "../features/exams/components/lucide-icons.tsx";
 import { moduleRegistry } from "../features/exams/data";
 
@@ -63,8 +64,13 @@ const abs = (p: string) => `${import.meta.env.BASE_URL.replace(/\/?$/, "/")}${p}
           }
         </section>
       </main>
-      <footer class="site-credit" aria-label="Site credit">Made with 🧡 by Alistair Ybanez</footer>
+      <footer class="site-credit">
+        <button type="button" class="site-credit-btn" data-follow-open>
+          Made with 🧡 by Alistair Ybanez
+        </button>
+      </footer>
     </div>
+    <FollowModal />
   </body>
 </html>
 
@@ -173,20 +179,5 @@ const abs = (p: string) => `${import.meta.env.BASE_URL.replace(/\/?$/, "/")}${p}
     position: fixed;
     bottom: 14px;
     right: 18px;
-    font-size: 13px;
-    font-weight: 500;
-    color: var(--muted);
-    background: rgba(255, 255, 255, 0.88);
-    border: 1px solid var(--border);
-    border-radius: 20px;
-    padding: 6px 12px;
-    backdrop-filter: blur(6px);
-    z-index: 10;
-    line-height: 1;
-  }
-
-  html[data-theme="dark"] .site-credit {
-    background: rgba(35, 39, 45, 0.9);
-    color: var(--muted);
   }
 </style>

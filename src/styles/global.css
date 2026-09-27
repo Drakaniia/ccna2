@@ -417,6 +417,77 @@ html[data-theme="dark"] .module-card.disabled h2 {
 }
 
 /* ==========================================================================
+   Site credit — a frosted chip that opens the follow prompt.
+   ========================================================================== */
+
+.site-credit {
+  position: fixed;
+  bottom: 14px;
+  right: 18px;
+  z-index: 10;
+}
+
+.site-credit-btn {
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--muted);
+  background: rgba(255, 255, 255, 0.88);
+  border: 1px solid var(--border);
+  border-radius: 20px;
+  padding: 6px 12px;
+  line-height: 1;
+  cursor: pointer;
+  -webkit-backdrop-filter: blur(6px);
+  backdrop-filter: blur(6px);
+  transition: transform 100ms ease-out, color 140ms ease, border-color 140ms ease;
+}
+
+.site-credit-btn:hover {
+  color: var(--text);
+  border-color: var(--cyan);
+}
+
+/* Feedback on the press, not the release. */
+.site-credit-btn:active { transform: scale(0.97); }
+
+/* On the exam page the chip belongs to the result screen only — during an
+   active exam it would sit on top of the question, and the intro/submit
+   screens are full-bleed. The active phase is mirrored onto <body> as
+   intro | quiz | submit | result, so gate on it rather than duplicating the
+   markup. The button stays in the DOM (display:none keeps the listener that
+   FollowModal binds at init), so no JS change is needed. */
+body:not([data-phase="result"]) .site-credit-exam {
+  display: none;
+}
+
+/* The result screen is a full-viewport overlay at z-index 60, so the chip has to
+   clear it to stay visible — and it keeps the base bottom/right offset, which
+   no longer has to dodge the quiz footer since the footer is covered here. */
+.site-credit-exam {
+  z-index: 70;
+}
+
+html[data-theme="dark"] .site-credit-btn {
+  background: rgba(35, 39, 45, 0.9);
+  color: var(--muted);
+}
+
+/* Reduced motion — keep the colour response, drop the scale. */
+@media (prefers-reduced-motion: reduce) {
+  .site-credit-btn:active { transform: none; }
+}
+
+/* Reduced transparency — frost into an opaque chip. */
+@media (prefers-reduced-transparency: reduce) {
+  .site-credit-btn {
+    background: #fff;
+    -webkit-backdrop-filter: none;
+    backdrop-filter: none;
+  }
+  html[data-theme="dark"] .site-credit-btn { background: #23272d; }
+}
+
+/* ==========================================================================
    Settings modal — centered card over dimmed scrim (matches drawer frosting).
    ========================================================================== */
 
@@ -753,3 +824,217 @@ html[data-theme="dark"] .confirm-icon {
 
 html[data-theme="dark"] .confirm-title { color: var(--text); }
 html[data-theme="dark"] .confirm-desc { color: var(--muted); }
+
+/* ==========================================================================
+   Follow prompt — self-dismissing GitHub CTA, 5s countdown.
+   Shares the settings modal's material and scrim values, but drives its
+   enter/exit with transitions so the exit can play along the same path.
+   ========================================================================== */
+
+.follow-scrim {
+  position: fixed;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  padding: 20px;
+  background: rgba(0, 0, 0, 0.36);
+  z-index: 360;
+  opacity: 0;
+  transition: opacity 200ms ease;
+}
+
+.follow-scrim.is-open { opacity: 1; }
+
+.follow-modal {
+  width: min(400px, 92vw);
+  overflow: hidden;
+  background: rgba(255, 255, 255, 0.96);
+  -webkit-backdrop-filter: blur(18px) saturate(160%);
+  backdrop-filter: blur(18px) saturate(160%);
+  border: 1px solid rgba(255, 255, 255, 0.6);
+  border-radius: 18px;
+  box-shadow: 0 18px 50px rgba(0, 0, 0, 0.22), 0 0 0 1px rgba(0, 0, 0, 0.04);
+  color: var(--text);
+  /* Materialize: blur radius and scale arrive together so the surface reads
+     as a material landing, not a plain opacity fade. */
+  opacity: 0;
+  transform: translateY(12px) scale(0.94);
+  transition:
+    opacity 200ms ease,
+    transform 300ms cubic-bezier(0.32, 0.72, 0, 1),
+    -webkit-backdrop-filter 300ms ease,
+    backdrop-filter 300ms ease;
+  -webkit-backdrop-filter: blur(0px) saturate(100%);
+  backdrop-filter: blur(0px) saturate(100%);
+}
+
+.follow-scrim.is-open .follow-modal {
+  opacity: 1;
+  transform: translateY(0) scale(1);
+  -webkit-backdrop-filter: blur(18px) saturate(160%);
+  backdrop-filter: blur(18px) saturate(160%);
+}
+
+.follow-media {
+  position: relative;
+  line-height: 0;
+  background: #f2f3f4;
+  border-bottom: 1px solid var(--border);
+}
+
+.follow-media img {
+  display: block;
+  width: 100%;
+  height: auto;
+}
+
+/* Close button wears the countdown as a depleting ring. */
+.follow-close {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  width: 34px;
+  height: 34px;
+  display: grid;
+  place-items: center;
+  border: 0;
+  border-radius: 50%;
+  background: rgba(0, 0, 0, 0.5);
+  color: #fff;
+  cursor: pointer;
+  transition: transform 100ms ease-out, background 140ms ease;
+}
+
+.follow-close:hover { background: rgba(0, 0, 0, 0.62); }
+.follow-close:active { transform: scale(0.9); }
+
+.follow-ring {
+  position: absolute;
+  inset: 0;
+  width: 34px;
+  height: 34px;
+  transform: rotate(-90deg);
+}
+
+.follow-ring-track,
+.follow-ring-arc {
+  fill: none;
+  stroke-width: 2.5;
+  stroke-linecap: round;
+}
+
+.follow-ring-track { stroke: rgba(255, 255, 255, 0.22); }
+.follow-ring-arc { stroke: #fff; }
+
+.follow-x {
+  width: 15px;
+  height: 15px;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 2.4;
+  stroke-linecap: round;
+}
+
+.follow-body {
+  padding: 18px 22px 16px;
+  text-align: center;
+}
+
+.follow-title {
+  margin: 0 0 7px;
+  font-size: 19px;
+  font-weight: 800;
+  letter-spacing: -0.3px;
+  color: var(--text);
+}
+
+.follow-desc {
+  margin: 0;
+  font-size: 14px;
+  line-height: 1.55;
+  color: var(--muted);
+}
+
+.follow-actions {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+  margin-top: 18px;
+}
+
+.follow-cta {
+  display: inline-flex;
+  align-items: center;
+  gap: 9px;
+  padding: 11px 22px;
+  border-radius: 25px;
+  background: #171b1e;
+  color: #fff;
+  font-size: 14px;
+  font-weight: 600;
+  text-decoration: none;
+  transition: transform 100ms ease-out, background 140ms ease;
+}
+
+.follow-cta:hover { background: #2b3237; }
+.follow-cta:active { transform: scale(0.97); }
+
+.follow-later { font-size: 13px; color: var(--muted); }
+
+.follow-foot {
+  margin: 14px 0 0;
+  font-size: 11.5px;
+  letter-spacing: 0.2px;
+  color: var(--muted);
+  opacity: 0.75;
+  font-variant-numeric: tabular-nums;
+}
+
+/* Dark theme — follow prompt */
+html[data-theme="dark"] .follow-modal {
+  background: rgba(30, 34, 40, 0.96);
+  border-color: rgba(255, 255, 255, 0.08);
+  box-shadow: 0 18px 50px rgba(0, 0, 0, 0.55), 0 0 0 1px rgba(255, 255, 255, 0.06);
+}
+
+html[data-theme="dark"] .follow-media {
+  background: #23272d;
+  border-bottom-color: #3c454f;
+}
+
+html[data-theme="dark"] .follow-desc,
+html[data-theme="dark"] .follow-later { color: var(--muted); }
+
+html[data-theme="dark"] .follow-cta { background: #f2f3f4; color: #171b1e; }
+html[data-theme="dark"] .follow-cta:hover { background: #ffffff; }
+
+@media (max-width: 480px) {
+  .follow-body { padding: 16px 16px 14px; }
+}
+
+/* Reduced motion keeps the feedback, drops the movement: cross-fade only. */
+@media (prefers-reduced-motion: reduce) {
+  .follow-scrim { transition: opacity 160ms linear; }
+  .follow-modal,
+  .follow-scrim.is-open .follow-modal {
+    transform: none;
+    transition: opacity 160ms linear;
+  }
+  .follow-close:active,
+  .follow-cta:active { transform: none; }
+}
+
+/* Reduced transparency: frost into an opaque surface rather than stacking. */
+@media (prefers-reduced-transparency: reduce) {
+  .follow-modal,
+  .follow-scrim.is-open .follow-modal {
+    background: #fff;
+    -webkit-backdrop-filter: none;
+    backdrop-filter: none;
+  }
+  html[data-theme="dark"] .follow-modal,
+  html[data-theme="dark"] .follow-scrim.is-open .follow-modal {
+    background: #1e2228;
+  }
+}

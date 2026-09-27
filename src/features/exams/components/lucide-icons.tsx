@@ -10,4 +10,5 @@ export {
   ArrowRight as ArrowRightIcon,
   FileText as FileTextIcon,
   Settings as SettingsIcon,
+  UserPlus as FollowIcon,
 } from "lucide-react";
