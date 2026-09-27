@@ -6,6 +6,7 @@ export {
   ChevronLeft as ChevronLeftIcon,
   ChevronRight as ChevronRightIcon,
   RotateCcw as RetryIcon,
+  Bookmark as ReviewIcon,
   ArrowRight as ArrowRightIcon,
   FileText as FileTextIcon,
   Settings as SettingsIcon,

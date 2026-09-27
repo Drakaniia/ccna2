@@ -2,6 +2,7 @@ import type { ChoiceQuestion, ExamModule, Question } from "./types";
 import { mulberry32, range, seededShuffle } from "./shuffle";
 import { scoreAttempt, type AttemptResult } from "./scoring";
 import { getEffectiveLimit } from "./exam-limits";
+import { isAutoCheck } from "./exam-mode";
 
 export interface AttemptState {
   seed: number; // shuffle seed for this attempt
@@ -13,6 +14,7 @@ export interface AttemptState {
   skipped: boolean[];
   current: number;
   checked: boolean[]; // questions whose Check feedback has been revealed
+  reviewed: boolean[]; // questions the user flagged to revisit (tab turns orange)
   phase: "quiz" | "submit" | "result";
   result?: AttemptResult;
 }
@@ -87,6 +89,7 @@ function buildAttempt(questions: Question[], seed: number, limit?: number): Atte
     skipped: new Array(effectiveTotal).fill(false),
     current: 0,
     checked: new Array(effectiveTotal).fill(false),
+    reviewed: new Array(effectiveTotal).fill(false),
     phase: "quiz",
   };
 }
@@ -212,8 +215,9 @@ export function toggleChoice(optionDisplayIndex: number): "ok" | "cap" | "locked
   mutate((st) => {
     st.answers[p] = next;
     st.skipped[p] = false;
-    // auto-calc: reveal feedback as soon as the selection is complete
-    st.checked[p] = next.length === need;
+    // auto-calc: reveal feedback as soon as the selection is complete.
+    // In manual mode the selection is only recorded — Check reveals it.
+    if (isAutoCheck()) st.checked[p] = next.length === need;
   });
   return "ok";
 }
@@ -269,12 +273,39 @@ export function clickRightItem(rightDisplayIndex: number): void {
     st.pairs[p] = next;
     st.skipped[p] = false;
     ctx!.activeLeft = null;
-    // auto-calc: feedback appears once every left item is paired
-    st.checked[p] = Object.keys(next).length === q.left.length;
+    // auto-calc: feedback appears once every left item is paired.
+    // In manual mode the pairing is only recorded — Check reveals it.
+    if (isAutoCheck()) st.checked[p] = Object.keys(next).length === q.left.length;
   });
 }
 
 /* ----------------------------------- checking --------------------------------- */
+
+/**
+ * Reveal the solution for the current question (manual mode's Check button).
+ * No-op until the question has an answer, and idempotent once revealed.
+ */
+export function checkCurrent(): void {
+  const s = getState();
+  if (!ctx || !s) return;
+  const p = s.current;
+  if (s.checked[p]) return;
+  if (!hasAnswerFor(p)) return;
+  mutate((st) => {
+    st.checked[p] = true;
+  });
+}
+
+/** Flag / unflag the current question to revisit (its tab turns orange). */
+export function toggleReview(): void {
+  const s = getState();
+  if (!ctx || !s) return;
+  const p = s.current;
+  if (!s.checked[p]) return; // the solution must be revealed before reviewing
+  mutate((st) => {
+    st.reviewed[p] = !st.reviewed[p];
+  });
+}
 
 /**
  * Retry the current question: clear its answer/pairings + feedback and
@@ -308,6 +339,7 @@ export function clearCurrentAnswer(): void {
       s.answers[p] = [];
     }
     s.checked[p] = false;
+    s.reviewed[p] = false;
     s.skipped[p] = false;
     ctx!.activeLeft = null;
   });

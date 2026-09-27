@@ -1,5 +1,5 @@
 ---
-import { RetryIcon } from "./lucide-icons.tsx";
+import { RetryIcon, ReviewIcon } from "./lucide-icons.tsx";
 ---
 
 <div class="question-view">
@@ -10,10 +10,15 @@ import { RetryIcon } from "./lucide-icons.tsx";
   <div class="instruction" id="qInstruction"></div>
   <div class="question-body" id="qBody"></div>
   <div class="explanation" id="qExplanation" hidden></div>
-  <div class="check-actions" id="retryBar" hidden>
-    <button type="button" class="link-btn retry-btn" id="retryQBtn">
+  <div class="check-actions" id="checkBar" hidden>
+    <button type="button" class="primary check-btn" id="checkAnswerBtn">Check</button>
+    <button type="button" class="link-btn retry-btn" id="retryQBtn" hidden>
       <RetryIcon size={15} strokeWidth={2.2} />
       Retry Question
+    </button>
+    <button type="button" class="link-btn review-btn" id="reviewQBtn" aria-pressed="false" hidden>
+      <ReviewIcon size={15} strokeWidth={2.2} />
+      <span id="reviewQBtnLabel">Review</span>
     </button>
   </div>
 </div>
@@ -101,17 +106,38 @@ import { RetryIcon } from "./lucide-icons.tsx";
     gap: 14px;
   }
 
+  /* a hidden child must stay hidden even inside the flex row above —
+     see the global [hidden] rule in global.css */
   .question-view .check-actions .link-btn {
     color: #245b6b;
   }
 
-  .question-view .check-actions .retry-btn {
+  .question-view .check-actions .check-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .question-view .check-actions .check-btn[disabled] {
+    opacity: 0.5;
+    cursor: not-allowed;
+  }
+
+  .question-view .check-actions .retry-btn,
+  .question-view .check-actions .review-btn {
     display: inline-flex;
     align-items: center;
     gap: 6px;
   }
 
-  .question-view .check-actions .retry-btn svg {
+  /* flagged for review — the button itself mirrors the orange tab */
+  .question-view .check-actions .review-btn[aria-pressed="true"] {
+    color: var(--orange-dark);
+    font-weight: 700;
+  }
+
+  .question-view .check-actions .retry-btn svg,
+  .question-view .check-actions .review-btn svg {
     display: block;
   }
 

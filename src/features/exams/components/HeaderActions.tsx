@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 import { Maximize2, Moon, Settings, Sun } from "lucide-react";
 import { getStoredLimit, setStoredLimit } from "../lib/exam-limits";
+import { getCheckMode, setCheckMode, type CheckMode } from "../lib/exam-mode";
 import { getState } from "../lib/quiz-state";
 
 /**
@@ -39,6 +40,7 @@ export default function HeaderActions({ moduleId, maxQuestions }: Props) {
   const [draft, setDraft] = useState<string>("");
   const [error, setError] = useState<string>("");
   const [confirmOpen, setConfirmOpen] = useState(false);
+  const [mode, setMode] = useState<CheckMode>("auto");
   const [pendingRestart, setPendingRestart] = useState<{
     prev: number | null;
     next: number | null;
@@ -84,6 +86,7 @@ export default function HeaderActions({ moduleId, maxQuestions }: Props) {
     if (settingsOpen && hasSettings && moduleId) {
       const stored = getStoredLimit(moduleId);
       setDraft(stored === null ? "" : String(stored));
+      setMode(getCheckMode());
       setError("");
       // focus input after open animation
       requestAnimationFrame(() => inputRef.current?.focus());
@@ -124,6 +127,9 @@ export default function HeaderActions({ moduleId, maxQuestions }: Props) {
 
   function validateAndApply(): void {
     if (!hasSettings || !moduleId) return;
+    // The feedback mode is read live by the quiz, so it applies immediately —
+    // no restart prompt, unlike the question limit.
+    setCheckMode(mode);
     const trimmed = draft.trim();
     // empty => All
     if (trimmed === "") {
@@ -269,6 +275,31 @@ export default function HeaderActions({ moduleId, maxQuestions }: Props) {
             <p className="settings-desc">
               Choose how many items to take. A random subset will be selected when the exam starts. Leave empty for all {max} questions.
             </p>
+
+            <fieldset className="settings-mode">
+              <legend className="settings-label">Solution feedback</legend>
+              {(
+                [
+                  { v: "auto", t: "Show solution automatically", d: "Reveals the answer as soon as you finish selecting." },
+                  { v: "manual", t: "Show solution after I press Check", d: "A Check button appears under the options." },
+                ] as { v: CheckMode; t: string; d: string }[]
+              ).map((opt) => (
+                <label key={opt.v} className="mode-option">
+                  <input
+                    type="radio"
+                    name="checkMode"
+                    value={opt.v}
+                    checked={mode === opt.v}
+                    onChange={() => setMode(opt.v)}
+                  />
+                  <span>
+                    <span className="mode-title">{opt.t}</span>
+                    <span className="mode-desc">{opt.d}</span>
+                  </span>
+                </label>
+              ))}
+              <p className="settings-hint">Applies to every exam. Press Review on a question to flag it — its tab turns orange.</p>
+            </fieldset>
 
             <label className="settings-field" htmlFor="settingsLimit">
               <span className="settings-label">Number of items</span>

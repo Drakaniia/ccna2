@@ -14,10 +14,19 @@
   --muted: #666;
   --bg: #f7f7f6;
   --red: #d11111;
+  --orange: #f0a830;
+  --orange-dark: #b06f0a;
 }
 
 * {
   box-sizing: border-box;
+}
+
+/* Components below set explicit `display` values (flex/inline-flex) on elements
+   that are also toggled with the `hidden` attribute. Without this the class
+   rule wins on source order and the element stays visible. */
+[hidden] {
+  display: none !important;
 }
 
 html,
@@ -170,6 +179,8 @@ html[data-theme="dark"] {
   --muted: #98a1aa;
   --border: #3c454f;
   --green-dark: #76bf5c;
+  --orange: #e0972a;
+  --orange-dark: #f0b64e;
 }
 
 html[data-theme="dark"] body {
@@ -226,6 +237,12 @@ html[data-theme="dark"] .qtab.wrong {
   background: #4a262a;
   border-color: #e57373;
   color: #ff9d9d;
+}
+
+html[data-theme="dark"] .qtab.reviewed {
+  background: #4a3a17;
+  border-color: var(--orange);
+  color: var(--orange-dark);
 }
 
 /* question body */
@@ -523,6 +540,58 @@ html[data-theme="dark"] .module-card.disabled h2 {
   color: #8a8f94;
 }
 
+/* solution-feedback mode radio group */
+.settings-mode {
+  border: 0;
+  padding: 0;
+  margin: 16px 0 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.settings-mode legend {
+  padding: 0;
+  margin-bottom: 2px;
+}
+
+.mode-option {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  padding: 9px 11px;
+  border: 1px solid var(--border);
+  border-radius: 7px;
+  background: #fff;
+  cursor: pointer;
+  transition: border-color 0.14s ease, background 0.14s ease;
+}
+
+.mode-option:hover { border-color: var(--cyan); }
+
+.mode-option:has(input:checked) {
+  border-color: var(--cyan);
+  background: #eef7fa;
+}
+
+.mode-option input {
+  margin: 2px 0 0;
+  flex: none;
+  accent-color: var(--cyan);
+  cursor: pointer;
+}
+
+.mode-option > span { display: flex; flex-direction: column; gap: 2px; }
+
+.mode-title { font-size: 13.5px; font-weight: 700; color: var(--text); }
+
+.mode-desc { font-size: 12px; color: #8a8f94; }
+
+.mode-option input:focus-visible {
+  outline: 3px solid rgba(18, 160, 198, 0.35);
+  outline-offset: 2px;
+}
+
 .settings-presets {
   display: flex;
   gap: 8px;
@@ -606,6 +675,17 @@ html[data-theme="dark"] .preset-btn {
 }
 html[data-theme="dark"] .preset-btn:hover { background: #2a3238; border-color: var(--cyan); }
 html[data-theme="dark"] .preset-btn.preset-all { background: var(--green); border-color: var(--green); color: #111; }
+
+html[data-theme="dark"] .mode-option {
+  background: #23272d;
+  border-color: #3c454f;
+}
+html[data-theme="dark"] .mode-option:has(input:checked) {
+  background: #1d2b31;
+  border-color: var(--cyan);
+}
+html[data-theme="dark"] .mode-title { color: var(--text); }
+html[data-theme="dark"] .mode-desc { color: #98a1aa; }
 
 /* Confirm restart — shares scrim/modal base, adds centered warning treatment */
 .confirm-scrim { z-index: 340; }

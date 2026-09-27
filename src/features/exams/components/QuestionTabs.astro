@@ -107,6 +107,14 @@ import { ChevronLeftIcon, ChevronRightIcon } from "./lucide-icons.tsx";
     color: #7a1616;
   }
 
+  /* flagged for review — takes precedence over the green/verdict fill */
+  .qtab.reviewed {
+    border-color: var(--orange-dark);
+    background: var(--orange);
+    color: #3a2600;
+    font-weight: 600;
+  }
+
   .qtab.unanswered {
     border-color: #cfd5d8;
     background: #fff;

@@ -229,9 +229,11 @@ const abs = (p: string) => `${import.meta.env.BASE_URL.replace(/\/?$/, "/")}${p}
       import { exhibitList } from "../../features/exams/lib/types";
       import { isQuestionCorrect } from "../../features/exams/lib/scoring";
       import { getEffectiveCount, LIMIT_EVENT } from "../../features/exams/lib/exam-limits";
+      import { getCheckMode, MODE_EVENT } from "../../features/exams/lib/exam-mode";
       import {
         backToQuiz,
         bootQuiz,
+        checkCurrent,
         clearCurrentAnswer,
         currentQuestion,
         getModule,
@@ -239,6 +241,7 @@ const abs = (p: string) => `${import.meta.env.BASE_URL.replace(/\/?$/, "/")}${p}
         goNext,
         goPrev,
         goTo,
+        hasAnswerFor,
         openSubmit,
         questionCount,
         rebootWithLimit,
@@ -248,6 +251,7 @@ const abs = (p: string) => `${import.meta.env.BASE_URL.replace(/\/?$/, "/")}${p}
         skipCurrent,
         submitQuiz,
         subscribe,
+        toggleReview,
         unansweredPositions,
       } from "../../features/exams/lib/quiz-state";
 
@@ -294,6 +298,12 @@ const abs = (p: string) => `${import.meta.env.BASE_URL.replace(/\/?$/, "/")}${p}
           }
         });
 
+        // The solution-feedback mode is a global preference and can be switched
+        // mid-exam, so re-sync the check bar whenever it changes.
+        document.addEventListener(MODE_EVENT, () => {
+          syncCheckBar();
+        });
+
         // Intro flow: quiz does not start until the user presses Start Exam.
         const startBtn = $("startExamBtn") as HTMLButtonElement | null;
         let started = false;
@@ -337,7 +347,7 @@ const abs = (p: string) => `${import.meta.env.BASE_URL.replace(/\/?$/, "/")}${p}
           }
           syncExplanation();
           syncExhibitVisibility();
-          syncRetryBar();
+          syncCheckBar();
 
           if (st.phase === "submit") renderSubmitView();
           if (st.phase === "result") renderResultView();
@@ -362,12 +372,41 @@ const abs = (p: string) => `${import.meta.env.BASE_URL.replace(/\/?$/, "/")}${p}
           exhibit.hidden = !anyVisible;
         }
 
-        /** The retry control appears after the current question has been checked. */
-        function syncRetryBar(): void {
+        /**
+         * Drives the row under the question: Check (manual mode, until the
+         * solution is revealed), plus Retry / Review once it is revealed.
+         * Re-runs on every state change and whenever the mode is switched in
+         * the settings modal, so no stale visibility survives a mode change.
+         */
+        function syncCheckBar(): void {
           const st = getState();
-          const bar = $("retryBar");
+          const bar = $("checkBar");
           if (!st || !bar) return;
-          bar.hidden = !st.checked[st.current];
+
+          const p = st.current;
+          const isChecked = !!st.checked[p];
+          const isReviewed = !!st.reviewed[p];
+          const manual = getCheckMode() === "manual";
+
+          const checkBtn = $("checkAnswerBtn") as HTMLButtonElement | null;
+          const showCheck = manual && !isChecked;
+
+          if (checkBtn) {
+            checkBtn.hidden = !showCheck;
+            checkBtn.disabled = !hasAnswerFor(p);
+            checkBtn.title = checkBtn.disabled ? "Select an answer first" : "Reveal the solution";
+          }
+          const retryBtn = $("retryQBtn");
+          if (retryBtn) retryBtn.hidden = !isChecked;
+          const reviewBtn = $("reviewQBtn");
+          if (reviewBtn) {
+            reviewBtn.hidden = !isChecked;
+            reviewBtn.setAttribute("aria-pressed", isReviewed ? "true" : "false");
+          }
+          const reviewLabel = $("reviewQBtnLabel");
+          if (reviewLabel) reviewLabel.textContent = isReviewed ? "Reviewed" : "Review";
+
+          bar.hidden = !showCheck && !isChecked;
         }
 
         function renderProgress(): void {
@@ -401,6 +440,9 @@ const abs = (p: string) => `${import.meta.env.BASE_URL.replace(/\/?$/, "/")}${p}
               btn.classList.add("current");
             } else if (st.skipped[idx] || !answered) {
               btn.classList.add("unanswered");
+            } else if (st.reviewed[idx]) {
+              // flagged to revisit — orange instead of the green/verdict color
+              btn.classList.add("reviewed");
             } else if (st.checked[idx] && !isQuestionCorrect(m.questions[st.order[idx]], st, idx)) {
               btn.classList.add("wrong");
             } else {
@@ -563,6 +605,12 @@ const abs = (p: string) => `${import.meta.env.BASE_URL.replace(/\/?$/, "/")}${p}
 
         el("retryQBtn")?.addEventListener("click", () => {
           clearCurrentAnswer();
+        });
+        el("checkAnswerBtn")?.addEventListener("click", () => {
+          checkCurrent();
+        });
+        el("reviewQBtn")?.addEventListener("click", () => {
+          toggleReview();
         });
 
         el("footerNextBtn")?.addEventListener("click", () => {
