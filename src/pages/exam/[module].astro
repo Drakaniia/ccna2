@@ -8,6 +8,7 @@ import PairingBoard from "../../features/exams/components/PairingBoard.astro";
 import SubmitOverlay from "../../features/exams/components/SubmitOverlay.astro";
 import ResultScreen from "../../features/exams/components/ResultScreen.astro";
 import FollowModal from "../../features/exams/components/FollowModal.astro";
+import LeaveGuard from "../../features/exams/components/LeaveGuard.astro";
 import { availableModules, moduleRegistry } from "../../features/exams/data";
 
 export async function getStaticPaths() {
@@ -91,6 +92,7 @@ const abs = (p: string) => `${import.meta.env.BASE_URL.replace(/\/?$/, "/")}${p}
     </div>
 
     <FollowModal />
+    <LeaveGuard />
 
     <style is:global>
       /* Intro screen — minimal centered, no box background */

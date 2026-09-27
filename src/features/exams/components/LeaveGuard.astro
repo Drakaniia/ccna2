@@ -1,0 +1,251 @@
+---
+import { WarnIcon } from "./lucide-icons.tsx";
+---
+
+{/**
+ * Leave guard — a mid-exam attempt is thrown away on reload (bootQuiz re-shuffles
+ * every time), so two ways out ask first:
+ *
+ *  - in-app links (drawer module links, the brand link): a real modal, because
+ *    these are ordinary clicks we can cancel and re-ask with our own wording.
+ *  - F5 / browser refresh button / mobile reload / close tab: `beforeunload`,
+ *    which is the only hook those fire. Browsers render their own wording there
+ *    and ignore anything we set, so the copy here is deliberately redundant
+ *    with the intro screen's "do not refresh" warning.
+ *
+ * Both gates only stand while an attempt is in progress (phase quiz or submit).
+ * On the intro screen there is nothing to lose, and after the result lands the
+ * exam is over.
+ */}
+
+<div class="leave-guard-scrim" id="leaveGuard" hidden>
+  <div
+    class="settings-modal confirm-modal leave-guard-modal"
+    role="alertdialog"
+    aria-modal="true"
+    aria-labelledby="leaveGuardTitle"
+    aria-describedby="leaveGuardDesc"
+  >
+    <div class="confirm-icon" aria-hidden="true">
+      <WarnIcon size={22} strokeWidth={2.2} />
+    </div>
+    <h2 id="leaveGuardTitle" class="confirm-title">Leave this exam?</h2>
+    <p id="leaveGuardDesc" class="confirm-desc">
+      Your progress is not saved. Leaving now restarts this exam from question&nbsp;1 with a
+      brand-new random set of questions.
+    </p>
+    <div class="leave-guard-actions">
+      <button type="button" class="link-btn" id="leaveGuardStay">Keep taking exam</button>
+      <button type="button" class="primary confirm-primary" id="leaveGuardGo">Leave exam</button>
+    </div>
+  </div>
+</div>
+
+<script>
+  import { getState, hasAnswerFor } from "../lib/quiz-state";
+
+  /** True only while an attempt is live — not on intro, not after the result. */
+  function inProgress(): boolean {
+    const st = getState();
+    return !!st && (st.phase === "quiz" || st.phase === "submit");
+  }
+
+  const scrim = document.getElementById("leaveGuard");
+  const stayBtn = document.getElementById("leaveGuardStay") as HTMLButtonElement | null;
+  const goBtn = document.getElementById("leaveGuardGo") as HTMLButtonElement | null;
+  const descEl = document.getElementById("leaveGuardDesc");
+
+  if (scrim && stayBtn && goBtn && !scrim.dataset.ready) {
+    scrim.dataset.ready = "1";
+    start(scrim, stayBtn, goBtn, descEl);
+  }
+
+  function start(
+    root: HTMLElement,
+    stay: HTMLButtonElement,
+    go: HTMLButtonElement,
+    desc: HTMLElement | null,
+  ): void {
+    /** Set once the user has said yes, so the hop out skips every gate. */
+    let bypass = false;
+    let pendingHref: string | null = null;
+    let lastFocused: HTMLElement | null = null;
+    let closing = false;
+
+    const focusables = (): HTMLElement[] =>
+      Array.from(root.querySelectorAll<HTMLElement>('button:not([disabled])'));
+
+    /** Progress sentence, so the cost of leaving is concrete rather than vague. */
+    function progressLine(): string {
+      const st = getState();
+      if (!st) return "";
+      const total = st.order.length;
+      let answered = 0;
+      for (let p = 0; p < total; p += 1) {
+        if (hasAnswerFor(p)) answered += 1;
+      }
+      if (answered === 0) return " You have not answered any questions yet.";
+      return ` You have answered ${answered} of ${total} question${total !== 1 ? "s" : ""}.`;
+    }
+
+    function open(href: string | null): void {
+      if (!root.hidden) return;
+      closing = false;
+      pendingHref = href;
+      lastFocused = document.activeElement as HTMLElement | null;
+      if (desc) {
+        const lead = href
+          ? "Leaving now restarts this exam from question 1 with a brand-new random set of questions."
+          : "Reloading now restarts this exam from question 1 with a brand-new random set of questions.";
+        desc.textContent = "Your progress is not saved. " + lead + progressLine();
+      }
+      root.hidden = false;
+      document.body.style.overflow = "hidden";
+      // Capture phase, so this wins over the exam page's global Escape handler.
+      window.addEventListener("keydown", onKey, true);
+      requestAnimationFrame(() => {
+        root.classList.add("is-open");
+        go.focus({ preventScroll: true });
+      });
+    }
+
+    function close(): void {
+      if (closing) return;
+      closing = true;
+      pendingHref = null;
+      root.classList.remove("is-open");
+      document.body.style.overflow = "";
+      window.removeEventListener("keydown", onKey, true);
+      window.setTimeout(() => {
+        root.hidden = true;
+        lastFocused?.focus?.({ preventScroll: true });
+      }, 180);
+    }
+
+    function leave(): void {
+      const href = pendingHref;
+      bypass = true;
+      close();
+      if (href) window.location.assign(href);
+    }
+
+    function onKey(e: KeyboardEvent): void {
+      if (e.key === "Escape") {
+        e.preventDefault();
+        e.stopPropagation();
+        close();
+        return;
+      }
+      if (e.key !== "Tab") return;
+      // Keep Tab inside the dialog — it is modal, so the page behind is inert.
+      const items = focusables();
+      if (items.length === 0) return;
+      const first = items[0];
+      const last = items[items.length - 1];
+      if (e.shiftKey && document.activeElement === first) {
+        e.preventDefault();
+        last.focus();
+      } else if (!e.shiftKey && document.activeElement === last) {
+        e.preventDefault();
+        first.focus();
+      }
+    }
+
+    /* ---------------- reload / F5 / refresh button / mobile reload ---------------- */
+
+    window.addEventListener("beforeunload", (e) => {
+      if (bypass || !inProgress()) return;
+      e.preventDefault();
+      // The spec prompts on the canceled flag alone; returnValue is the legacy
+      // belt-and-braces. Either way browsers use their own wording and ignore
+      // whatever string is assigned here.
+      (e as unknown as { returnValue: string }).returnValue = "";
+    });
+
+    /* ------------------------- in-app link navigation -------------------------- */
+
+    document.addEventListener("click", (e) => {
+      if (bypass || !inProgress()) return;
+      // A modified click means the visitor asked for a new tab/window — the
+      // current attempt is untouched, so there is nothing to warn about.
+      if (e.defaultPrevented || e.button !== 0 || e.metaKey || e.ctrlKey || e.shiftKey || e.altKey) {
+        return;
+      }
+      const anchor = (e.target as HTMLElement | null)?.closest?.("a[href]") as
+        | HTMLAnchorElement
+        | null;
+      if (!anchor) return;
+      if (anchor.target && anchor.target !== "_self") return;
+      if (anchor.hasAttribute("download")) return;
+
+      const href = anchor.getAttribute("href");
+      if (!href || href.startsWith("#") || /^(mailto|tel|javascript):/i.test(href)) return;
+
+      let url: URL;
+      try {
+        url = new URL(anchor.href, window.location.href);
+      } catch {
+        return;
+      }
+      if (url.origin !== window.location.origin) return;
+      // Same document (different hash, or the identical URL) — no reload ahead.
+      if (url.pathname === window.location.pathname && url.search === window.location.search) return;
+
+      e.preventDefault();
+      open(url.href);
+    });
+
+    root.addEventListener("click", (e) => {
+      // Backdrop click keeps the attempt, same as Escape.
+      if (e.target === root) close();
+    });
+    stay.addEventListener("click", close);
+    go.addEventListener("click", leave);
+  }
+</script>
+
+<style>
+  /* Own scrim (not .settings-scrim) so the fade is transition-driven: a paused
+     `animation ... forwards` would win the cascade and pin opacity at 1. */
+  .leave-guard-scrim {
+    position: fixed;
+    inset: 0;
+    display: grid;
+    place-items: center;
+    padding: 20px;
+    background: rgba(0, 0, 0, 0.36);
+    z-index: 380;
+    opacity: 0;
+    transition: opacity 180ms ease;
+  }
+
+  .leave-guard-scrim.is-open {
+    opacity: 1;
+  }
+
+  .leave-guard-modal {
+    width: min(420px, 92vw);
+  }
+
+  .leave-guard-actions {
+    display: flex;
+    justify-content: center;
+    flex-wrap: wrap;
+    gap: 10px;
+    margin-top: 20px;
+  }
+
+  @media (max-width: 480px) {
+    .leave-guard-actions {
+      flex-direction: column-reverse;
+      align-items: stretch;
+      text-align: center;
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .leave-guard-scrim {
+      transition: none;
+    }
+  }
+</style>
