@@ -1,90 +1,152 @@
 ---
-import { FollowIcon } from "./lucide-icons.tsx";
-import { GITHUB_HANDLE, GITHUB_URL } from "../lib/follow-prompt";
+import { ChevronLeftIcon, ChevronRightIcon, GithubIcon } from "./lucide-icons.tsx";
+import {
+  CREDIT_HANDLE,
+  CREDIT_URL,
+  GITHUB_HANDLE,
+  GITHUB_URL,
+} from "../lib/follow-prompt";
 
 /**
- * "Follow me on GitHub" prompt.
+ * "Follow me on GitHub" prompt — a two-slide carousel.
  *
- * Shows once per page load, counts down 5s, then dismisses itself. Dismissing
- * is a deferral: the prompt returns on the next visit until the GitHub link is
- * actually clicked (see `lib/follow-prompt.ts`).
+ * Slide 1 asks for the follow; slide 2 is the credit roll. It stays up until the
+ * visitor acts: the close button, "Maybe later"/"Close", the backdrop, Escape,
+ * or the CTA. Dismissing is a deferral — the prompt returns on the next visit
+ * until the GitHub link is actually clicked (see `lib/follow-prompt.ts`).
  *
- * The GIF src is injected by the script only when the prompt is eligible to
- * show, so visitors who have already followed never pay for the download.
+ * Both image srcs are injected by the script only when the prompt is eligible
+ * to show, so visitors who have already followed never pay for the download.
  */
 
 const abs = (p: string) => `${import.meta.env.BASE_URL.replace(/\/?$/, "/")}${p}`;
-const GIF_SRC = abs("images/cat-please.gif");
-const RING = 2 * Math.PI * 15.5; // r=15.5 on a 34px viewBox
+const CAT_GIF = abs("images/cat-please.gif");
+const CREDIT_IMG = abs("images/digal.jpg");
 ---
 
-<div class="follow-scrim" id="followScrim" data-gif={GIF_SRC} hidden>
+<div class="follow-scrim" id="followScrim" data-gif={CAT_GIF} data-credit={CREDIT_IMG} hidden>
   <div
     class="follow-modal"
     role="dialog"
     aria-modal="true"
-    aria-labelledby="followTitle"
-    aria-describedby="followDesc"
+    aria-roledescription="carousel"
+    aria-label="Did this help you pass?"
   >
-    <div class="follow-media">
-      <img
-        id="followGif"
-        alt="A cat standing on its hind legs, asking for something please"
-        width="400"
-        height="303"
-        decoding="async"
-      />
-      <button type="button" class="follow-close" id="followClose" aria-label="Dismiss for now">
-        <svg class="follow-ring" viewBox="0 0 34 34" aria-hidden="true" focusable="false">
-          <circle class="follow-ring-track" cx="17" cy="17" r="15.5" />
-          <circle
-            class="follow-ring-arc"
-            id="followRing"
-            cx="17"
-            cy="17"
-            r="15.5"
-            stroke-dasharray={RING}
-            stroke-dashoffset="0"
-          />
-        </svg>
-        <svg class="follow-x" viewBox="0 0 24 24" aria-hidden="true" focusable="false">
-          <path d="M6 6l12 12M18 6L6 18" />
-        </svg>
-      </button>
-    </div>
+    <div class="follow-stage" id="followStage">
+      <div class="follow-track" id="followTrack">
+        <section class="follow-slide" data-slide="0">
+          <div class="follow-media">
+            <img
+              id="followGif"
+              alt="A cat standing on its hind legs, asking for something please"
+              width="400"
+              height="303"
+              decoding="async"
+            />
+          </div>
+          <div class="follow-body">
+            <h2 class="follow-title">Did this help you pass?</h2>
+            <p class="follow-desc">
+              These CCNA 2 v7 practice exams are free and open source. If this helped you
+              pass the exam, a follow would be greatly appreciated.
+            </p>
+            <div class="follow-actions">
+              <a
+                class="follow-cta"
+                id="followCta"
+                href={GITHUB_URL}
+                target="_blank"
+                rel="noopener noreferrer"
+              >
+                <GithubIcon size={18} />
+                <span>Follow @{GITHUB_HANDLE}</span>
+              </a>
+              <button type="button" class="link-btn follow-later" id="followLater">
+                Maybe later
+              </button>
+            </div>
+          </div>
+        </section>
 
-    <div class="follow-body">
-      <h2 id="followTitle" class="follow-title">Did this help you pass?</h2>
-      <p id="followDesc" class="follow-desc">
-        These CCNA 2 v7 practice exams are free and open source. If this helped you pass
-        the exam, a follow would be greatly appreciated.
-      </p>
-
-      <div class="follow-actions">
-        <a
-          class="follow-cta"
-          id="followCta"
-          href={GITHUB_URL}
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <FollowIcon size={18} strokeWidth={2.2} />
-          <span>Follow @{GITHUB_HANDLE}</span>
-        </a>
-        <button type="button" class="link-btn follow-later" id="followLater">Maybe later</button>
+        <section class="follow-slide" data-slide="1" inert>
+          <div class="follow-media">
+            <img
+              id="followCreditImg"
+              alt="Digal, the contributor behind the questions in these practice exams"
+              width="600"
+              height="800"
+              decoding="async"
+            />
+          </div>
+          <div class="follow-body">
+            <h2 class="follow-title">Special thanks to DigalTzy</h2>
+            <p class="follow-desc">
+              This project would not have been possible without his contribution — the
+              questions, explanations and exhibit images across every exam group are his
+              work.
+            </p>
+            <div class="follow-actions">
+              <a
+                class="follow-cta"
+                id="followCreditCta"
+                href={CREDIT_URL}
+                target="_blank"
+                rel="noopener noreferrer"
+              >
+                <GithubIcon size={18} />
+                <span>@{CREDIT_HANDLE}</span>
+              </a>
+              <button type="button" class="link-btn follow-later" id="followCreditClose">
+                Close
+              </button>
+            </div>
+          </div>
+        </section>
       </div>
 
-      <p class="follow-foot" aria-live="off">
-        <span id="followCount">Closes in 5s</span>
-      </p>
+      {/**
+        Controls ride on the photo rather than in a row of their own — a
+        separate strip below the copy left a band of blank space under the
+        buttons and made the modal taller than it needed to be.
+      */}
+      <div class="follow-nav">
+        <div class="follow-dots" id="followDots">
+          <button
+            type="button"
+            class="follow-dot is-current"
+            data-goto="0"
+            aria-label="Show the follow request"
+            aria-current="true"
+          ></button>
+          <button
+            type="button"
+            class="follow-dot"
+            data-goto="1"
+            aria-label="Show the special thanks"
+          ></button>
+        </div>
+        <button
+          type="button"
+          class="follow-next"
+          id="followNext"
+          aria-label="Show the special thanks"
+        >
+          <ChevronRightIcon className="follow-next-fwd" size={20} strokeWidth={2.4} />
+          <ChevronLeftIcon className="follow-next-back" size={20} strokeWidth={2.4} />
+        </button>
+      </div>
     </div>
+
+    <button type="button" class="follow-close" id="followClose" aria-label="Dismiss for now">
+      <svg class="follow-x" viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+        <path d="M6 6l12 12M18 6L6 18" />
+      </svg>
+    </button>
   </div>
 </div>
 
 <script>
   import { GITHUB_URL, hasFollowed, markFollowed } from "../lib/follow-prompt";
-
-  const DURATION = 5000;
 
   /**
    * Two ways in, matching the app's existing CustomEvent convention:
@@ -104,34 +166,59 @@ const RING = 2 * Math.PI * 15.5; // r=15.5 on a 34px viewBox
 
   function start(root: HTMLElement): void {
     const modal = root.querySelector<HTMLElement>(".follow-modal")!;
+    const stage = root.querySelector<HTMLElement>("#followStage")!;
+    const track = root.querySelector<HTMLElement>("#followTrack")!;
     const gif = root.querySelector<HTMLImageElement>("#followGif")!;
+    const creditImg = root.querySelector<HTMLImageElement>("#followCreditImg")!;
     const cta = root.querySelector<HTMLAnchorElement>("#followCta")!;
-    const ring = root.querySelector<SVGElement>("#followRing")!;
-    const count = root.querySelector<HTMLElement>("#followCount")!;
-    const focusables = () =>
-      Array.from(
-        modal.querySelectorAll<HTMLElement>('a[href], button:not([disabled])'),
-      );
+    const creditCta = root.querySelector<HTMLAnchorElement>("#followCreditCta")!;
+    const nextBtn = root.querySelector<HTMLButtonElement>("#followNext")!;
+    const dots = Array.from(root.querySelectorAll<HTMLButtonElement>(".follow-dot"));
+    const slides = Array.from(root.querySelectorAll<HTMLElement>(".follow-slide"));
 
-    let raf = 0;
-    let openedAt = 0;
+    /** Horizontal travel of a swipe that counts as a deliberate flick (px). */
+    const SWIPE_MIN = 45;
+
+    let index = 0;
     let closing = false;
     let lastFocused: HTMLElement | null = null;
+    let touchX = 0;
+    let touchY = 0;
+    let tracking = false;
 
-    // The countdown is what earns the prompt its screen time: 5s of
-    // uninterrupted attention, then it gets out of the way on its own.
-    function tick(now: number): void {
-      const left = Math.max(0, DURATION - (now - openedAt));
-      ring.style.strokeDashoffset = String(94.248 * (left / DURATION));
-      const seconds = Math.ceil(left / 1000);
-      if (count.textContent !== `Closes in ${seconds}s`) {
-        count.textContent = `Closes in ${seconds}s`;
-      }
-      if (left > 0) {
-        raf = requestAnimationFrame(tick);
-      } else {
-        close(false);
-      }
+    // The off-screen slide is inert, so it leaves the tab order and the focus
+    // trap without duplicating the copy for screen readers.
+    const focusables = (): HTMLElement[] =>
+      Array.from(modal.querySelectorAll<HTMLElement>('a[href], button:not([disabled])')).filter(
+        (el) => el.closest("[inert]") === null,
+      );
+
+    function go(next: number): void {
+      const clamped = Math.max(0, Math.min(slides.length - 1, next));
+      if (clamped === index) return;
+      index = clamped;
+      render();
+    }
+
+    function render(): void {
+      track.style.transform = `translateX(-${index * 50}%)`;
+      slides.forEach((slide, i) => {
+        if (i === index) slide.removeAttribute("inert");
+        else slide.setAttribute("inert", "");
+      });
+      dots.forEach((dot, i) => {
+        dot.classList.toggle("is-current", i === index);
+        if (i === index) dot.setAttribute("aria-current", "true");
+        else dot.removeAttribute("aria-current");
+      });
+      // One control, two meanings: forward on the first slide, back on the last.
+      const back = index > 0;
+      nextBtn.classList.toggle("is-back", back);
+      nextBtn.setAttribute(
+        "aria-label",
+        back ? "Back to the follow request" : "Show the special thanks",
+      );
+      nextBtn.title = back ? "Back" : "Special thanks";
     }
 
     function open(): void {
@@ -139,8 +226,9 @@ const RING = 2 * Math.PI * 15.5; // r=15.5 on a 34px viewBox
       if (!root.hidden) return;
       closing = false;
       lastFocused = document.activeElement as HTMLElement | null;
-      // Deferred so visitors who already followed never download the GIF.
+      // Deferred so visitors who already followed never download the images.
       gif.src = root.dataset.gif ?? "";
+      creditImg.src = root.dataset.credit ?? "";
       root.hidden = false;
       document.body.style.overflow = "hidden";
       // Capture phase so this wins over the exam page's global Escape handler.
@@ -148,16 +236,14 @@ const RING = 2 * Math.PI * 15.5; // r=15.5 on a 34px viewBox
       requestAnimationFrame(() => {
         root.classList.add("is-open");
         cta.focus({ preventScroll: true });
-        openedAt = performance.now();
-        raf = requestAnimationFrame(tick);
       });
     }
 
     function close(pressedCta: boolean): void {
       if (closing) return;
       closing = true;
-      cancelAnimationFrame(raf);
-      // Only a real click on the CTA retires the prompt; everything else defers.
+      // Only a real click on the owner's CTA retires the prompt for good;
+      // the credit link and every dismiss path are deferrals.
       if (pressedCta) markFollowed();
       root.classList.remove("is-open");
       document.body.style.overflow = "";
@@ -165,6 +251,7 @@ const RING = 2 * Math.PI * 15.5; // r=15.5 on a 34px viewBox
       window.setTimeout(() => {
         root.hidden = true;
         gif.removeAttribute("src");
+        creditImg.removeAttribute("src");
         lastFocused?.focus?.({ preventScroll: true });
       }, 260);
     }
@@ -174,6 +261,17 @@ const RING = 2 * Math.PI * 15.5; // r=15.5 on a 34px viewBox
         e.preventDefault();
         e.stopPropagation();
         close(false);
+        return;
+      }
+      // Arrow keys page the carousel while it owns the keyboard.
+      if (e.key === "ArrowRight") {
+        e.preventDefault();
+        go(index + 1);
+        return;
+      }
+      if (e.key === "ArrowLeft") {
+        e.preventDefault();
+        go(index - 1);
         return;
       }
       if (e.key !== "Tab") return;
@@ -191,14 +289,52 @@ const RING = 2 * Math.PI * 15.5; // r=15.5 on a 34px viewBox
       }
     }
 
+    /* ------------------------------- navigation ------------------------------- */
+
+    nextBtn.addEventListener("click", () => go(index + (index > 0 ? -1 : 1)));
+    dots.forEach((dot) =>
+      dot.addEventListener("click", () => go(Number(dot.dataset.goto ?? 0))),
+    );
+
+    // Swipe right-to-left for the next slide, left-to-right to go back. Tracked
+    // on the media stage so a drag never fights the scrollable page behind.
+    stage.addEventListener(
+      "touchstart",
+      (e) => {
+        const t = e.touches[0];
+        if (!t) return;
+        touchX = t.clientX;
+        touchY = t.clientY;
+        tracking = true;
+      },
+      { passive: true },
+    );
+    stage.addEventListener(
+      "touchend",
+      (e) => {
+        if (!tracking) return;
+        tracking = false;
+        const t = e.changedTouches[0];
+        if (!t) return;
+        const dx = t.clientX - touchX;
+        const dy = t.clientY - touchY;
+        // Horizontal intent only — a vertical flick is a scroll, not a page turn.
+        if (Math.abs(dx) < SWIPE_MIN || Math.abs(dx) <= Math.abs(dy)) return;
+        go(index + (dx < 0 ? 1 : -1));
+      },
+      { passive: true },
+    );
+
     root.addEventListener("click", (e) => {
-      // Backdrop click defers, same as the countdown.
+      // Backdrop click defers.
       if (e.target === root) close(false);
     });
     root.querySelector("#followClose")!.addEventListener("click", () => close(false));
     root.querySelector("#followLater")!.addEventListener("click", () => close(false));
+    root.querySelector("#followCreditClose")!.addEventListener("click", () => close(false));
     // The one interaction that retires the prompt for good.
     cta.addEventListener("click", () => close(cta.href.startsWith(GITHUB_URL)));
+    creditCta.addEventListener("click", () => close(false));
 
     document
       .querySelectorAll<HTMLElement>("[data-follow-open]")

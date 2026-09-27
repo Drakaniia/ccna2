@@ -920,7 +920,7 @@ html[data-theme="dark"] .confirm-title { color: var(--text); }
 html[data-theme="dark"] .confirm-desc { color: var(--muted); }
 
 /* ==========================================================================
-   Follow prompt — self-dismissing GitHub CTA, 5s countdown.
+   Follow prompt — GitHub CTA that waits to be dismissed.
    Shares the settings modal's material and scrim values, but drives its
    enter/exit with transitions so the exit can play along the same path.
    ========================================================================== */
@@ -940,6 +940,7 @@ html[data-theme="dark"] .confirm-desc { color: var(--muted); }
 .follow-scrim.is-open { opacity: 1; }
 
 .follow-modal {
+  position: relative;
   width: min(400px, 92vw);
   overflow: hidden;
   background: rgba(255, 255, 255, 0.96);
@@ -969,6 +970,26 @@ html[data-theme="dark"] .confirm-desc { color: var(--muted); }
   backdrop-filter: blur(18px) saturate(160%);
 }
 
+/* Carousel: the track is twice the stage wide, so a slide change is a single
+   -50% translate and the outgoing copy slides out with it. */
+.follow-stage {
+  position: relative;
+  overflow: hidden;
+  /* Swipe handling lives here, so the browser must not claim the horizontal pan. */
+  touch-action: pan-y;
+}
+
+.follow-track {
+  display: flex;
+  width: 200%;
+  transition: transform 320ms cubic-bezier(0.32, 0.72, 0, 1);
+}
+
+.follow-slide {
+  flex: 0 0 50%;
+  min-width: 0;
+}
+
 .follow-media {
   position: relative;
   line-height: 0;
@@ -976,13 +997,21 @@ html[data-theme="dark"] .confirm-desc { color: var(--muted); }
   border-bottom: 1px solid var(--border);
 }
 
+/* Fixed 4:3 crop so the modal keeps one size across slides — the credit photo
+   is portrait, the cat is nearly 4:3. `height: auto` is load-bearing: the img
+   height attribute is a presentational hint, and without this it pins the box
+   and aspect-ratio never gets a say. Focus high in the frame so a portrait
+   crop keeps the face rather than the chin. */
 .follow-media img {
   display: block;
   width: 100%;
   height: auto;
+  aspect-ratio: 4 / 3;
+  object-fit: cover;
+  object-position: center 22%;
 }
 
-/* Close button wears the countdown as a depleting ring. */
+/* Close button — plain dismiss affordance over the GIF. */
 .follow-close {
   position: absolute;
   top: 10px;
@@ -993,32 +1022,15 @@ html[data-theme="dark"] .confirm-desc { color: var(--muted); }
   place-items: center;
   border: 0;
   border-radius: 50%;
-  background: rgba(0, 0, 0, 0.5);
+  background: rgba(0, 0, 0, 0.58);
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.3);
   color: #fff;
   cursor: pointer;
   transition: transform 100ms ease-out, background 140ms ease;
 }
 
-.follow-close:hover { background: rgba(0, 0, 0, 0.62); }
+.follow-close:hover { background: rgba(0, 0, 0, 0.72); }
 .follow-close:active { transform: scale(0.9); }
-
-.follow-ring {
-  position: absolute;
-  inset: 0;
-  width: 34px;
-  height: 34px;
-  transform: rotate(-90deg);
-}
-
-.follow-ring-track,
-.follow-ring-arc {
-  fill: none;
-  stroke-width: 2.5;
-  stroke-linecap: round;
-}
-
-.follow-ring-track { stroke: rgba(255, 255, 255, 0.22); }
-.follow-ring-arc { stroke: #fff; }
 
 .follow-x {
   width: 15px;
@@ -1029,8 +1041,11 @@ html[data-theme="dark"] .confirm-desc { color: var(--muted); }
   stroke-linecap: round;
 }
 
+/* The controls overlay the photo now, so this bottom padding is the only
+   clearance between the dismiss link and the modal edge — it carries the
+   breathing room, so give it room. */
 .follow-body {
-  padding: 18px 22px 16px;
+  padding: 18px 22px 28px;
   text-align: center;
 }
 
@@ -1074,16 +1089,86 @@ html[data-theme="dark"] .confirm-desc { color: var(--muted); }
 .follow-cta:hover { background: #2b3237; }
 .follow-cta:active { transform: scale(0.97); }
 
+.follow-cta svg { display: block; flex: none; }
+
 .follow-later { font-size: 13px; color: var(--muted); }
 
-.follow-foot {
-  margin: 14px 0 0;
-  font-size: 11.5px;
-  letter-spacing: 0.2px;
-  color: var(--muted);
-  opacity: 0.75;
-  font-variant-numeric: tabular-nums;
+/* Carousel controls ride on the photo, anchored to its bottom edge. No scrim —
+   the dots carry their own ring and the arrow its own chip, so each stays
+   legible against a light or a dark photo without tinting the image. */
+.follow-nav {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 2;
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 14px 16px 16px;
+  pointer-events: none;
 }
+
+.follow-nav > * { pointer-events: auto; }
+
+.follow-dots {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  /* Optically centers the 7px dots against the 40px arrow. */
+  padding-bottom: 16px;
+}
+
+.follow-dot {
+  width: 7px;
+  height: 7px;
+  padding: 0;
+  border: 0;
+  border-radius: 50%;
+  /* A white core inside a dark ring stays readable on light and dark photos
+     alike, which a single flat fill cannot. */
+  background: #fff;
+  box-shadow: 0 0 0 1.5px rgba(0, 0, 0, 0.45);
+  cursor: pointer;
+  transition: transform 160ms ease, box-shadow 160ms ease;
+}
+
+.follow-dot.is-current {
+  background: var(--cyan);
+  transform: scale(1.3);
+  box-shadow: 0 0 0 1.5px rgba(0, 0, 0, 0.45), 0 0 6px rgba(18, 160, 198, 0.9);
+}
+
+.follow-dot:focus-visible,
+.follow-next:focus-visible,
+.follow-close:focus-visible {
+  outline: 3px solid rgba(18, 160, 198, 0.45);
+  outline-offset: 2px;
+}
+
+.follow-next {
+  display: grid;
+  place-items: center;
+  width: 40px;
+  height: 40px;
+  padding: 0;
+  border: 0;
+  border-radius: 50%;
+  background: #fff;
+  box-shadow: 0 1px 6px rgba(0, 0, 0, 0.3);
+  color: #171b1e;
+  cursor: pointer;
+  transition: transform 100ms ease-out;
+}
+
+.follow-next:active { transform: scale(0.94); }
+.follow-next svg { display: block; }
+
+/* One arrow, two jobs: forward by default, back on the final slide. */
+.follow-next .follow-next-back { display: none; }
+.follow-next.is-back .follow-next-fwd { display: none; }
+.follow-next.is-back .follow-next-back { display: block; }
 
 /* Dark theme — follow prompt */
 html[data-theme="dark"] .follow-modal {
@@ -1103,8 +1188,11 @@ html[data-theme="dark"] .follow-later { color: var(--muted); }
 html[data-theme="dark"] .follow-cta { background: #f2f3f4; color: #171b1e; }
 html[data-theme="dark"] .follow-cta:hover { background: #ffffff; }
 
+/* .follow-dot and .follow-next sit on the photo in both themes, so they carry
+   their own contrast and need no theme variants. */
+
 @media (max-width: 480px) {
-  .follow-body { padding: 16px 16px 14px; }
+  .follow-body { padding: 16px 16px 24px; }
 }
 
 /* Reduced motion keeps the feedback, drops the movement: cross-fade only. */
@@ -1117,6 +1205,8 @@ html[data-theme="dark"] .follow-cta:hover { background: #ffffff; }
   }
   .follow-close:active,
   .follow-cta:active { transform: none; }
+  /* Still page the carousel, just without the slide. */
+  .follow-track { transition: none; }
 }
 
 /* Reduced transparency: frost into an opaque surface rather than stacking. */
