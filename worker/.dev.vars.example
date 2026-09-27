@@ -1,0 +1,7 @@
+# Copy to worker/.dev.vars (gitignored) and fill in real values for `wrangler dev`.
+GOOGLE_CLIENT_ID="replace-me.apps.googleusercontent.com"
+GOOGLE_CLIENT_SECRET="replace-me"
+# Generate with: openssl rand -base64 48
+SESSION_SECRET="replace-me"
+# Local Worker origin (must match the Google redirect URI: http://localhost:8787/auth/callback).
+WORKER_URL="http://localhost:8787"

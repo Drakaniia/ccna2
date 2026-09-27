@@ -1,0 +1,245 @@
+---
+import "../styles/global.css";
+import ExamHeader from "../features/exams/components/ExamHeader.astro";
+
+const abs = (p: string) => `${import.meta.env.BASE_URL.replace(/\/?$/, "/")}${p}`;
+---
+
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="robots" content="noindex" />
+    <script is:inline>
+      (function () {
+        try {
+          let t = localStorage.getItem("ccna-theme");
+          if (t !== "dark" && t !== "light") t = "light";
+          document.documentElement.dataset.theme = t;
+        } catch {
+          document.documentElement.dataset.theme = "light";
+        }
+      })();
+    </script>
+    <link rel="icon" type="image/svg+xml" href={abs("favicon.svg")} />
+    <title>Roster — CCNA 2 v7 Practice Exams</title>
+  </head>
+  <body>
+    <div class="app">
+      <ExamHeader title="CCNA 2 v7 — Student Roster" />
+      <main class="admin">
+        <h1>Student roster</h1>
+        <p class="admin-lead">
+          Everyone who has signed in with a Buksu student account. View-only.
+        </p>
+
+        <p class="admin-state" id="adminState">Checking access…</p>
+
+        <div class="admin-table-wrap" id="rosterWrap" hidden>
+          <table class="admin-table">
+            <thead>
+              <tr>
+                <th scope="col">Student ID</th>
+                <th scope="col">Name</th>
+                <th scope="col">Email</th>
+                <th scope="col" class="num">Logins</th>
+                <th scope="col">First login</th>
+                <th scope="col">Last login</th>
+              </tr>
+            </thead>
+            <tbody id="rosterBody"></tbody>
+          </table>
+        </div>
+      </main>
+    </div>
+
+    <script>
+      import { AUTH_BASE_URL, fetchSession, currentPath, loginPageUrl } from "../features/auth/auth-client";
+
+      interface RosterUser {
+        id: string;
+        student_id: string;
+        email: string;
+        name: string | null;
+        picture: string | null;
+        role: string;
+        login_count: number;
+        first_login_at: string;
+        last_login_at: string;
+      }
+
+      function fmt(iso: string): string {
+        const d = new Date(iso);
+        return Number.isNaN(d.getTime()) ? iso : d.toLocaleString();
+      }
+
+      function setState(text: string, hidden = false): void {
+        const el = document.getElementById("adminState");
+        if (!el) return;
+        el.textContent = text;
+        el.hidden = hidden;
+      }
+
+      function renderRows(users: RosterUser[]): void {
+        const body = document.getElementById("rosterBody");
+        const wrap = document.getElementById("rosterWrap");
+        if (!body || !wrap) return;
+        body.replaceChildren();
+
+        for (const u of users) {
+          const tr = document.createElement("tr");
+
+          const idTd = document.createElement("td");
+          idTd.textContent = u.student_id;
+
+          const nameTd = document.createElement("td");
+          if (u.picture) {
+            const img = document.createElement("img");
+            img.className = "roster-avatar";
+            img.src = u.picture;
+            img.alt = "";
+            img.referrerPolicy = "no-referrer";
+            nameTd.appendChild(img);
+          }
+          const nameSpan = document.createElement("span");
+          nameSpan.textContent = u.name ?? "—";
+          nameTd.appendChild(nameSpan);
+
+          const emailTd = document.createElement("td");
+          emailTd.textContent = u.email;
+
+          const countTd = document.createElement("td");
+          countTd.className = "num";
+          countTd.textContent = String(u.login_count);
+
+          const firstTd = document.createElement("td");
+          firstTd.textContent = fmt(u.first_login_at);
+
+          const lastTd = document.createElement("td");
+          lastTd.textContent = fmt(u.last_login_at);
+
+          tr.append(idTd, nameTd, emailTd, countTd, firstTd, lastTd);
+          body.appendChild(tr);
+        }
+
+        wrap.hidden = false;
+      }
+
+      (async function () {
+        const session = await fetchSession();
+
+        if (!session.authenticated) {
+          window.location.replace(loginPageUrl(currentPath()));
+          return;
+        }
+        if (session.user?.role !== "admin") {
+          setState("You are signed in, but this page is restricted to administrators.");
+          return;
+        }
+
+        setState("Loading roster…");
+        try {
+          const res = await fetch(`${AUTH_BASE_URL}/admin/users`, {
+            credentials: "include",
+            headers: { Accept: "application/json" },
+          });
+          if (res.status === 401) {
+            window.location.replace(loginPageUrl(currentPath()));
+            return;
+          }
+          if (!res.ok) {
+            setState("The roster is temporarily unavailable. Please try again later.");
+            return;
+          }
+          const data = (await res.json()) as { users: RosterUser[] };
+          if (!data.users || data.users.length === 0) {
+            setState("No students have signed in yet.");
+            return;
+          }
+          setState("", true);
+          renderRows(data.users);
+        } catch {
+          setState("Could not reach the auth service. Please try again later.");
+        }
+      })();
+    </script>
+  </body>
+</html>
+
+<style>
+  .admin {
+    padding: 26px 24px 60px;
+    max-width: 1080px;
+    margin: 0 auto;
+  }
+
+  .admin h1 {
+    margin: 0 0 8px;
+    font-size: 25px;
+  }
+
+  .admin-lead {
+    margin: 0 0 26px;
+    color: var(--muted);
+    font-size: 14.5px;
+  }
+
+  .admin-state {
+    font-size: 14.5px;
+    color: var(--muted);
+  }
+
+  .admin-table-wrap {
+    overflow-x: auto;
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    background: #fff;
+  }
+
+  .admin-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 14px;
+  }
+
+  .admin-table th,
+  .admin-table td {
+    text-align: left;
+    padding: 12px 16px;
+    border-bottom: 1px solid var(--border);
+    white-space: nowrap;
+  }
+
+  .admin-table th {
+    font-size: 12px;
+    text-transform: uppercase;
+    letter-spacing: 0.6px;
+    color: #8a8f94;
+    background: #fafafa;
+  }
+
+  .admin-table tbody tr:last-child td {
+    border-bottom: 0;
+  }
+
+  .admin-table .num {
+    text-align: right;
+  }
+
+  .roster-avatar {
+    width: 24px;
+    height: 24px;
+    border-radius: 50%;
+    vertical-align: middle;
+    margin-right: 9px;
+  }
+
+  html[data-theme="dark"] .admin-table-wrap {
+    background: #1d2327;
+    border-color: #303a34;
+  }
+
+  html[data-theme="dark"] .admin-table th {
+    background: #232a2e;
+  }
+</style>

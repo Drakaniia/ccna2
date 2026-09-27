@@ -1,0 +1,160 @@
+---
+import "../styles/global.css";
+import { SITE_BASE } from "../features/auth/auth-client";
+
+const redirect = Astro.url.searchParams.get("redirect") ?? "";
+const homeHref = `${SITE_BASE}/`;
+const loginHref = `${SITE_BASE}/login${redirect ? `?redirect=${encodeURIComponent(redirect)}` : ""}`;
+---
+
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="robots" content="noindex" />
+    <script is:inline>
+      (function () {
+        try {
+          let t = localStorage.getItem("ccna-theme");
+          if (t !== "dark" && t !== "light") t = "light";
+          document.documentElement.dataset.theme = t;
+        } catch {
+          document.documentElement.dataset.theme = "light";
+        }
+      })();
+    </script>
+    <title>Sign-in cookie blocked — CCNA 2 v7 Practice Exams</title>
+  </head>
+  <body class="cookie-body">
+    <main class="cookie-card">
+      <span class="cookie-kicker">CCNA 2 v7 Practice Exams</span>
+      <h1>Your browser blocked the sign-in cookie</h1>
+      <p class="cookie-lead">
+        You signed in with Google successfully, but this site could not read the
+        session the auth service set. That normally means your browser is
+        blocking <strong>third-party (cross-site) cookies</strong>.
+      </p>
+      <ul class="cookie-list">
+        <li>Allow cookies for the auth service domain, and allow third-party cookies generally, then try again.</li>
+        <li>Chrome or Firefox usually work; Safari and iOS browsers block these cookies by default.</li>
+        <li>Turn off strict tracking protection or “Prevent cross-site tracking” for this site.</li>
+        <li>If you are in a private/incognito window, try a normal window.</li>
+      </ul>
+      <div class="cookie-actions">
+        <a class="cookie-btn primary" href={loginHref}>Try signing in again</a>
+        <a class="cookie-btn ghost" href={homeHref}>Back to home</a>
+      </div>
+    </main>
+
+    <script>
+      import { fetchSession, sitePath } from "../features/auth/auth-client";
+
+      (async function () {
+        // If cookies actually work now, get out of the way.
+        const params = new URLSearchParams(window.location.search);
+        const target = params.get("redirect") ?? "";
+        const session = await fetchSession();
+        if (session.authenticated) {
+          window.location.replace(target.startsWith("/") ? target : sitePath(""));
+        }
+      })();
+    </script>
+  </body>
+</html>
+
+<style>
+  .cookie-body {
+    min-height: 100vh;
+    display: grid;
+    place-items: center;
+    padding: 32px 18px;
+    background: var(--bg);
+  }
+
+  .cookie-card {
+    width: 100%;
+    max-width: 560px;
+    background: #fff;
+    border: 2px solid var(--border);
+    border-radius: 16px;
+    padding: 34px 34px 30px;
+    box-shadow: 0 10px 30px rgba(40, 70, 40, 0.08);
+  }
+
+  .cookie-kicker {
+    display: inline-block;
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 0.9px;
+    text-transform: uppercase;
+    color: var(--cyan);
+    margin-bottom: 12px;
+  }
+
+  .cookie-card h1 {
+    margin: 0 0 14px;
+    font-size: 25px;
+    line-height: 1.25;
+  }
+
+  .cookie-lead {
+    margin: 0 0 16px;
+    font-size: 15px;
+    line-height: 1.6;
+    color: var(--muted);
+  }
+
+  .cookie-list {
+    margin: 0 0 8px;
+    padding-left: 20px;
+  }
+
+  .cookie-list li {
+    font-size: 14px;
+    line-height: 1.6;
+    color: var(--muted);
+    margin-bottom: 7px;
+  }
+
+  .cookie-actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 12px;
+    margin-top: 22px;
+  }
+
+  .cookie-btn {
+    display: inline-block;
+    padding: 11px 22px;
+    border-radius: 9px;
+    font-size: 14.5px;
+    font-weight: 700;
+    text-decoration: none;
+    border: 2px solid transparent;
+  }
+
+  .cookie-btn.primary {
+    background: var(--green);
+    color: #0f1a0c;
+  }
+
+  .cookie-btn.primary:hover {
+    background: var(--green-dark);
+    color: #fff;
+  }
+
+  .cookie-btn.ghost {
+    border-color: var(--border);
+    color: var(--muted);
+  }
+
+  .cookie-btn.ghost:hover {
+    background: #f1f5f1;
+  }
+
+  html[data-theme="dark"] .cookie-card {
+    background: #1d2327;
+    border-color: #303a34;
+    box-shadow: none;
+  }
+</style>

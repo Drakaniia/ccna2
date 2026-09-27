@@ -43,6 +43,9 @@ const abs = (p: string) => `${import.meta.env.BASE_URL.replace(/\/?$/, "/")}${p}
           document.documentElement.dataset.theme = "light";
         }
       })();
+      // Keep the exam hidden until the auth gate resolves, so a signed-out
+      // visitor never sees the questions before being redirected.
+      document.documentElement.dataset.auth = "pending";
     </script>
     <link rel="icon" type="image/svg+xml" href={abs("favicon.svg")} />
     <link rel="icon" href={abs("favicon.ico")} />
@@ -290,6 +293,7 @@ const abs = (p: string) => `${import.meta.env.BASE_URL.replace(/\/?$/, "/")}${p}
       import { isQuestionCorrect } from "../../features/exams/lib/scoring";
       import { getEffectiveCount, LIMIT_EVENT } from "../../features/exams/lib/exam-limits";
       import { getCheckMode, MODE_EVENT } from "../../features/exams/lib/exam-mode";
+      import { ensureExamAccess, currentPath } from "../../features/auth/auth-client";
       import {
         backToQuiz,
         bootQuiz,
@@ -866,7 +870,14 @@ const abs = (p: string) => `${import.meta.env.BASE_URL.replace(/\/?$/, "/")}${p}
         });
       }
 
-      main();
+      async function init(): Promise<void> {
+        const allowed = await ensureExamAccess(currentPath());
+        if (!allowed) return; // already navigating to login / cookie-blocked
+        document.documentElement.dataset.auth = "ok";
+        main();
+      }
+
+      init();
     </script>
   </body>
 </html>

@@ -1,0 +1,22 @@
+name = "ccna-auth"
+main = "src/index.ts"
+compatibility_date = "2026-09-01"
+
+# Public (non-secret) configuration. Secrets are NOT stored here — set them with
+# `wrangler secret put` (production) or worker/.dev.vars (local):
+#   GOOGLE_CLIENT_ID, GOOGLE_CLIENT_SECRET, SESSION_SECRET, WORKER_URL
+[vars]
+ALLOWED_EMAIL_DOMAIN = "student.buksu.edu.ph"
+ALLOWED_HD_DOMAINS = "student.buksu.edu.ph,buksu.edu.ph"
+STUDENT_ID_REGEX = "^\\d{10}$"
+ADMIN_EMAIL = "2401117078@student.buksu.edu.ph"
+SITE_ORIGIN = "https://drakaniia.github.io"
+# Local dev: `wrangler dev --var SITE_ORIGIN:http://localhost:4321` so the CORS
+# allowlist matches the Astro dev server instead of the production site.
+SITE_BASE_PATH = "/ccna2"
+
+[[d1_databases]]
+binding = "DB"
+database_name = "ccna-auth-db"
+# TODO: paste the id printed by `wrangler d1 create ccna-auth-db`.
+database_id = "REPLACE_WITH_D1_DATABASE_ID"

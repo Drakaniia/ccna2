@@ -1,0 +1,227 @@
+---
+import "../styles/global.css";
+import { AUTH_BASE_URL, SITE_BASE } from "../features/auth/auth-client";
+
+// Only same-site paths under the repo base are accepted as a return target, so
+// the login page can never become an open redirect.
+function safeRedirect(raw: string): string {
+  const base = SITE_BASE ?? "";
+  const fallback = `${base}/`;
+  if (!raw) return fallback;
+  const value = raw.trim();
+  if (!value.startsWith("/") || value.startsWith("//") || value.includes("\\")) return fallback;
+  const pathOnly = value.split(/[?#]/)[0];
+  if (base === "") return value;
+  if (pathOnly === base || pathOnly === `${base}/`) return value;
+  if (!pathOnly.startsWith(`${base}/`)) return fallback;
+  return value;
+}
+
+const redirect = safeRedirect(Astro.url.searchParams.get("redirect") ?? "");
+const loginHref = `${AUTH_BASE_URL}/auth/login?redirect=${encodeURIComponent(redirect)}`;
+const homeHref = `${SITE_BASE}/`;
+---
+
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="robots" content="noindex" />
+    <script is:inline>
+      (function () {
+        try {
+          let t = localStorage.getItem("ccna-theme");
+          if (t !== "dark" && t !== "light") t = "light";
+          document.documentElement.dataset.theme = t;
+        } catch {
+          document.documentElement.dataset.theme = "light";
+        }
+      })();
+    </script>
+    <link rel="icon" type="image/svg+xml" href={`${SITE_BASE}/favicon.svg`} />
+    <title>Sign in — CCNA 2 v7 Practice Exams</title>
+  </head>
+  <body class="auth-body">
+    <main class="auth-card">
+      <span class="auth-kicker">CCNA 2 v7 — SRWE Practice Exams</span>
+      <h1>Sign in to take the exams</h1>
+      <p class="auth-lead">
+        Practice exams are limited to <strong>Buksu student accounts</strong> — a
+        numeric student ID on the <code>student.buksu.edu.ph</code> domain
+        (for example <code>2401117078@student.buksu.edu.ph</code>).
+      </p>
+      <p class="auth-lead">
+        Personal mailboxes and <code>@buksu.edu.ph</code> staff accounts are not
+        accepted. You sign in with Google; this site never sees your password.
+      </p>
+
+      <a class="auth-google" id="googleSignIn" href={loginHref}>
+        <svg viewBox="0 0 18 18" width="18" height="18" aria-hidden="true">
+          <path
+            fill="#4285F4"
+            d="M17.64 9.2c0-.64-.06-1.25-.16-1.84H9v3.48h4.84a4.14 4.14 0 0 1-1.8 2.72v2.26h2.92c1.7-1.57 2.68-3.88 2.68-6.62Z"
+          ></path>
+          <path
+            fill="#34A853"
+            d="M9 18c2.43 0 4.47-.8 5.96-2.18l-2.92-2.26c-.8.54-1.84.86-3.04.86-2.34 0-4.32-1.58-5.03-3.7H.96v2.33A9 9 0 0 0 9 18Z"
+          ></path>
+          <path
+            fill="#FBBC05"
+            d="M3.97 10.72a5.4 5.4 0 0 1 0-3.44V4.95H.96a9 9 0 0 0 0 8.1l3.01-2.33Z"
+          ></path>
+          <path
+            fill="#EA4335"
+            d="M9 3.58c1.32 0 2.5.45 3.44 1.35l2.58-2.58C13.46.9 11.43 0 9 0A9 9 0 0 0 .96 4.95l3.01 2.33C4.68 5.16 6.66 3.58 9 3.58Z"
+          ></path>
+        </svg>
+        Sign in with Google
+      </a>
+
+      <p class="auth-privacy">
+        <strong>Privacy (Data Privacy Act, RA 10173):</strong> when you sign in we
+        store your student ID, name, email, profile picture, and sign-in times in
+        our own database to keep track of who uses the exams. We do not store your
+        password and we do not share this data. Ask your instructor to have your
+        record removed.
+      </p>
+
+      <a class="auth-home" href={homeHref}>← Back to exam selection</a>
+    </main>
+
+    <script>
+      import { fetchSession, sitePath } from "../features/auth/auth-client";
+
+      (async function () {
+        const params = new URLSearchParams(window.location.search);
+        const target = params.get("redirect") ?? "";
+        const dest = target.startsWith("/") ? target : sitePath("");
+
+        const session = await fetchSession();
+        if (session.authenticated) {
+          // Already signed in — skip the login page.
+          window.location.replace(dest);
+          return;
+        }
+
+        // Returned from a "successful" callback yet still signed out: the
+        // browser is blocking the cross-site cookie.
+        if (params.get("auth") === "ok") {
+          window.location.replace(sitePath("cookie-blocked"));
+        }
+      })();
+    </script>
+  </body>
+</html>
+
+<style>
+  .auth-body {
+    min-height: 100vh;
+    display: grid;
+    place-items: center;
+    padding: 32px 18px;
+    background: var(--bg);
+  }
+
+  .auth-card {
+    width: 100%;
+    max-width: 560px;
+    background: #fff;
+    border: 2px solid var(--border);
+    border-radius: 16px;
+    padding: 34px 34px 30px;
+    box-shadow: 0 10px 30px rgba(40, 70, 40, 0.08);
+  }
+
+  .auth-kicker {
+    display: inline-block;
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 0.9px;
+    text-transform: uppercase;
+    color: var(--cyan);
+    margin-bottom: 12px;
+  }
+
+  .auth-card h1 {
+    margin: 0 0 14px;
+    font-size: 26px;
+    line-height: 1.25;
+  }
+
+  .auth-lead {
+    margin: 0 0 14px;
+    font-size: 15px;
+    line-height: 1.6;
+    color: var(--muted);
+  }
+
+  .auth-lead code {
+    font-size: 13.5px;
+    background: var(--cyan-soft);
+    border-radius: 5px;
+    padding: 1px 6px;
+  }
+
+  .auth-google {
+    display: inline-flex;
+    align-items: center;
+    gap: 11px;
+    margin: 14px 0 4px;
+    padding: 12px 24px;
+    border: 2px solid #dadce0;
+    border-radius: 10px;
+    background: #fff;
+    color: #3c4043;
+    font-size: 15.5px;
+    font-weight: 600;
+    text-decoration: none;
+    transition: 0.15s ease;
+  }
+
+  .auth-google:hover {
+    border-color: var(--green-dark);
+    box-shadow: 0 4px 14px rgba(77, 152, 56, 0.2);
+  }
+
+  .auth-google svg {
+    display: block;
+    flex: none;
+  }
+
+  .auth-privacy {
+    margin: 22px 0 0;
+    padding-top: 16px;
+    border-top: 1px solid var(--border);
+    font-size: 12.5px;
+    line-height: 1.6;
+    color: #8a9ba3;
+  }
+
+  .auth-home {
+    display: inline-block;
+    margin-top: 18px;
+    font-size: 13.5px;
+    color: var(--muted);
+    text-decoration: none;
+  }
+
+  .auth-home:hover {
+    color: var(--text);
+  }
+
+  html[data-theme="dark"] .auth-card {
+    background: #1d2327;
+    border-color: #303a34;
+    box-shadow: none;
+  }
+
+  html[data-theme="dark"] .auth-google {
+    background: #252c28;
+    border-color: #3a453d;
+    color: #e3e6ea;
+  }
+
+  html[data-theme="dark"] .auth-lead code {
+    background: #2a3a40;
+  }
+</style>

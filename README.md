@@ -4,7 +4,7 @@
 
 Interactive practice exams for the **CCNA 2 v7 (Switching, Routing, and Wireless Essentials)** module checkpoint quizzes, built as a static site with [Astro](https://astro.build).
 
-Choose an exam group from the home page and work through its questions with instant checking, explanations, exhibit images, and a final score gauge — no account or backend required.
+Choose an exam group from the home page and work through its questions with instant checking, explanations, exhibit images, and a final score gauge. Taking an exam requires signing in with a Buksu student Google account (see [Authentication](#authentication-buksu-sso)); the chooser itself stays public.
 
 ## Features
 
@@ -41,6 +41,8 @@ Choose an exam group from the home page and work through its questions with inst
 - [Astro](https://astro.build) — static site generation, routing, and server-isolated rendering
 - [React](https://react.dev) — island components (`@astrojs/react`)
 - [lucide-react](https://lucide.dev) — icons
+- [Cloudflare Workers](https://workers.cloudflare.com) + [Wrangler](https://developers.cloudflare.com/workers/wrangler/) — the auth-only backend (`worker/`) that performs Google OAuth and holds the session
+- [Cloudflare D1](https://developers.cloudflare.com/d1/) — free SQLite database holding the student identity roster
 - Cisco Sans — self-hosted brand typeface (`src/styles/fonts/`, Regular/Bold/Heavy + obliques). Licensed, so the source archive is gitignored and the extracted woff2/woff files are committed. The files live under `src/` rather than `public/` so Vite applies the `/ccna2` base path; see the `@font-face` block in `src/styles/global.css` for the weight mapping.
 
 ## Getting started
@@ -66,6 +68,64 @@ astro dev stop           # stop the dev server
 npm run build      # static output goes to dist/
 npm run preview    # serve the production build locally
 ```
+
+## Authentication (Buksu SSO)
+
+Exams are gated behind a **Cloudflare Worker** (`worker/`) that performs Google OAuth 2.0 and issues an `httpOnly` session cookie. Only Buksu **student** accounts are admitted — a numeric student ID on the `student.buksu.edu.ph` domain (e.g. `2401117078@student.buksu.edu.ph`). Personal mailboxes and `@buksu.edu.ph` staff addresses are intentionally rejected. The home page and module chooser remain public.
+
+Why a Worker: GitHub Pages is static and cannot exchange an OAuth code, hold a client secret, or keep a session. The Worker is the only trusted component; the static site merely asks it who the visitor is.
+
+### Worker API
+
+| Method | Route | Auth | Behavior |
+| --- | --- | --- | --- |
+| `GET` | `/auth/login` | none | Builds `state` + PKCE, 302s to Google. |
+| `GET` | `/auth/callback` | none | Validates `state`, exchanges the code, applies the admission rules, upserts D1 (fail-open), sets the cookie, 302s back to the site. |
+| `GET` | `/auth/session` | cookie | `{ authenticated, user }`. |
+| `POST` | `/auth/logout` | cookie | Clears this site's cookie, 204. |
+| `GET` | `/admin/users` | admin | Read-only roster for the admin page. |
+| `GET` | `/health` | none | Deployment smoke test. |
+
+### One-time setup
+
+1. `cd worker && npm install`
+2. `npx wrangler d1 create ccna-auth-db` and paste the printed `database_id` into `worker/wrangler.toml`.
+3. Apply the schema: `npx wrangler d1 execute ccna-auth-db --remote --file=schema.sql`
+4. Set the secrets:
+   ```bash
+   npx wrangler secret put GOOGLE_CLIENT_ID
+   npx wrangler secret put GOOGLE_CLIENT_SECRET
+   openssl rand -base64 48 | npx wrangler secret put SESSION_SECRET
+   npx wrangler secret put WORKER_URL   # https://ccna-auth.<SUBDOMAIN>.workers.dev
+   ```
+5. `npx wrangler deploy`, then register the Worker URL **everywhere the `<SUBDOMAIN>` TODO appears** (Google Cloud console redirect URI + `PUBLIC_AUTH_BASE_URL` in `.github/workflows/deploy.yml`).
+6. In the Google Cloud console, add the redirect URI `https://ccna-auth.<SUBDOMAIN>.workers.dev/auth/callback` and publish the consent screen (or add test users).
+
+### Local development
+
+```bash
+# terminal 1 — auth backend at http://localhost:8787
+cd worker && cp .dev.vars.example .dev.vars   # fill in the secrets
+npx wrangler d1 execute ccna-auth-db --local --file=schema.sql
+npx wrangler dev --var SITE_ORIGIN:http://localhost:4321
+
+# terminal 2 — site at http://localhost:4321 (PUBLIC_AUTH_BASE_URL defaults to :8787)
+astro dev --background
+```
+
+`worker/.dev.vars` and `worker/.wrangler/` are gitignored. The root `.env` holds the raw Google client credentials for reference only; the Worker reads secrets from `.dev.vars` / `wrangler secret`.
+
+### Tests
+
+```bash
+cd worker && npm test
+```
+
+`worker/test/rules.test.ts` covers the admission matrix (accepted student IDs, personal mailboxes, faculty addresses, non-numeric IDs, wrong digit counts, suffix spoofing, unverified emails); `worker/test/session.test.ts` covers JWT expiry/tamper rejection and cookie flags.
+
+### Honest limitation
+
+The exam pages are static files, so the questions live in the public bundle. The gate stops a casual visitor who opens an exam URL; it does not stop anyone who downloads the JS payload. Real enforcement would require serving exam content from behind the Worker — out of scope for this release.
 
 ## Deployment
 
