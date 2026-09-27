@@ -425,14 +425,18 @@ const abs = (p: string) => `${import.meta.env.BASE_URL.replace(/\/?$/, "/")}${p}
           const p = st.current;
           tabs.replaceChildren();
 
-          m.questions.forEach((_, idx) => {
+          // One tab per *attempt position*, not per module question: a question
+          // limit makes st.order shorter than m.questions, and every lookup
+          // below (answers, skipped, goTo) is keyed by attempt position.
+          st.order.forEach((sourceIndex, idx) => {
+            const q = m.questions[sourceIndex];
             const btn = document.createElement("button");
             btn.type = "button";
             btn.className = "qtab";
             btn.textContent = `Q${idx + 1}`;
 
             const answered =
-              m.questions[st.order[idx]].type === "pair"
+              q.type === "pair"
                 ? !!st.pairs[idx] && Object.keys(st.pairs[idx] ?? {}).length > 0
                 : (st.answers[idx]?.length ?? 0) > 0;
 
@@ -443,7 +447,7 @@ const abs = (p: string) => `${import.meta.env.BASE_URL.replace(/\/?$/, "/")}${p}
             } else if (st.reviewed[idx]) {
               // flagged to revisit — orange instead of the green/verdict color
               btn.classList.add("reviewed");
-            } else if (st.checked[idx] && !isQuestionCorrect(m.questions[st.order[idx]], st, idx)) {
+            } else if (st.checked[idx] && !isQuestionCorrect(q, st, idx)) {
               btn.classList.add("wrong");
             } else {
               // answered (and not wrong) — filled green
