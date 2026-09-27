@@ -1,0 +1,60 @@
+# Continuous integration — runs on every push and pull request.
+#
+# Two independent gates:
+#   * worker — the SSO/admission logic (pure unit tests + route tests + types)
+#   * site   — the Astro static site (astro check across pages and islands)
+#
+# The auth logic is the only thing standing between the exams and the public
+# internet, so it gets an explicit gate on every push rather than only on PRs.
+
+
+name: CI
+
+on:
+  push:
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+# Superseded runs on the same ref are pointless once a newer push lands.
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  worker:
+    name: Worker tests & typecheck
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: worker
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: worker/package-lock.json
+      - name: Install dependencies
+        run: npm ci
+      - name: Typecheck
+        run: npm run typecheck
+      - name: Unit + route tests
+        run: npm run test
+
+  site:
+    name: Site check
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: package-lock.json
+      - name: Install dependencies
+        run: npm ci
+      - name: Astro check
+        run: npm run check

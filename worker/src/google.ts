@@ -12,10 +12,17 @@ function bytesToB64url(bytes: Uint8Array): string {
   return btoa(binary).replace(/\+/g, "-").replace(/\//g, "_").replace(/=+$/, "");
 }
 
+/**
+ * Decode a base64url segment to text. `atob` yields a Latin-1 string, so the
+ * raw bytes are re-decoded as UTF-8 — otherwise Google names with accented or
+ * non-Latin characters (e.g. "Ybañez") arrive mojibake'd as "YbaÃ±ez".
+ */
 function b64urlToString(value: string): string {
   const padded = value.replace(/-/g, "+").replace(/_/g, "/");
   const pad = padded.length % 4 === 0 ? "" : "=".repeat(4 - (padded.length % 4));
-  return atob(padded + pad);
+  const binary = atob(padded + pad);
+  const bytes = Uint8Array.from(binary, (c) => c.charCodeAt(0));
+  return new TextDecoder().decode(bytes);
 }
 
 /** Random, URL-safe state value for the CSRF check (spec §5). */

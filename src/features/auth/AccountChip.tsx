@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { LogOut } from "lucide-react";
+import { LogOut, Users } from "lucide-react";
 import { fetchSession, signOut, sitePath, type SessionResponse } from "./auth-client";
 
 /**
@@ -21,6 +21,10 @@ export default function AccountChip() {
 
   const user = session?.authenticated ? session.user : undefined;
   if (!user) return null;
+
+  // Only admins can open the roster (the Worker re-checks the role server-side),
+  // so the link is rendered from the session rather than for everyone.
+  const isAdmin = user.role === "admin";
 
   const label = user.name?.trim() || user.studentId || user.email;
   const initials = label
@@ -47,6 +51,17 @@ export default function AccountChip() {
         </span>
       )}
       <span className="account-name">{label}</span>
+      {isAdmin && (
+        <a
+          className="account-admin"
+          href={sitePath("admin/")}
+          aria-label="Student roster"
+          title="Student roster"
+        >
+          <Users size={14} />
+          <span className="account-admin-label">Roster</span>
+        </a>
+      )}
       <button
         type="button"
         className="hdr-btn account-signout"

@@ -86,6 +86,14 @@ Why a Worker: GitHub Pages is static and cannot exchange an OAuth code, hold a c
 | `GET` | `/admin/users` | admin | Read-only roster for the admin page. |
 | `GET` | `/health` | none | Deployment smoke test. |
 
+### Admins
+
+`ADMIN_EMAIL` in `worker/wrangler.toml` is a **comma-separated** list. Every address on it gets the `admin` role in the session and may open `/ccna2/admin/` (the read-only student roster). Everyone else is a `student`. Changing the list is a one-line commit — the Worker deploy workflow applies it.
+
+```toml
+ADMIN_EMAIL = "2401117078@student.buksu.edu.ph,2401115560@student.buksu.edu.ph"
+```
+
 ### One-time setup
 
 1. `cd worker && npm install`
@@ -101,20 +109,31 @@ Why a Worker: GitHub Pages is static and cannot exchange an OAuth code, hold a c
    `wrangler secret put` requires the Worker to already exist on the account, so run `npx wrangler deploy` once (from step 5) before setting secrets on a fresh setup.
 5. `npx wrangler deploy` — the Worker is live at `https://ccna-auth.floresaybaez574.workers.dev`.
 6. In the Google Cloud console, add the redirect URI `https://ccna-auth.floresaybaez574.workers.dev/auth/callback` (and the JavaScript origin `https://ccna-auth.floresaybaez574.workers.dev`) and publish the consent screen (or add test users).
+7. Set the OAuth consent screen's **App name** to something students recognise (e.g. `CCNA 2 v7 Practice Exams`), add an **App logo**, a **support email**, a **privacy policy URL**, and list `buksu.edu.ph` as an **Authorized domain**. Until the app is published, only added test users can sign in — Google shows "Access blocked" for everyone else.
 
 ### Local development
 
-```bash
-# terminal 1 — auth backend at http://localhost:8787
-cd worker && cp .dev.vars.example .dev.vars   # fill in the secrets
-npx wrangler d1 execute ccna-auth-db --local --file=schema.sql
-npx wrangler dev --var SITE_ORIGIN:http://localhost:4321
+One command starts both servers:
 
-# terminal 2 — site at http://localhost:4321 (PUBLIC_AUTH_BASE_URL defaults to :8787)
-astro dev --background
+```bash
+bun run dev          # or: npm run dev
 ```
 
-`worker/.dev.vars` and `worker/.wrangler/` are gitignored. The root `.env` holds the raw Google client credentials for reference only; the Worker reads secrets from `.dev.vars` / `wrangler secret`.
+It generates `worker/.dev.vars` from the root `.env`, applies the local D1 schema, then runs the Astro site on <http://localhost:4321> and the Worker on <http://localhost:8787>. `Ctrl+C` stops both. The Worker is started with `SITE_ORIGIN=http://localhost:4321` so its CORS allowlist accepts the dev site.
+
+The root `.env` (gitignored) is the single source for local secrets:
+
+| Key | Notes |
+| --- | --- |
+| `GOOGLE_CLIENT_ID` / `GOOGLE_CLIENT_SECRET` | From the Google Cloud console. |
+| `SESSION_SECRET` | Signs the session JWT. Generate with `openssl rand -base64 48`. Without it, `wrangler` fails on the first sign-in with `Imported HMAC key length (0) must be a non-zero value`. |
+| `ADMIN_EMAIL` | Optional comma-separated admin list; overrides `wrangler.toml` locally. |
+
+`bun run dev -- --sync` regenerates `worker/.dev.vars` without starting anything. To run one side only, use `npm run dev:site`, or `cd worker && npx wrangler dev --var SITE_ORIGIN:http://localhost:4321`. The ports can be changed with `SITE_PORT` / `WORKER_PORT`.
+
+For local Google sign-in, `http://localhost:8787/auth/callback` must be registered as an authorized redirect URI on the OAuth client.
+
+`worker/.dev.vars` and `worker/.wrangler/` are gitignored.
 
 ### Tests
 
@@ -122,7 +141,7 @@ astro dev --background
 cd worker && npm test
 ```
 
-`worker/test/rules.test.ts` covers the admission matrix (accepted student IDs, personal mailboxes, faculty addresses, non-numeric IDs, wrong digit counts, suffix spoofing, unverified emails); `worker/test/session.test.ts` covers JWT expiry/tamper rejection and cookie flags.
+`worker/test/rules.test.ts` covers the admission matrix (accepted student IDs, personal mailboxes, faculty addresses, non-numeric IDs, wrong digit counts, suffix spoofing, unverified emails, and the multi-admin list); `worker/test/session.test.ts` covers JWT expiry/tamper rejection and cookie flags; `worker/test/routes.test.ts` drives the real `fetch` handler against a stub D1 to cover login, callback, session, logout, and the admin route.
 
 ### Honest limitation
 
@@ -131,6 +150,10 @@ The exam pages are static files, so the questions live in the public bundle. The
 ## Deployment
 
 The site is automatically built and deployed to **GitHub Pages** on every push to `main` via `.github/workflows/deploy.yml`. See that workflow's header comment for the one-time GitHub repository settings it requires.
+
+The Worker is deployed by `.github/workflows/worker-deploy.yml` on every push to `main` that touches `worker/` — it typechecks, runs the tests, applies `schema.sql` to D1, then deploys, so the database and code cannot drift apart. It needs two repository secrets: `CLOUDFLARE_API_TOKEN` (Workers Scripts:Edit + D1:Edit) and `CLOUDFLARE_ACCOUNT_ID`.
+
+`.github/workflows/ci.yml` runs the Worker typecheck + tests and `astro check` on **every** push and pull request, so the auth logic cannot regress silently.
 
 ## Project structure
 

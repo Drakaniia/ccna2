@@ -1,0 +1,86 @@
+# Deploys the ccna-auth Worker whenever anything under worker/ changes on main.
+#
+# The schema is applied before every deploy so D1 and the code can never drift:
+# schema.sql is idempotent (CREATE TABLE/INDEX IF NOT EXISTS), so re-running it
+# is a no-op once applied.
+#
+# One-time setup (repo Settings → Secrets and variables → Actions):
+#   CLOUDFLARE_API_TOKEN  — token scoped to "Edit Cloudflare Workers" plus
+#                           D1:Edit, for the account that owns ccna-auth
+#   CLOUDFLARE_ACCOUNT_ID — the Cloudflare account id (Workers dashboard URL)
+#
+# Worker secrets (GOOGLE_CLIENT_ID, GOOGLE_CLIENT_SECRET, SESSION_SECRET,
+# WORKER_URL) are NOT needed here — they live in Cloudflare and survive
+# deploys. Set them once with `wrangler secret put` from the worker directory.
+#
+# Plain vars come from worker/wrangler.toml [vars], which is the single source
+# of truth, so changing SITE_ORIGIN or ADMIN_EMAIL is just a commit.
+
+
+name: Deploy Worker
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - "worker/**"
+      - ".github/workflows/worker-deploy.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+# Never run two deploys at once; let an in-flight one finish rather than
+# cancelling it, so the last push to land is the one that ends up live.
+concurrency:
+  group: worker-deploy
+  cancel-in-progress: false
+
+jobs:
+  deploy:
+    name: Test, migrate, deploy
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: worker
+    steps:
+      - uses: actions/checkout@v7
+
+      - name: Check Cloudflare credentials are configured
+        working-directory: .
+        run: |
+          if [ -z "${{ secrets.CLOUDFLARE_API_TOKEN }}" ] || [ -z "${{ secrets.CLOUDFLARE_ACCOUNT_ID }}" ]; then
+            echo "::error::Set the CLOUDFLARE_API_TOKEN and CLOUDFLARE_ACCOUNT_ID repository secrets before deploying."
+            exit 1
+          fi
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: worker/package-lock.json
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Typecheck
+        run: npm run typecheck
+
+      - name: Tests
+        run: npm run test
+
+      - name: Apply D1 schema
+        uses: cloudflare/wrangler-action@v3
+        with:
+          apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+          workingDirectory: worker
+          command: d1 execute ccna-auth-db --remote --file=./schema.sql
+
+      - name: Deploy Worker
+        uses: cloudflare/wrangler-action@v3
+        with:
+          apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+          workingDirectory: worker
+          command: deploy

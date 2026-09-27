@@ -1234,7 +1234,43 @@ html[data-theme="dark"] .follow-cta:hover { background: #ffffff; }
   border: 1px solid var(--border);
   border-radius: 999px;
   background: #fff;
-  max-width: 220px;
+  max-width: 300px;
+}
+
+/* Admin-only shortcut to the student roster, inside the chip so it is reachable
+   from every page that renders the header. */
+.account-admin {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  flex: none;
+  padding: 4px 10px;
+  border-radius: 999px;
+  background: rgba(18, 160, 198, 0.14);
+  color: #0f5866;
+  font-size: 12px;
+  font-weight: 600;
+  text-decoration: none;
+  white-space: nowrap;
+  transition: background 140ms ease;
+}
+
+.account-admin:hover {
+  background: rgba(18, 160, 198, 0.26);
+}
+
+.account-admin svg {
+  display: block;
+  flex: none;
+}
+
+@media (max-width: 640px) {
+  .account-admin-label {
+    display: none;
+  }
+  .account-admin {
+    padding: 4px 7px;
+  }
 }
 
 .account-avatar {
@@ -1287,6 +1323,15 @@ html[data-theme="dark"] .account-chip {
 html[data-theme="dark"] .account-avatar-fallback {
   background: #2a3a40;
   color: #9fdcea;
+}
+
+html[data-theme="dark"] .account-admin {
+  background: rgba(18, 160, 198, 0.24);
+  color: #9fdcea;
+}
+
+html[data-theme="dark"] .account-admin:hover {
+  background: rgba(18, 160, 198, 0.36);
 }
 
 /* Gate flash guard: exam routes stay invisible until the session check lands. */

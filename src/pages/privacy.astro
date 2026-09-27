@@ -1,0 +1,221 @@
+---
+import "../styles/global.css";
+import { SITE_BASE } from "../features/auth/auth-client";
+
+const homeHref = `${SITE_BASE}/`;
+const contactEmail = "2401117078@student.buksu.edu.ph";
+const updated = "27 September 2026";
+---
+
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <script is:inline>
+      (function () {
+        try {
+          let t = localStorage.getItem("ccna-theme");
+          if (t !== "dark" && t !== "light") t = "light";
+          document.documentElement.dataset.theme = t;
+        } catch {
+          document.documentElement.dataset.theme = "light";
+        }
+      })();
+    </script>
+    <link rel="icon" type="image/svg+xml" href={`${SITE_BASE}/favicon.svg`} />
+    <title>Privacy policy — CCNA 2 v7 Practice Exams</title>
+    <meta
+      name="description"
+      content="What the CCNA 2 v7 Practice Exams site collects when you sign in with a Buksu Google account, and your rights under the Data Privacy Act of 2012."
+    />
+  </head>
+  <body>
+    <main class="policy">
+      <span class="policy-kicker">CCNA 2 v7 — SRWE Practice Exams</span>
+      <h1>Privacy policy</h1>
+      <p class="policy-updated">Last updated: {updated}</p>
+
+      <p>
+        This is a student practice site for the CCNA 2 v7 (SRWE) course. To keep the
+        practice exams limited to enrolled students, it uses <strong>Sign in with
+        Google</strong> and stores a small record of who has signed in. This page
+        explains exactly what is collected and why, in line with the <strong>Data
+        Privacy Act of 2012 (RA 10173)</strong>.
+      </p>
+
+      <h2>What we collect</h2>
+      <p>When you sign in with your Buksu student Google account, we receive from Google and store:</p>
+      <ul>
+        <li>your <strong>student ID</strong> (the numeric part of your Buksu email address);</li>
+        <li>your <strong>email address</strong> (for example <code>2401117078@student.buksu.edu.ph</code>);</li>
+        <li>your <strong>display name</strong> and <strong>profile picture</strong>;</li>
+        <li>the <strong>time of your first and most recent sign-in</strong>, and how many times you have signed in.</li>
+      </ul>
+      <p>
+        We do <strong>not</strong> receive or store your Google password, and we do not
+        request access to your Gmail, Drive, Calendar, or any other Google data. The
+        only thing we ask Google for is your basic identity
+        (<code>openid email profile</code>).
+      </p>
+
+      <h2>Why we collect it</h2>
+      <ul>
+        <li><strong>To admit you to the exams</strong> — confirming you are a Buksu student.</li>
+        <li><strong>To keep your session open</strong> for up to 8 hours so you are not asked to sign in again mid-exam.</li>
+        <li><strong>To let the instructor see who has used the practice exams</strong>, so support and class follow-up go to the right people.</li>
+      </ul>
+
+      <h2>Where it is stored</h2>
+      <p>
+        The record is stored in a <strong>Cloudflare D1</strong> database (Asia-Pacific
+        region) owned by this project, and the sign-in exchange runs on a <strong>Cloudflare
+        Worker</strong>. The site itself is static and hosted on GitHub Pages. Google acts
+        as the identity provider and processes the sign-in under <a
+          href="https://policies.google.com/privacy"
+          rel="noopener noreferrer"
+          target="_blank">Google's own privacy policy</a>.
+      </p>
+      <p>
+        Your record is <strong>never sold, rented, or shared</strong> with advertisers
+        or any third party. There is no tracking, no analytics, and no advertising on
+        this site.
+      </p>
+
+      <h2>Cookies</h2>
+      <p>We set two small cookies, both first-party and both required for signing in:</p>
+      <ul>
+        <li><code>ccna_session</code> — your signed-in session. It is <code>HttpOnly</code>,
+          expires after 8 hours, and is deleted when you sign out.</li>
+        <li><code>ccna_oauth_state</code> — a short-lived (10 minute) guard that protects
+          the sign-in handshake against tampering. It is deleted as soon as the
+          handshake finishes.</li>
+      </ul>
+      <p>
+        The only other thing stored in your browser is your light/dark theme choice,
+        which never leaves your device.
+      </p>
+
+      <h2>How long we keep it</h2>
+      <p>
+        Records are kept while the course is running, and are deleted after the term
+        ends or as soon as you ask — whichever comes first.
+      </p>
+
+      <h2>Your rights</h2>
+      <p>Under RA 10173 you have the right to:</p>
+      <ul>
+        <li>be told whether we hold a record about you, and to see a copy of it;</li>
+        <li>have inaccurate information corrected;</li>
+        <li>have your record erased;</li>
+        <li>object to the processing of your record; and</li>
+        <li>lodge a complaint with the <strong>National Privacy Commission</strong>.</li>
+      </ul>
+      <p>
+        To exercise any of these, email your instructor using the address you signed in
+        with and ask for your record to be removed. There is no fee and no reason
+        needed.
+      </p>
+
+      <h2>Contact</h2>
+      <p>
+        Questions about this policy or your record: <a href={`mailto:${contactEmail}`}>{contactEmail}</a>
+      </p>
+
+      <a class="policy-home" href={homeHref}>← Back to exam selection</a>
+      <p class="policy-foot">
+        This page is the privacy policy URL registered with our Google OAuth consent screen.
+      </p>
+    </main>
+  </body>
+</html>
+
+<style>
+  .policy {
+    max-width: 720px;
+    margin: 0 auto;
+    padding: 44px 22px 80px;
+  }
+
+  .policy-kicker {
+    display: inline-block;
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 0.9px;
+    text-transform: uppercase;
+    color: var(--cyan);
+    margin-bottom: 10px;
+  }
+
+  .policy h1 {
+    margin: 0 0 6px;
+    font-size: 30px;
+    letter-spacing: -0.5px;
+  }
+
+  .policy-updated {
+    margin: 0 0 26px;
+    font-size: 13px;
+    color: #8a8f94;
+  }
+
+  .policy h2 {
+    margin: 30px 0 10px;
+    font-size: 18px;
+    letter-spacing: -0.2px;
+  }
+
+  .policy p,
+  .policy li {
+    font-size: 15px;
+    line-height: 1.65;
+    color: var(--text);
+  }
+
+  .policy p {
+    margin: 0 0 14px;
+  }
+
+  .policy ul {
+    margin: 0 0 14px;
+    padding-left: 22px;
+  }
+
+  .policy li {
+    margin-bottom: 7px;
+  }
+
+  .policy code {
+    font-size: 13.5px;
+    background: var(--cyan-soft);
+    border-radius: 5px;
+    padding: 1px 6px;
+  }
+
+  .policy a {
+    color: var(--cyan);
+  }
+
+  .policy-home {
+    display: inline-block;
+    margin-top: 30px;
+    font-size: 13.5px;
+    color: var(--muted);
+    text-decoration: none;
+  }
+
+  .policy-home:hover {
+    color: var(--text);
+  }
+
+  .policy-foot {
+    margin-top: 12px;
+    padding-top: 14px;
+    border-top: 1px solid var(--border);
+    font-size: 12.5px;
+    color: #8a8f94;
+  }
+
+  html[data-theme="dark"] .policy code {
+    background: #2a3a40;
+  }
+</style>

@@ -28,27 +28,70 @@ const abs = (p: string) => `${import.meta.env.BASE_URL.replace(/\/?$/, "/")}${p}
     <div class="app">
       <ExamHeader title="CCNA 2 v7 — Student Roster" />
       <main class="admin">
-        <h1>Student roster</h1>
-        <p class="admin-lead">
-          Everyone who has signed in with a Buksu student account. View-only.
-        </p>
+        <header class="admin-head">
+          <span class="admin-kicker">Administration</span>
+          <h1>Student roster</h1>
+          <p class="admin-lead">
+            Everyone who has signed in with a Buksu student account. View-only.
+          </p>
+          <p class="admin-who" id="adminWho" hidden></p>
+        </header>
 
         <p class="admin-state" id="adminState">Checking access…</p>
 
-        <div class="admin-table-wrap" id="rosterWrap" hidden>
-          <table class="admin-table">
-            <thead>
-              <tr>
-                <th scope="col">Student ID</th>
-                <th scope="col">Name</th>
-                <th scope="col">Email</th>
-                <th scope="col" class="num">Logins</th>
-                <th scope="col">First login</th>
-                <th scope="col">Last login</th>
-              </tr>
-            </thead>
-            <tbody id="rosterBody"></tbody>
-          </table>
+        <div id="adminBody" hidden>
+          <section class="stat-grid" aria-label="Roster summary">
+            <div class="stat-tile">
+              <span class="stat-value" id="statStudents">0</span>
+              <span class="stat-label">Students</span>
+            </div>
+            <div class="stat-tile">
+              <span class="stat-value" id="statToday">0</span>
+              <span class="stat-label">Active today</span>
+            </div>
+            <div class="stat-tile">
+              <span class="stat-value" id="statLogins">0</span>
+              <span class="stat-label">Total sign-ins</span>
+            </div>
+            <div class="stat-tile">
+              <span class="stat-value" id="statAdmins">0</span>
+              <span class="stat-label">Admins</span>
+            </div>
+          </section>
+
+          <div class="roster-toolbar">
+            <label class="roster-search" for="rosterSearch">
+              <svg viewBox="0 0 16 16" width="15" height="15" aria-hidden="true">
+                <circle cx="7" cy="7" r="5" fill="none" stroke="currentColor" stroke-width="1.7" />
+                <line x1="11" y1="11" x2="15" y2="15" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" />
+              </svg>
+              <input
+                id="rosterSearch"
+                type="search"
+                placeholder="Search name, ID, or email"
+                autocomplete="off"
+                spellcheck="false"
+              />
+            </label>
+            <span class="roster-count" id="rosterCount"></span>
+          </div>
+
+          <div class="admin-table-wrap">
+            <table class="admin-table">
+              <thead>
+                <tr>
+                  <th scope="col">Student</th>
+                  <th scope="col">Student ID</th>
+                  <th scope="col">Email</th>
+                  <th scope="col" class="col-num">Logins</th>
+                  <th scope="col">First login</th>
+                  <th scope="col">Last login</th>
+                </tr>
+              </thead>
+              <tbody id="rosterBody"></tbody>
+            </table>
+            <p class="roster-empty" id="rosterEmpty" hidden>No matches.</p>
+          </div>
         </div>
       </main>
     </div>
@@ -68,9 +111,37 @@ const abs = (p: string) => `${import.meta.env.BASE_URL.replace(/\/?$/, "/")}${p}
         last_login_at: string;
       }
 
+      let allUsers: RosterUser[] = [];
+
+      // Compact enough for a table cell: "Sep 27, 8:18 PM" this year, with the
+      // year shown only when it differs from the current one.
       function fmt(iso: string): string {
         const d = new Date(iso);
-        return Number.isNaN(d.getTime()) ? iso : d.toLocaleString();
+        if (Number.isNaN(d.getTime())) return iso;
+        const opts: Intl.DateTimeFormatOptions = {
+          month: "short",
+          day: "numeric",
+          hour: "numeric",
+          minute: "2-digit",
+        };
+        if (d.getFullYear() !== new Date().getFullYear()) opts.year = "numeric";
+        return d.toLocaleString(undefined, opts);
+      }
+
+      function isToday(iso: string): boolean {
+        const d = new Date(iso);
+        if (Number.isNaN(d.getTime())) return false;
+        const now = new Date();
+        return (
+          d.getFullYear() === now.getFullYear() &&
+          d.getMonth() === now.getMonth() &&
+          d.getDate() === now.getDate()
+        );
+      }
+
+      function setText(id: string, value: string): void {
+        const el = document.getElementById(id);
+        if (el) el.textContent = value;
       }
 
       function setState(text: string, hidden = false): void {
@@ -80,50 +151,120 @@ const abs = (p: string) => `${import.meta.env.BASE_URL.replace(/\/?$/, "/")}${p}
         el.hidden = hidden;
       }
 
+      function renderStats(users: RosterUser[]): void {
+        setText("statStudents", String(users.length));
+        setText("statToday", String(users.filter((u) => isToday(u.last_login_at)).length));
+        setText("statLogins", String(users.reduce((sum, u) => sum + (u.login_count || 0), 0)));
+        setText("statAdmins", String(users.filter((u) => u.role === "admin").length));
+      }
+
+      function initials(name: string | null, id: string): string {
+        const source = (name ?? "").trim() || id;
+        return (
+          source
+            .split(/\s+/)
+            .map((p) => p[0] ?? "")
+            .join("")
+            .slice(0, 2)
+            .toUpperCase() || "?"
+        );
+      }
+
+      function buildCell(className?: string): HTMLTableCellElement {
+        const td = document.createElement("td");
+        if (className) td.className = className;
+        return td;
+      }
+
       function renderRows(users: RosterUser[]): void {
         const body = document.getElementById("rosterBody");
-        const wrap = document.getElementById("rosterWrap");
-        if (!body || !wrap) return;
+        const empty = document.getElementById("rosterEmpty");
+        if (!body) return;
         body.replaceChildren();
 
         for (const u of users) {
           const tr = document.createElement("tr");
 
-          const idTd = document.createElement("td");
-          idTd.textContent = u.student_id;
+          // Student — avatar (or initials) plus name and role badge.
+          const studentTd = buildCell();
+          const person = document.createElement("div");
+          person.className = "roster-person";
 
-          const nameTd = document.createElement("td");
           if (u.picture) {
             const img = document.createElement("img");
             img.className = "roster-avatar";
             img.src = u.picture;
             img.alt = "";
             img.referrerPolicy = "no-referrer";
-            nameTd.appendChild(img);
+            person.appendChild(img);
+          } else {
+            const fallback = document.createElement("span");
+            fallback.className = "roster-avatar roster-avatar-fallback";
+            fallback.setAttribute("aria-hidden", "true");
+            fallback.textContent = initials(u.name, u.student_id);
+            person.appendChild(fallback);
           }
-          const nameSpan = document.createElement("span");
-          nameSpan.textContent = u.name ?? "—";
-          nameTd.appendChild(nameSpan);
 
-          const emailTd = document.createElement("td");
+          const meta = document.createElement("div");
+          meta.className = "roster-person-meta";
+          const nameSpan = document.createElement("span");
+          nameSpan.className = "roster-person-name";
+          nameSpan.textContent = u.name ?? "—";
+          meta.appendChild(nameSpan);
+
+          if (u.role === "admin") {
+            const badge = document.createElement("span");
+            badge.className = "roster-role";
+            badge.textContent = "Admin";
+            meta.appendChild(badge);
+          }
+
+          person.appendChild(meta);
+          studentTd.appendChild(person);
+
+          const idTd = buildCell("col-id");
+          idTd.textContent = u.student_id;
+
+          const emailTd = buildCell("col-email");
           emailTd.textContent = u.email;
 
-          const countTd = document.createElement("td");
-          countTd.className = "num";
+          const countTd = buildCell("col-num");
           countTd.textContent = String(u.login_count);
 
-          const firstTd = document.createElement("td");
+          const firstTd = buildCell();
           firstTd.textContent = fmt(u.first_login_at);
 
-          const lastTd = document.createElement("td");
+          const lastTd = buildCell();
           lastTd.textContent = fmt(u.last_login_at);
 
-          tr.append(idTd, nameTd, emailTd, countTd, firstTd, lastTd);
+          tr.append(studentTd, idTd, emailTd, countTd, firstTd, lastTd);
           body.appendChild(tr);
         }
 
-        wrap.hidden = false;
+        if (empty) empty.hidden = users.length !== 0;
       }
+
+      function applyFilter(): void {
+        const input = document.getElementById("rosterSearch") as HTMLInputElement | null;
+        const query = (input?.value ?? "").trim().toLowerCase();
+        const filtered = query
+          ? allUsers.filter((u) =>
+              [u.name ?? "", u.student_id, u.email].some((field) =>
+                field.toLowerCase().includes(query)
+              )
+            )
+          : allUsers;
+
+        renderRows(filtered);
+        setText(
+          "rosterCount",
+          query
+            ? `${filtered.length} of ${allUsers.length}`
+            : `${allUsers.length} ${allUsers.length === 1 ? "student" : "students"}`
+        );
+      }
+
+      document.getElementById("rosterSearch")?.addEventListener("input", applyFilter);
 
       (async function () {
         const session = await fetchSession();
@@ -135,6 +276,12 @@ const abs = (p: string) => `${import.meta.env.BASE_URL.replace(/\/?$/, "/")}${p}
         if (session.user?.role !== "admin") {
           setState("You are signed in, but this page is restricted to administrators.");
           return;
+        }
+
+        const who = document.getElementById("adminWho");
+        if (who) {
+          who.textContent = `Signed in as ${session.user.name?.trim() || session.user.email}`;
+          who.hidden = false;
         }
 
         setState("Loading roster…");
@@ -152,12 +299,14 @@ const abs = (p: string) => `${import.meta.env.BASE_URL.replace(/\/?$/, "/")}${p}
             return;
           }
           const data = (await res.json()) as { users: RosterUser[] };
-          if (!data.users || data.users.length === 0) {
-            setState("No students have signed in yet.");
-            return;
-          }
+          allUsers = data.users ?? [];
+
           setState("", true);
-          renderRows(data.users);
+          const body = document.getElementById("adminBody");
+          if (body) body.hidden = false;
+
+          renderStats(allUsers);
+          applyFilter();
         } catch {
           setState("Could not reach the auth service. Please try again later.");
         }
@@ -166,34 +315,162 @@ const abs = (p: string) => `${import.meta.env.BASE_URL.replace(/\/?$/, "/")}${p}
   </body>
 </html>
 
-<style>
+<!--
+  `is:global` on purpose: the roster rows are built with createElement in the
+  script above, and Astro's scoped styles target `[data-astro-cid-…]` — an
+  attribute only server-rendered elements receive. Scoping the row classes
+  would silently leave every row unstyled.
+-->
+<style is:global>
   .admin {
-    padding: 26px 24px 60px;
-    max-width: 1080px;
+    padding: 30px 24px 72px;
+    max-width: 1060px;
     margin: 0 auto;
+  }
+
+  .admin-head {
+    margin-bottom: 24px;
+  }
+
+  .admin-kicker {
+    display: inline-block;
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 0.9px;
+    text-transform: uppercase;
+    color: var(--cyan);
+    margin-bottom: 8px;
   }
 
   .admin h1 {
     margin: 0 0 8px;
-    font-size: 25px;
+    font-size: 30px;
+    letter-spacing: -0.5px;
   }
 
   .admin-lead {
-    margin: 0 0 26px;
+    margin: 0;
     color: var(--muted);
-    font-size: 14.5px;
+    font-size: 15px;
+  }
+
+  .admin-who {
+    display: inline-block;
+    margin: 14px 0 0;
+    padding: 5px 12px;
+    border-radius: 999px;
+    background: rgba(18, 160, 198, 0.12);
+    color: #0f5866;
+    font-size: 12.5px;
+    font-weight: 600;
   }
 
   .admin-state {
-    font-size: 14.5px;
+    font-size: 15px;
     color: var(--muted);
   }
 
-  .admin-table-wrap {
-    overflow-x: auto;
-    border: 1px solid var(--border);
+  /* ---------- stat tiles ---------- */
+
+  .stat-grid {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 14px;
+    margin-bottom: 20px;
+  }
+
+  .stat-tile {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    padding: 18px 20px;
+    border-radius: 18px;
+    background: rgba(255, 255, 255, 0.72);
+    -webkit-backdrop-filter: blur(18px) saturate(160%);
+    backdrop-filter: blur(18px) saturate(160%);
+    border: 1px solid rgba(255, 255, 255, 0.7);
+    box-shadow: 0 6px 22px rgba(20, 30, 25, 0.07), 0 0 0 1px rgba(0, 0, 0, 0.03);
+  }
+
+  .stat-value {
+    font-size: 30px;
+    font-weight: 700;
+    letter-spacing: -0.8px;
+    color: var(--text);
+    font-variant-numeric: tabular-nums;
+  }
+
+  .stat-label {
+    font-size: 12px;
+    font-weight: 600;
+    letter-spacing: 0.5px;
+    text-transform: uppercase;
+    color: #8a8f94;
+  }
+
+  /* ---------- toolbar ---------- */
+
+  .roster-toolbar {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    margin-bottom: 14px;
+  }
+
+  .roster-search {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    flex: 1;
+    max-width: 360px;
+    padding: 9px 13px;
     border-radius: 12px;
+    background: rgba(120, 120, 128, 0.12);
+    color: #8a8f94;
+    transition: background 0.15s ease, box-shadow 0.15s ease;
+  }
+
+  .roster-search:focus-within {
     background: #fff;
+    box-shadow: 0 0 0 3px rgba(18, 160, 198, 0.22);
+  }
+
+  .roster-search svg {
+    flex: none;
+    display: block;
+  }
+
+  .roster-search input {
+    flex: 1;
+    min-width: 0;
+    border: 0;
+    background: transparent;
+    font-size: 15px;
+    color: var(--text);
+    outline: none;
+  }
+
+  .roster-search input::placeholder {
+    color: #9aa3ab;
+  }
+
+  .roster-count {
+    font-size: 13px;
+    font-weight: 600;
+    color: #8a8f94;
+    font-variant-numeric: tabular-nums;
+  }
+
+  /* ---------- table ---------- */
+
+  .admin-table-wrap {
+    border-radius: 18px;
+    background: rgba(255, 255, 255, 0.72);
+    -webkit-backdrop-filter: blur(18px) saturate(160%);
+    backdrop-filter: blur(18px) saturate(160%);
+    border: 1px solid rgba(255, 255, 255, 0.7);
+    box-shadow: 0 6px 26px rgba(20, 30, 25, 0.08), 0 0 0 1px rgba(0, 0, 0, 0.03);
+    overflow-x: auto;
   }
 
   .admin-table {
@@ -205,41 +482,187 @@ const abs = (p: string) => `${import.meta.env.BASE_URL.replace(/\/?$/, "/")}${p}
   .admin-table th,
   .admin-table td {
     text-align: left;
-    padding: 12px 16px;
-    border-bottom: 1px solid var(--border);
+    padding: 12px 14px;
+    border-bottom: 1px solid rgba(0, 0, 0, 0.06);
     white-space: nowrap;
+    vertical-align: middle;
+  }
+
+  /* The email is the longest column and the only one that may truncate, so the
+     table fits its card instead of scrolling horizontally. */
+  .admin-table .col-email {
+    max-width: 250px;
+    overflow: hidden;
+    text-overflow: ellipsis;
   }
 
   .admin-table th {
-    font-size: 12px;
+    font-size: 11.5px;
     text-transform: uppercase;
     letter-spacing: 0.6px;
+    font-weight: 700;
     color: #8a8f94;
-    background: #fafafa;
+    background: rgba(255, 255, 255, 0.5);
+  }
+
+  .admin-table tbody tr {
+    transition: background 0.12s ease;
+  }
+
+  .admin-table tbody tr:hover {
+    background: rgba(120, 120, 128, 0.07);
   }
 
   .admin-table tbody tr:last-child td {
     border-bottom: 0;
   }
 
-  .admin-table .num {
+  .admin-table .col-num {
     text-align: right;
+    font-variant-numeric: tabular-nums;
+  }
+
+  .admin-table .col-id {
+    font-variant-numeric: tabular-nums;
+    letter-spacing: 0.3px;
+  }
+
+  .admin-table .col-email {
+    color: var(--muted);
+  }
+
+  .roster-person {
+    display: flex;
+    align-items: center;
+    gap: 11px;
   }
 
   .roster-avatar {
-    width: 24px;
-    height: 24px;
+    width: 34px;
+    height: 34px;
     border-radius: 50%;
-    vertical-align: middle;
-    margin-right: 9px;
+    flex: none;
+    object-fit: cover;
+    display: block;
   }
 
+  .roster-avatar-fallback {
+    display: grid;
+    place-items: center;
+    background: var(--cyan-soft);
+    color: #0f5866;
+    font-size: 12px;
+    font-weight: 700;
+  }
+
+  .roster-person-meta {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    min-width: 0;
+  }
+
+  .roster-person-name {
+    font-weight: 600;
+    color: var(--text);
+  }
+
+  .roster-role {
+    flex: none;
+    font-size: 10.5px;
+    font-weight: 700;
+    letter-spacing: 0.5px;
+    text-transform: uppercase;
+    color: #0f5866;
+    background: rgba(18, 160, 198, 0.16);
+    border-radius: 999px;
+    padding: 3px 9px;
+  }
+
+  .roster-empty {
+    margin: 0;
+    padding: 26px 18px;
+    text-align: center;
+    font-size: 14px;
+    color: #8a8f94;
+  }
+
+  /* ---------- responsive ---------- */
+
+  @media (max-width: 720px) {
+    .stat-grid {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+  }
+
+  @media (max-width: 480px) {
+    .admin {
+      padding: 24px 16px 64px;
+    }
+    .admin h1 {
+      font-size: 26px;
+    }
+    .roster-toolbar {
+      flex-direction: column;
+      align-items: stretch;
+    }
+    .roster-search {
+      max-width: none;
+    }
+  }
+
+  /* ---------- dark theme ---------- */
+
+  html[data-theme="dark"] .admin-who {
+    background: rgba(18, 160, 198, 0.18);
+    color: #9fdcea;
+  }
+
+  html[data-theme="dark"] .stat-tile,
   html[data-theme="dark"] .admin-table-wrap {
-    background: #1d2327;
-    border-color: #303a34;
+    background: rgba(30, 34, 40, 0.72);
+    border-color: rgba(255, 255, 255, 0.06);
+    box-shadow: 0 6px 26px rgba(0, 0, 0, 0.4), 0 0 0 1px rgba(255, 255, 255, 0.04);
   }
 
   html[data-theme="dark"] .admin-table th {
-    background: #232a2e;
+    background: rgba(255, 255, 255, 0.04);
+    color: #98a1aa;
+  }
+
+  html[data-theme="dark"] .admin-table th,
+  html[data-theme="dark"] .admin-table td {
+    border-bottom-color: rgba(255, 255, 255, 0.07);
+  }
+
+  html[data-theme="dark"] .admin-table tbody tr:hover {
+    background: rgba(255, 255, 255, 0.05);
+  }
+
+  html[data-theme="dark"] .roster-avatar-fallback {
+    background: #2a3a40;
+    color: #9fdcea;
+  }
+
+  html[data-theme="dark"] .roster-role {
+    background: rgba(18, 160, 198, 0.22);
+    color: #9fdcea;
+  }
+
+  html[data-theme="dark"] .roster-search {
+    background: rgba(120, 120, 128, 0.24);
+  }
+
+  html[data-theme="dark"] .roster-search:focus-within {
+    background: #23272d;
+  }
+
+  @media (prefers-reduced-transparency: reduce) {
+    .stat-tile,
+    .admin-table-wrap {
+      background: #fff;
+      -webkit-backdrop-filter: none;
+      backdrop-filter: none;
+    }
   }
 </style>

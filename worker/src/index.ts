@@ -258,7 +258,16 @@ async function handleAdminUsers(request: Request, env: Env, cors: Headers): Prom
   if (user.role !== "admin") return json({ error: "forbidden" }, 403, cors);
 
   try {
-    const users = await listUsers(env.DB);
+    const config = configFromEnv(env);
+    // Derive the displayed role from live config instead of the stored column:
+    // a row written before an ADMIN_EMAIL change keeps its old role until that
+    // account signs in again, which would mislabel a new admin as a student.
+    const users = (await listUsers(env.DB)).map((row) => ({
+      ...row,
+      role: config.adminEmails.includes(row.email.trim().toLowerCase())
+        ? ("admin" as const)
+        : ("student" as const),
+    }));
     return json({ users }, 200, cors);
   } catch (err) {
     console.error("ccna-auth: roster query failed", err);

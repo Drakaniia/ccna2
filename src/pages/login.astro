@@ -20,6 +20,7 @@ function safeRedirect(raw: string): string {
 const redirect = safeRedirect(Astro.url.searchParams.get("redirect") ?? "");
 const loginHref = `${AUTH_BASE_URL}/auth/login?redirect=${encodeURIComponent(redirect)}`;
 const homeHref = `${SITE_BASE}/`;
+const privacyHref = `${SITE_BASE}/privacy/`;
 ---
 
 <html lang="en">
@@ -82,7 +83,7 @@ const homeHref = `${SITE_BASE}/`;
         store your student ID, name, email, profile picture, and sign-in times in
         our own database to keep track of who uses the exams. We do not store your
         password and we do not share this data. Ask your instructor to have your
-        record removed.
+        record removed. <a class="auth-policy-link" href={privacyHref}>Read the full privacy policy →</a>
       </p>
 
       <a class="auth-home" href={homeHref}>← Back to exam selection</a>
@@ -195,6 +196,11 @@ const homeHref = `${SITE_BASE}/`;
     font-size: 12.5px;
     line-height: 1.6;
     color: #8a9ba3;
+  }
+
+  .auth-policy-link {
+    color: var(--cyan);
+    white-space: nowrap;
   }
 
   .auth-home {

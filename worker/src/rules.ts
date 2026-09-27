@@ -19,7 +19,8 @@ export interface RuleConfig {
   allowedEmailDomain: string;
   allowedHdDomains: string[];
   studentIdRegex: string;
-  adminEmail: string;
+  /** Normalised lowercase admin emails; ADMIN_EMAIL is comma-separated. */
+  adminEmails: string[];
 }
 
 export type DenyReason =
@@ -48,7 +49,10 @@ export function configFromEnv(env: Env): RuleConfig {
       .map((d) => d.trim().toLowerCase())
       .filter(Boolean),
     studentIdRegex: env.STUDENT_ID_REGEX || "^\\d{10}$",
-    adminEmail: (env.ADMIN_EMAIL || "").trim().toLowerCase(),
+    adminEmails: (env.ADMIN_EMAIL || "")
+      .split(",")
+      .map((e) => e.trim().toLowerCase())
+      .filter(Boolean),
   };
 }
 
@@ -104,7 +108,7 @@ export function evaluateIdentity(claims: GoogleClaims, config: RuleConfig): Rule
     return { allowed: false, reason: "wrong_hd", role: "student" };
   }
 
-  const role: Role = config.adminEmail && email === config.adminEmail ? "admin" : "student";
+  const role: Role = config.adminEmails.includes(email) ? "admin" : "student";
   return { allowed: true, email, studentId, role };
 }
 

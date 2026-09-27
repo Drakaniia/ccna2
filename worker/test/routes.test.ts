@@ -347,6 +347,26 @@ describe("worker routes — /admin/users", () => {
 
     const res = await worker.fetch(get("/admin/users", { Cookie: `${SESSION_COOKIE}=${token}` }), env, ctx);
     expect(res.status).toBe(200);
-    expect(await res.json()).toEqual({ users: rows });
+    // The handler stamps the live role onto each row.
+    expect(await res.json()).toEqual({ users: rows.map((row) => ({ ...row, role: "admin" })) });
+  });
+
+  it("labels a stale row as admin once ADMIN_EMAIL lists it", async () => {
+    // Simulates a row written before the account was promoted: the stored role
+    // is 'student', but the live config now includes it.
+    const rows = [
+      { student_id: "2401115560", email: "2401115560@student.buksu.edu.ph", role: "student", login_count: 1 },
+      { student_id: "2401101397", email: "2401101397@student.buksu.edu.ph", role: "student", login_count: 1 },
+    ];
+    const { db } = makeDb({ rows });
+    const { env } = makeEnv({
+      ADMIN_EMAIL: "2401117078@student.buksu.edu.ph,2401115560@student.buksu.edu.ph",
+    });
+    (env as Env).DB = db;
+    const token = await createSessionToken(sessionUser("admin"), SECRET);
+
+    const res = await worker.fetch(get("/admin/users", { Cookie: `${SESSION_COOKIE}=${token}` }), env, ctx);
+    const body = (await res.json()) as { users: { role: string }[] };
+    expect(body.users.map((u) => u.role)).toEqual(["admin", "student"]);
   });
 });

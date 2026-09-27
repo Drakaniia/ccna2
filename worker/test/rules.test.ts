@@ -1,12 +1,12 @@
 import { describe, expect, it } from "vitest";
-import { evaluateIdentity, type RuleConfig } from "../src/rules";
-import type { GoogleClaims } from "../src/types";
+import { configFromEnv, evaluateIdentity, type RuleConfig } from "../src/rules";
+import type { Env, GoogleClaims } from "../src/types";
 
 const config: RuleConfig = {
   allowedEmailDomain: "student.buksu.edu.ph",
   allowedHdDomains: ["student.buksu.edu.ph", "buksu.edu.ph"],
   studentIdRegex: "^\\d{10}$",
-  adminEmail: "2400000000@student.buksu.edu.ph",
+  adminEmails: ["2400000000@student.buksu.edu.ph"],
 };
 
 function claims(overrides: Partial<GoogleClaims> = {}): GoogleClaims {
@@ -18,6 +18,28 @@ function claims(overrides: Partial<GoogleClaims> = {}): GoogleClaims {
     ...overrides,
   };
 }
+
+const emptyEnv = (overrides: Partial<Env> = {}): Env =>
+  ({
+    ALLOWED_EMAIL_DOMAIN: "student.buksu.edu.ph",
+    ALLOWED_HD_DOMAINS: "student.buksu.edu.ph,buksu.edu.ph",
+    STUDENT_ID_REGEX: "^\\d{10}$",
+    ADMIN_EMAIL: "",
+    ...overrides,
+  }) as Env;
+
+describe("configFromEnv — ADMIN_EMAIL", () => {
+  it("parses a comma-separated admin list, trimming and lowercasing", () => {
+    const cfg = configFromEnv(
+      emptyEnv({ ADMIN_EMAIL: " A@student.buksu.edu.ph ,B@student.buksu.edu.ph " })
+    );
+    expect(cfg.adminEmails).toEqual(["a@student.buksu.edu.ph", "b@student.buksu.edu.ph"]);
+  });
+
+  it("yields an empty list when ADMIN_EMAIL is unset", () => {
+    expect(configFromEnv(emptyEnv()).adminEmails).toEqual([]);
+  });
+});
 
 describe("evaluateIdentity — accepts", () => {
   it("admits a 10-digit student ID on the student domain", () => {
@@ -49,9 +71,29 @@ describe("evaluateIdentity — accepts", () => {
   it("grants the admin role to ADMIN_EMAIL", () => {
     const result = evaluateIdentity(
       claims({ email: "2401117078@student.buksu.edu.ph" }),
-      { ...config, adminEmail: "2401117078@student.buksu.edu.ph" }
+      { ...config, adminEmails: ["2401117078@student.buksu.edu.ph"] }
     );
     expect(result.role).toBe("admin");
+  });
+
+  it("grants the admin role to any of several comma-separated admins", () => {
+    const admins = ["2401117078@student.buksu.edu.ph", "2401115560@student.buksu.edu.ph"];
+    expect(
+      evaluateIdentity(claims({ email: "2401115560@student.buksu.edu.ph" }), {
+        ...config,
+        adminEmails: admins,
+      }).role
+    ).toBe("admin");
+    expect(
+      evaluateIdentity(claims({ email: "2401117078@student.buksu.edu.ph" }), {
+        ...config,
+        adminEmails: admins,
+      }).role
+    ).toBe("admin");
+  });
+
+  it("keeps a non-admin student as student", () => {
+    expect(evaluateIdentity(claims(), { ...config, adminEmails: [] }).role).toBe("student");
   });
 });
 
