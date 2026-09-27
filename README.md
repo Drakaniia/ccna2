@@ -96,10 +96,11 @@ Why a Worker: GitHub Pages is static and cannot exchange an OAuth code, hold a c
    npx wrangler secret put GOOGLE_CLIENT_ID
    npx wrangler secret put GOOGLE_CLIENT_SECRET
    openssl rand -base64 48 | npx wrangler secret put SESSION_SECRET
-   npx wrangler secret put WORKER_URL   # https://ccna-auth.<SUBDOMAIN>.workers.dev
+   npx wrangler secret put WORKER_URL   # https://ccna-auth.floresaybaez574.workers.dev
    ```
-5. `npx wrangler deploy`, then register the Worker URL **everywhere the `<SUBDOMAIN>` TODO appears** (Google Cloud console redirect URI + `PUBLIC_AUTH_BASE_URL` in `.github/workflows/deploy.yml`).
-6. In the Google Cloud console, add the redirect URI `https://ccna-auth.<SUBDOMAIN>.workers.dev/auth/callback` and publish the consent screen (or add test users).
+   `wrangler secret put` requires the Worker to already exist on the account, so run `npx wrangler deploy` once (from step 5) before setting secrets on a fresh setup.
+5. `npx wrangler deploy` — the Worker is live at `https://ccna-auth.floresaybaez574.workers.dev`.
+6. In the Google Cloud console, add the redirect URI `https://ccna-auth.floresaybaez574.workers.dev/auth/callback` (and the JavaScript origin `https://ccna-auth.floresaybaez574.workers.dev`) and publish the consent screen (or add test users).
 
 ### Local development
 

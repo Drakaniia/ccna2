@@ -36,8 +36,7 @@ jobs:
         uses: withastro/action@v6
         env:
           # Public origin of the Cloudflare Worker that performs Buksu SSO auth.
-          # TODO: replace <SUBDOMAIN> with the deployed workers.dev subdomain.
-          PUBLIC_AUTH_BASE_URL: https://ccna-auth.<SUBDOMAIN>.workers.dev
+          PUBLIC_AUTH_BASE_URL: https://ccna-auth.floresaybaez574.workers.dev
         # with:
         #   path: . # The root location of your Astro project inside the repository. (optional)
         #   node-version: 24 # The specific version of Node that should be used to build your site. Defaults to 24. (optional)

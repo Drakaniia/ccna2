@@ -18,5 +18,4 @@ SITE_BASE_PATH = "/ccna2"
 [[d1_databases]]
 binding = "DB"
 database_name = "ccna-auth-db"
-# TODO: paste the id printed by `wrangler d1 create ccna-auth-db`.
-database_id = "REPLACE_WITH_D1_DATABASE_ID"
+database_id = "89a68bc1-c77f-4714-ac79-2856fd63828b"
