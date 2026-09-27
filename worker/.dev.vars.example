@@ -5,3 +5,6 @@ GOOGLE_CLIENT_SECRET="replace-me"
 SESSION_SECRET="replace-me"
 # Local Worker origin (must match the Google redirect URI: http://localhost:8787/auth/callback).
 WORKER_URL="http://localhost:8787"
+# Comma-separated; everyone listed gets the admin role and /admin/users access.
+# Keep in sync with ADMIN_EMAIL in wrangler.toml [vars] — this file wins under `wrangler dev`.
+ADMIN_EMAIL="2401117078@student.buksu.edu.ph"
