@@ -29,4 +29,5 @@ cisco-sans.zip
 # jetbrains setting folder
 .idea/
 
-.vscode/
+.vscode/.prisma-composer/
+.alchemy/
