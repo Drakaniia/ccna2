@@ -4,7 +4,93 @@
    Component-specific sections live in their own Astro components.
    ========================================================================== */
 
+/* ---------- Cisco Sans ----------
+   Self-hosted from the licensed files in src/styles/fonts/. They live under
+   src/ rather than public/ on purpose: Vite fingerprints them and prefixes the
+   `base` from astro.config.mjs, so the URLs stay correct under the
+   /ccna2/ GitHub Pages path. A hand-written "/fonts/..." path would 404 in
+   production because it omits that base.
+
+   The family ships five cuts: Thin 100, ExtraLight 200, Regular 400, Bold 700,
+   Heavy 900. Only the cuts this UI renders are declared; the weights in use
+   are 400/500/600/700/800, and the family has no Medium, so 500 points at the
+   Regular file and 600/800 fall through to Bold/Heavy by the font-matching
+   rules. eot/ttf are omitted — woff2 has universal support. */
+@font-face {
+  font-family: "Cisco Sans";
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src:
+    local("CiscoSans"),
+    local("Cisco Sans"),
+    url("./fonts/CiscoSans.woff2") format("woff2"),
+    url("./fonts/CiscoSans.woff") format("woff");
+}
+
+/* No Medium cut in this family — 500 deliberately renders as Regular. */
+@font-face {
+  font-family: "Cisco Sans";
+  font-style: normal;
+  font-weight: 500;
+  font-display: swap;
+  src:
+    local("CiscoSans"),
+    local("Cisco Sans"),
+    url("./fonts/CiscoSans.woff2") format("woff2"),
+    url("./fonts/CiscoSans.woff") format("woff");
+}
+
+@font-face {
+  font-family: "Cisco Sans";
+  font-style: normal;
+  font-weight: 700;
+  font-display: swap;
+  src:
+    local("CiscoSans-Bold"),
+    local("Cisco Sans Bold"),
+    url("./fonts/CiscoSans-Bold.woff2") format("woff2"),
+    url("./fonts/CiscoSans-Bold.woff") format("woff");
+}
+
+@font-face {
+  font-family: "Cisco Sans";
+  font-style: normal;
+  font-weight: 900;
+  font-display: swap;
+  src:
+    local("CiscoSans-Heavy"),
+    local("Cisco Sans Heavy"),
+    url("./fonts/CiscoSans-Heavy.woff2") format("woff2"),
+    url("./fonts/CiscoSans-Heavy.woff") format("woff");
+}
+
+@font-face {
+  font-family: "Cisco Sans";
+  font-style: italic;
+  font-weight: 400;
+  font-display: swap;
+  src:
+    local("CiscoSans-Oblique"),
+    local("Cisco Sans Oblique"),
+    url("./fonts/CiscoSans-Oblique.woff2") format("woff2"),
+    url("./fonts/CiscoSans-Oblique.woff") format("woff");
+}
+
+@font-face {
+  font-family: "Cisco Sans";
+  font-style: italic;
+  font-weight: 700;
+  font-display: swap;
+  src:
+    local("CiscoSans-BoldOblique"),
+    local("Cisco Sans Bold Oblique"),
+    url("./fonts/CiscoSans-BoldOblique.woff2") format("woff2"),
+    url("./fonts/CiscoSans-BoldOblique.woff") format("woff");
+}
+
 :root {
+  --font-sans: "Cisco Sans", "Segoe UI", Arial, sans-serif;
   --green: #65ae4b;
   --green-dark: #4d9838;
   --cyan: #12a0c6;
@@ -38,11 +124,19 @@ body {
 body {
   background: #fff;
   color: var(--text);
-  font-family: "Segoe UI", Arial, sans-serif;
+  font-family: var(--font-sans);
   font-size: 15px;
 }
 
 button {
+  font-family: inherit;
+}
+
+/* Form controls are the one family of elements that ignores the cascade, so
+   they need to be opted in explicitly. */
+input,
+select,
+textarea {
   font-family: inherit;
 }
 

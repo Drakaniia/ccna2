@@ -41,7 +41,7 @@ Choose an exam group from the home page and work through its questions with inst
 - [Astro](https://astro.build) — static site generation, routing, and server-isolated rendering
 - [React](https://react.dev) — island components (`@astrojs/react`)
 - [lucide-react](https://lucide.dev) — icons
-- [Inter](https://rsms.me/inter/) variable font (`@fontsource-variable/inter`)
+- Cisco Sans — self-hosted brand typeface (`src/styles/fonts/`, Regular/Bold/Heavy + obliques). Licensed, so the source archive is gitignored and the extracted woff2/woff files are committed. The files live under `src/` rather than `public/` so Vite applies the `/ccna2` base path; see the `@font-face` block in `src/styles/global.css` for the weight mapping.
 
 ## Getting started
 
