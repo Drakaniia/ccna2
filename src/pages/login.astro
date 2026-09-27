@@ -73,6 +73,10 @@ const heroHeight = 600;
           CCNA 2 v7 — SRWE Practice Exams
         </span>
         <h1>Sign in to take the exams</h1>
+        <p class="auth-subtitle">
+          For security, access is protected by a sign-in layer limited to verified
+          Buksu student accounts.
+        </p>
 
         {/*
           Eligibility help. The account rules live only in this popover, so the card
@@ -103,10 +107,6 @@ const heroHeight = 600;
               Practice exams are limited to <strong>Buksu student accounts</strong> — a
               numeric student ID on the <code>student.buksu.edu.ph</code> domain
               (for example <code>2401117078@student.buksu.edu.ph</code>).
-            </p>
-            <p class="auth-popover-text">
-              Personal mailboxes and <code>@buksu.edu.ph</code> staff accounts are not
-              accepted. You sign in with Google; this site never sees your password.
             </p>
           </div>
         </div>
@@ -363,11 +363,18 @@ const heroHeight = 600;
   }
 
   .auth-card h1 {
-    margin: 0 0 14px;
+    margin: 0 0 8px;
     font-size: 33px;
     line-height: 1.16;
     font-weight: 800;
     color: var(--auth-ink);
+  }
+
+  .auth-subtitle {
+    margin: 0 0 18px;
+    font-size: 14px;
+    line-height: 1.5;
+    color: var(--auth-slate);
   }
 
   /* ---------- eligibility help ---------- */
