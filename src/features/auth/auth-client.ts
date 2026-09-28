@@ -68,26 +68,55 @@ export async function signOut(returnTo: string = sitePath("login")): Promise<voi
 }
 
 /**
- * Gate for exam routes. Returns `true` only when the visitor may proceed;
- * otherwise it has already started navigating away.
+ * How much of an exam a visitor gets.
  *
- * @param redirectPath the current site path (including base) to return to,
- *                     e.g. `/ccna2/exam/modules-7-9`.
+ * `full` is any valid session — a Buksu student or an admin, since both hold the
+ * cookie. `preview` is everyone else: they may answer the first few questions
+ * for free and are sent to the login page when they try to go further.
  */
-export async function ensureExamAccess(redirectPath: string): Promise<boolean> {
-  const session = await fetchSession();
-  if (session.authenticated) return true;
+export type AccessMode = "full" | "preview";
 
-  // We just came back from a successful callback but still look signed out —
-  // the browser dropped the cross-site cookie.
-  const params = new URLSearchParams(window.location.search);
-  if (params.get("auth") === "ok") {
-    window.location.replace(sitePath("cookie-blocked"));
-    return false;
-  }
+/** Number of questions a signed-out visitor gets before the login redirect. */
+export const PREVIEW_QUESTION_COUNT = 5;
 
-  window.location.replace(loginPageUrl(redirectPath));
-  return false;
+/**
+ * Fired on `window` by the exam page right after it resolves the mode.
+ *
+ * `data-access` is only written once an awaited session fetch returns, which is
+ * strictly after any `client:load` island has hydrated. An island that reads the
+ * flag once on mount therefore reads the `"full"` default and can never observe
+ * `"preview"` — this event is how it learns the real answer.
+ */
+export const ACCESS_MODE_EVENT = "exam:access";
+
+/** Type guard for values read back out of storage or the DOM. */
+export function isAccessMode(value: unknown): value is AccessMode {
+  return value === "full" || value === "preview";
+}
+
+/**
+ * Publish the resolved access mode to islands that hydrated before it was known.
+ * Sets the document flag first so a late reader still gets the right answer.
+ */
+export function publishAccessMode(access: AccessMode): void {
+  if (typeof document === "undefined") return;
+  document.documentElement.dataset.access = access;
+  window.dispatchEvent(new CustomEvent<AccessMode>(ACCESS_MODE_EVENT, { detail: access }));
+}
+
+/**
+ * Access mode as advertised by the document root, which the exam page sets
+ * during boot (`<html data-access="full|preview">`).
+ *
+ * Lets late-mounting islands (the settings modal) read the mode without a second
+ * session round trip. Defaults to `"full"` when the flag is missing or
+ * unrecognised — the chooser page, SSR, and a storage-less browser all land there,
+ * and the default must never silently shrink what a signed-in student can do.
+ */
+export function currentAccessMode(): AccessMode {
+  if (typeof document === "undefined") return "full";
+  const flag = document.documentElement.dataset.access;
+  return isAccessMode(flag) ? flag : "full";
 }
 
 /** Turn the current location into a site-relative redirect path. */
