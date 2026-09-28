@@ -3,6 +3,7 @@ import { mulberry32, range, seededShuffle } from "./shuffle";
 import { scoreAttempt, type AttemptResult } from "./scoring";
 import { getEffectiveLimit } from "./exam-limits";
 import { isAutoCheck } from "./exam-mode";
+import { PREVIEW_QUESTION_COUNT, isAccessMode, type AccessMode } from "../../auth/auth-client";
 
 export interface AttemptState {
   seed: number; // shuffle seed for this attempt
@@ -18,23 +19,49 @@ export interface AttemptState {
   reviewed: boolean[]; // questions the user flagged to revisit (tab turns orange)
   phase: "quiz" | "submit" | "result";
   result?: AttemptResult;
+  /** access mode this attempt was built for — also the storage namespace */
+  access: AccessMode;
+  /** real module question count, for display only; the attempt may hold fewer */
+  total: number;
 }
 
 const CHANGE_EVENT = "quiz:change";
 const STORAGE_PREFIX = "ccna-exam:";
+/** One-shot guard, per module, so the legacy-key cleanup below runs once per module. */
+const MIGRATION_FLAG = "ccna-exam-migrated:";
 
 interface QuizContext {
   moduleId: string;
   module: ExamModule;
   state: AttemptState;
+  access: AccessMode;
   /** active (highlighted) left item of the current pair board — memory only */
   activeLeft: number | null;
 }
 
 let ctx: QuizContext | null = null;
 
-export function storageKey(moduleId: string): string {
-  return `${STORAGE_PREFIX}${moduleId}`;
+/** Attempts are namespaced per access mode so a 5-question preview can never be resumed as a full-bank attempt. */
+export function storageKey(moduleId: string, access: AccessMode): string {
+  return `${STORAGE_PREFIX}${access}:${moduleId}`;
+}
+
+/**
+ * Drop the pre-namespace `ccna-exam:<moduleId>` key. Anything saved under it was
+ * always a full-bank attempt, so deleting loses nothing meaningful; the flag key
+ * keeps this from running on every page load. Delete only — never migrate a save.
+ * The flag is per module — a single global one would orphan the legacy key of
+ * every module but the first one opened after the upgrade.
+ */
+function dropLegacyKeys(moduleId: string): void {
+  try {
+    const flag = `${MIGRATION_FLAG}${moduleId}`;
+    if (localStorage.getItem(flag) !== null) return;
+    localStorage.removeItem(`${STORAGE_PREFIX}${moduleId}`);
+    localStorage.setItem(flag, "1");
+  } catch {
+    /* storage unavailable — nothing to clean up */
+  }
 }
 
 /* ---------------------------------- persistence -------------------------------- */
@@ -42,7 +69,7 @@ export function storageKey(moduleId: string): string {
 function persist(): void {
   if (!ctx) return;
   try {
-    localStorage.setItem(storageKey(ctx.moduleId), JSON.stringify(ctx.state));
+    localStorage.setItem(storageKey(ctx.moduleId, ctx.state.access), JSON.stringify(ctx.state));
   } catch {
     /* storage unavailable — quiz still works for the session */
   }
@@ -59,7 +86,24 @@ function freshSeed(): number {
   return (Date.now() ^ Math.floor(Math.random() * 0x100000000)) >>> 0;
 }
 
-function buildAttempt(questions: Question[], seed: number, limit?: number): AttemptState {
+/**
+ * How many questions this attempt may hold, or undefined for the whole module.
+ *
+ * A preview always takes a fixed small slice and never consults the stored
+ * "Number of items" setting, so a stale `ccna-limit:` key cannot leak into it.
+ */
+function resolveLimit(access: AccessMode, moduleId: string, total: number): number | undefined {
+  if (access === "preview") return Math.min(PREVIEW_QUESTION_COUNT, total);
+  const limit = getEffectiveLimit(moduleId, total);
+  return limit === total ? undefined : limit;
+}
+
+function buildAttempt(
+  questions: Question[],
+  seed: number,
+  access: AccessMode,
+  limit?: number,
+): AttemptState {
   const rand = mulberry32(seed);
   const total = questions.length;
   const effectiveTotal = limit !== undefined && limit !== null && limit > 0 && limit < total ? limit : total;
@@ -97,6 +141,8 @@ function buildAttempt(questions: Question[], seed: number, limit?: number): Atte
     checked: new Array(effectiveTotal).fill(false),
     reviewed: new Array(effectiveTotal).fill(false),
     phase: "quiz",
+    access,
+    total,
   };
 }
 
@@ -104,42 +150,52 @@ function buildAttempt(questions: Question[], seed: number, limit?: number): Atte
 
 /**
  * Start a fresh, fully re-shuffled attempt and drop any saved session for this
- * module. The page only calls this when the user explicitly picks "Start" /
- * "Start New Exam" — a plain refresh goes through resumeQuiz() instead so the
- * saved attempt survives. Returns the active state.
- * Applies per-module limit (random subset) if configured.
+ * module in the current access mode. The page only calls this when the user
+ * explicitly picks "Start" / "Start New Exam" — a plain refresh goes through
+ * resumeQuiz() instead so the saved attempt survives. Returns the active state.
+ * The question slice follows the access mode: a preview takes a short random
+ * subset, full mode honours the stored "Number of items" setting when there is one.
  */
-export function bootQuiz(moduleId: string, module: ExamModule): AttemptState {
-  clearSaved(moduleId); // drop any previous session's stored attempt
-  const limit = getEffectiveLimit(moduleId, module.questions.length);
-  const effectiveLimit = limit === module.questions.length ? undefined : limit;
-  const state = buildAttempt(module.questions, freshSeed(), effectiveLimit);
-  ctx = { moduleId, module, state, activeLeft: null };
+export function bootQuiz(moduleId: string, module: ExamModule, access: AccessMode): AttemptState {
+  dropLegacyKeys(moduleId);
+  clearSaved(moduleId, access); // drop any previous session's stored attempt
+  const total = module.questions.length;
+  const state = buildAttempt(module.questions, freshSeed(), access, resolveLimit(access, moduleId, total));
+  ctx = { moduleId, module, state, access, activeLeft: null };
   emit(); // initial paint for every subscribed view
   return state;
 }
 
-/** Start a brand-new attempt (new seed -> re-shuffle) and persist immediately. Keeps full module and re-applies current limit. */
+/** Start a brand-new attempt (new seed -> re-shuffle) and persist immediately. Re-applies the current access mode's limit. */
 export function resetQuiz(): AttemptState {
   if (!ctx) throw new Error("resetQuiz() called before bootQuiz()");
-  const limit = getEffectiveLimit(ctx.moduleId, ctx.module.questions.length);
-  const effectiveLimit = limit === ctx.module.questions.length ? undefined : limit;
-  ctx.state = buildAttempt(ctx.module.questions, freshSeed(), effectiveLimit);
+  const total = ctx.module.questions.length;
+  const state = buildAttempt(
+    ctx.module.questions,
+    freshSeed(),
+    ctx.access,
+    resolveLimit(ctx.access, ctx.moduleId, total),
+  );
+  ctx.state = state;
   ctx.activeLeft = null;
   emit();
-  return ctx.state;
+  return state;
 }
 
 /**
- * Re-boot with full module after limit changes mid-session.
- * Preserves the same module object but picks a new random subset.
+ * Re-boot after a limit change mid-session.
+ * Preserves the same module object and access mode but picks a new random subset.
  */
 export function rebootWithLimit(module: ExamModule): AttemptState {
   if (!ctx) throw new Error("rebootWithLimit() called before bootQuiz()");
-  const limit = getEffectiveLimit(ctx.moduleId, module.questions.length);
-  const effectiveLimit = limit === module.questions.length ? undefined : limit;
-  clearSaved(ctx.moduleId);
-  const state = buildAttempt(module.questions, freshSeed(), effectiveLimit);
+  const total = module.questions.length;
+  const state = buildAttempt(
+    module.questions,
+    freshSeed(),
+    ctx.access,
+    resolveLimit(ctx.access, ctx.moduleId, total),
+  );
+  clearSaved(ctx.moduleId, ctx.access);
   ctx.module = module;
   ctx.state = state;
   ctx.activeLeft = null;
@@ -477,9 +533,9 @@ export function skipAll(): void {
   });
 }
 
-export function clearSaved(moduleId: string): void {
+export function clearSaved(moduleId: string, access: AccessMode): void {
   try {
-    localStorage.removeItem(storageKey(moduleId));
+    localStorage.removeItem(storageKey(moduleId, access));
   } catch {
     /* ignore */
   }
@@ -503,10 +559,18 @@ function isPermutation(value: unknown, len: number): value is number[] {
  * out-of-range indices) is repaired or rejected here so a corrupt save can
  * never crash the renderers — worst case it returns null and a fresh attempt
  * is offered instead.
+ *
+ * A save written in the other access mode is rejected outright: the storage key
+ * already namespaces attempts, so this is only a backstop against a hand-edited
+ * or hand-copied payload. Saves predating the namespace have no `access` field
+ * and are always full-bank attempts.
  */
-function normalizeSaved(data: unknown, module: ExamModule): AttemptState | null {
+function normalizeSaved(data: unknown, module: ExamModule, access: AccessMode): AttemptState | null {
   if (!data || typeof data !== "object") return null;
   const d = data as Partial<AttemptState>;
+
+  const savedAccess: AccessMode = isAccessMode(d.access) ? d.access : "full";
+  if (savedAccess !== access) return null;
 
   // The order array is the backbone: display position -> source question index.
   const order = d.order;
@@ -520,6 +584,14 @@ function normalizeSaved(data: unknown, module: ExamModule): AttemptState | null 
     return null;
   }
   const n = order.length;
+
+  // A preview attempt is exactly the free question count, never more. Rejecting
+  // anything longer keeps a full-bank payload that reached a preview key from
+  // being replayed as a "preview" attempt with more unlocked questions than the
+  // visitor is entitled to.
+  if (access === "preview" && n !== Math.min(PREVIEW_QUESTION_COUNT, module.questions.length)) {
+    return null;
+  }
 
   // Per-position shuffles must line up with the question they belong to,
   // otherwise answers would be graded against the wrong option layout.
@@ -613,16 +685,19 @@ function normalizeSaved(data: unknown, module: ExamModule): AttemptState | null 
     checked: bools(d.checked),
     reviewed: bools(d.reviewed),
     phase,
+    access,
+    total: sourceCount,
     ...(result ? { result } : {}),
   };
 }
 
 /** Read + validate the saved attempt without booting the quiz (intro screen). */
-export function loadSaved(moduleId: string, module: ExamModule): AttemptState | null {
+export function loadSaved(moduleId: string, module: ExamModule, access: AccessMode): AttemptState | null {
   try {
-    const raw = localStorage.getItem(storageKey(moduleId));
+    dropLegacyKeys(moduleId);
+    const raw = localStorage.getItem(storageKey(moduleId, access));
     if (!raw) return null;
-    return normalizeSaved(JSON.parse(raw), module);
+    return normalizeSaved(JSON.parse(raw), module, access);
   } catch {
     return null;
   }
@@ -631,13 +706,13 @@ export function loadSaved(moduleId: string, module: ExamModule): AttemptState | 
 /**
  * Reinstate a previously saved attempt as the live session — answers, pairings,
  * Check feedback, review flags, skip state, position and phase all come back
- * exactly as they were. Returns null when there is no usable save (the caller
- * falls back to bootQuiz for a fresh start).
+ * exactly as they were. Returns null when there is no usable save in this access
+ * mode (the caller falls back to bootQuiz for a fresh start).
  */
-export function resumeQuiz(moduleId: string, module: ExamModule): AttemptState | null {
-  const state = loadSaved(moduleId, module);
+export function resumeQuiz(moduleId: string, module: ExamModule, access: AccessMode): AttemptState | null {
+  const state = loadSaved(moduleId, module, access);
   if (!state) return null;
-  ctx = { moduleId, module, state, activeLeft: null };
+  ctx = { moduleId, module, state, access, activeLeft: null };
   emit(); // re-persist (normalized) and paint every subscribed view
   return state;
 }

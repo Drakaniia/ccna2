@@ -2,6 +2,13 @@
  * Per-module question limit persisted in localStorage.
  * - null / absent => "All" (no limit)
  * - number 1..max => random subset of that size on next boot
+ *
+ * This is a FULL-mode-only setting. A signed-out visitor gets a fixed
+ * `min(PREVIEW_QUESTION_COUNT, total)` preview attempt instead, and their
+ * "Number of items" field is hidden in the settings modal, so this module is
+ * never consulted in preview mode — a stale `ccna-limit:` key left over from an
+ * earlier signed-in session cannot leak into a preview. Kept dependency-free so
+ * the preview count stays a caller-side constant.
  */
 
 export const LIMIT_EVENT = "exam:limit-change";
