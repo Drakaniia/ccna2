@@ -953,15 +953,16 @@ const abs = (p: string) => `${import.meta.env.BASE_URL.replace(/\/?$/, "/")}${p}
           // The gate is not a question: there is nothing to advance to and
           // nothing to submit, so the button does nothing until they sign in.
           if (atGate(st)) return;
+          // Advancing out of a preview attempt is a sign-in prompt, and that
+          // includes the last free question, where this button reads Submit. A
+          // signed-out visitor has nothing to submit yet, so it opens the gate
+          // instead. The preview also stays in the quiz phase, which is what
+          // lets the sign-in promotion carry these answers across.
+          if (atPreviewEnd()) {
+            goToLogin();
+            return;
+          }
           if (st.current < st.order.length - 1) {
-            // Advancing out of a preview attempt is a sign-in prompt. The
-            // button reads Submit on the last free question, so that path is
-            // left alone below (D6) — the prompt comes from `→`, Review
-            // Question, and the locked tabs.
-            if (atPreviewEnd()) {
-              goToLogin();
-              return;
-            }
             goNext();
           } else {
             openSubmit();
