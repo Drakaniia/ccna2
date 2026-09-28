@@ -97,7 +97,13 @@ const abs = (p: string) => `${import.meta.env.BASE_URL.replace(/\/?$/, "/")}${p}
     </div>
 
     <script>
-      import { AUTH_BASE_URL, fetchSession, currentPath, loginPageUrl } from "../features/auth/auth-client";
+      import {
+        AUTH_BASE_URL,
+        authHeaders,
+        fetchSession,
+        currentPath,
+        loginPageUrl,
+      } from "../features/auth/auth-client";
 
       interface RosterUser {
         id: string;
@@ -288,7 +294,7 @@ const abs = (p: string) => `${import.meta.env.BASE_URL.replace(/\/?$/, "/")}${p}
         try {
           const res = await fetch(`${AUTH_BASE_URL}/admin/users`, {
             credentials: "include",
-            headers: { Accept: "application/json" },
+            headers: authHeaders({ Accept: "application/json" }),
           });
           if (res.status === 401) {
             window.location.replace(loginPageUrl(currentPath()));

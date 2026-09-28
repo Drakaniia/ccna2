@@ -26,22 +26,23 @@ const loginHref = loginPageUrl(redirect);
         }
       })();
     </script>
-    <title>Sign-in cookie blocked — CCNA 2 v7 Practice Exams</title>
+    <title>Sign-in did not finish — CCNA 2 v7 Practice Exams</title>
   </head>
   <body class="cookie-body">
     <main class="cookie-card">
       <span class="cookie-kicker">CCNA 2 v7 Practice Exams</span>
-      <h1>Your browser blocked the sign-in cookie</h1>
+      <h1>Your sign-in did not finish</h1>
       <p class="cookie-lead">
-        You signed in with Google successfully, but this site could not read the
-        session the auth service set. That normally means your browser is
-        blocking <strong>third-party (cross-site) cookies</strong>.
+        You signed in with Google successfully, but this site could not complete
+        the hand-over from the auth service. That usually means the browser
+        blocked the <strong>storage</strong> it needs, or the sign-in link was
+        already used or had expired.
       </p>
       <ul class="cookie-list">
-        <li>Allow cookies for the auth service domain, and allow third-party cookies generally, then try again.</li>
-        <li>Chrome or Firefox usually work; Safari and iOS browsers block these cookies by default.</li>
+        <li>Press “Try signing in again” and finish the Google prompt in one go.</li>
+        <li>Allow cookies and site data for this page — some browsers block them for sign-ins that cross domains.</li>
         <li>Turn off strict tracking protection or “Prevent cross-site tracking” for this site.</li>
-        <li>If you are in a private/incognito window, try a normal window.</li>
+        <li>If you are in a private/incognito window, try a normal window. Chrome or Firefox usually work; Safari and iOS browsers are the strictest.</li>
       </ul>
       <div class="cookie-actions">
         <a class="cookie-btn primary" id="cookieSignIn" href={loginHref}>Try signing in again</a>

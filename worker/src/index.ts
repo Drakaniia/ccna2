@@ -9,16 +9,19 @@ import {
   validateIdTokenClaims,
 } from "./google";
 import {
+  HANDOFF_HASH_PARAM,
+  HANDOFF_PURPOSE,
   SESSION_COOKIE,
   STATE_COOKIE,
   STATE_TTL_SECONDS,
+  createHandoffToken,
   createSessionToken,
   parseCookieHeader,
   serializeCookie,
   sessionCookie,
   signJwt,
-  verifySessionToken,
   verifyJwt,
+  verifySessionToken,
   type SessionClaims,
 } from "./session";
 import { listUsers, upsertUser } from "./db";
@@ -47,6 +50,8 @@ export default {
           return handleLogin(env, url, cors);
         case "GET /auth/callback":
           return handleCallback(request, env, url, cors);
+        case "POST /auth/exchange":
+          return handleExchange(request, env, cors);
         case "GET /auth/session":
           return handleSession(request, env, cors);
         case "POST /auth/logout":
@@ -214,14 +219,57 @@ async function handleCallback(request: Request, env: Env, url: URL, cors: Header
   }
 
   const sessionToken = await createSessionToken(user, env.SESSION_SECRET);
+  const handoffToken = await createHandoffToken(user, env.SESSION_SECRET);
   const headers = new Headers(cors);
   headers.append("Set-Cookie", clearStateCookie);
   // Browser-session cookie: no Max-Age, so it dies with the browser. The token
-  // itself also expires after 8 hours, whichever comes first.
+  // itself also expires after 8 hours, whichever comes first. Kept as a
+  // first-party fallback — the handoff below is what the site actually uses.
   headers.append("Set-Cookie", sessionCookie(sessionToken, isHttps(env)));
-  headers.set("Location", `${trimSlash(env.SITE_ORIGIN)}${withAuthFlag(statePayload.redirect)}`);
+  headers.set("Location", handoffLocation(env, statePayload.redirect, handoffToken));
   headers.set("Cache-Control", "no-store");
   return new Response(null, { status: 302, headers });
+}
+
+/**
+ * Where the callback sends the browser: back to the page that asked for a
+ * sign-in, with the handoff token in the fragment. A fragment never reaches a
+ * server, so the token stays out of access logs and `Referer` headers, and the
+ * site strips it from the address bar the moment it has traded it in.
+ */
+function handoffLocation(env: Env, redirect: string, handoffToken: string): string {
+  const target = `${trimSlash(env.SITE_ORIGIN)}${withAuthFlag(redirect)}`;
+  return `${target}#${HANDOFF_HASH_PARAM}=${handoffToken}`;
+}
+
+/**
+ * Trade a sign-in handoff token for a session token the site stores itself.
+ *
+ * This exists because the session cookie is third-party to the site and is
+ * blocked on a lot of devices; a token the page can send as a header works
+ * everywhere. Only a token minted by `/auth/callback` is accepted, and only
+ * within its short TTL.
+ */
+async function handleExchange(request: Request, env: Env, cors: Headers): Promise<Response> {
+  let handoff: string | null = null;
+  try {
+    const body = (await request.json()) as { s?: unknown } | null;
+    if (typeof body?.s === "string") handoff = body.s;
+  } catch {
+    /* malformed body — reported as an invalid handoff below */
+  }
+  if (!handoff) return json({ error: "invalid_handoff" }, 400, cors);
+
+  const payload = await verifyJwt<{ purpose?: string; user?: SessionUser }>(
+    handoff,
+    env.SESSION_SECRET
+  );
+  if (payload?.purpose !== HANDOFF_PURPOSE || !payload.user?.email) {
+    return json({ error: "invalid_handoff" }, 400, cors);
+  }
+
+  const token = await createSessionToken(payload.user, env.SESSION_SECRET);
+  return json({ token }, 200, cors);
 }
 
 async function handleSession(request: Request, env: Env, cors: Headers): Promise<Response> {
@@ -278,10 +326,24 @@ async function handleAdminUsers(request: Request, env: Env, cors: Headers): Prom
 /* --------------------------------- helpers -------------------------------- */
 
 async function currentUser(request: Request, env: Env): Promise<SessionClaims | null> {
+  // Bearer first: the site's own token survives third-party-cookie blocking,
+  // while the cookie only works where the browser lets a cross-site cookie
+  // through (and on localhost, where the two ports are same-site).
+  const bearer = bearerToken(request);
+  if (bearer) return verifySessionToken(bearer, env.SESSION_SECRET);
+
   const cookies = parseCookieHeader(request.headers.get("Cookie"));
   const token = cookies[SESSION_COOKIE];
   if (!token) return null;
   return verifySessionToken(token, env.SESSION_SECRET);
+}
+
+/** `Authorization: Bearer <token>` value, or null when the header is absent. */
+function bearerToken(request: Request): string | null {
+  const header = request.headers.get("Authorization");
+  if (!header) return null;
+  const match = /^Bearer\s+(.+)$/i.exec(header.trim());
+  return match?.[1]?.trim() || null;
 }
 
 function corsHeaders(env: Env): Headers {
@@ -290,7 +352,12 @@ function corsHeaders(env: Env): Headers {
   headers.set("Access-Control-Allow-Origin", trimSlash(env.SITE_ORIGIN));
   headers.set("Access-Control-Allow-Credentials", "true");
   headers.set("Access-Control-Allow-Methods", "GET, POST, OPTIONS");
-  headers.set("Access-Control-Allow-Headers", "Content-Type");
+  // Authorization is not a CORS-safelisted header, so sending the session token
+  // as a Bearer header preflights. Accept is listed defensively — it is
+  // safelisted, but a browser that still reports it would otherwise fail the
+  // whole sign-in. The cache keeps the preflight to one extra round trip.
+  headers.set("Access-Control-Allow-Headers", "Content-Type, Authorization, Accept");
+  headers.set("Access-Control-Max-Age", "600");
   headers.set("Vary", "Origin");
   return headers;
 }
@@ -298,6 +365,9 @@ function corsHeaders(env: Env): Headers {
 function json(body: unknown, status: number, base: Headers): Response {
   const headers = new Headers(base);
   headers.set("Content-Type", "application/json");
+  // Never cache an auth answer: a stored `authenticated:false` would outlive the
+  // sign-in that fixed it.
+  headers.set("Cache-Control", "no-store");
   return new Response(JSON.stringify(body), { status, headers });
 }
 

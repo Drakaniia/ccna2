@@ -5,6 +5,16 @@ export const SESSION_COOKIE = "ccna_session";
 export const STATE_COOKIE = "ccna_oauth_state";
 export const SESSION_TTL_SECONDS = 8 * 60 * 60; // 8-hour hard ceiling
 export const STATE_TTL_SECONDS = 10 * 60; // OAuth state / PKCE lifetime
+/**
+ * How long the sign-in handoff token stays exchangeable. The site redeems it on
+ * the page load that follows the redirect, so it only has to outlive one
+ * navigation — short enough that a URL left in the browser history ages out.
+ */
+export const HANDOFF_TTL_SECONDS = 5 * 60;
+/** Fragment parameter carrying the handoff token back to the site (`#s=...`). */
+export const HANDOFF_HASH_PARAM = "s";
+/** Marks a token as an unredeemed handoff rather than a live session. */
+export const HANDOFF_PURPOSE = "handoff";
 
 const encoder = new TextEncoder();
 
@@ -98,6 +108,40 @@ export async function verifyJwt<T = Record<string, unknown>>(
   }
 }
 
+/**
+ * Build the short-lived handoff token the callback hands to the site in the URL
+ * fragment.
+ *
+ * The cross-site session cookie cannot be relied on — Safari/iOS, Firefox,
+ * Brave and Chrome's third-party-cookie settings all drop it — so the site
+ * trades this token for a session token of its own at `/auth/exchange` and sends
+ * that back as `Authorization: Bearer`. It carries `purpose` so it can never be
+ * replayed as a session, and stays short-lived because the redirect URL can end
+ * up in browser history.
+ */
+export function createHandoffToken(
+  user: SessionUser,
+  secret: string,
+  now: number = Math.floor(Date.now() / 1000)
+): Promise<string> {
+  return signJwt(
+    {
+      purpose: HANDOFF_PURPOSE,
+      user: {
+        sub: user.sub,
+        email: user.email,
+        name: user.name,
+        picture: user.picture,
+        studentId: user.studentId,
+        role: user.role,
+      },
+    },
+    secret,
+    HANDOFF_TTL_SECONDS,
+    now
+  );
+}
+
 /** Build the signed session token for a freshly authenticated user. */
 export function createSessionToken(
   user: SessionUser,
@@ -119,13 +163,19 @@ export function createSessionToken(
   );
 }
 
-/** Verify a session cookie value. */
-export function verifySessionToken(
+/**
+ * Verify a session token (cookie value or `Authorization: Bearer` header).
+ * Handoff tokens are rejected here: only `/auth/exchange` may redeem one, so a
+ * redirect URL leaked from the history can never stand in for a live session.
+ */
+export async function verifySessionToken(
   token: string,
   secret: string,
   now: number = Math.floor(Date.now() / 1000)
 ): Promise<SessionClaims | null> {
-  return verifyJwt<SessionClaims>(token, secret, now);
+  const claims = await verifyJwt<SessionClaims & { purpose?: string }>(token, secret, now);
+  if (!claims || claims.purpose !== undefined) return null;
+  return claims;
 }
 
 /* --------------------------------- cookies -------------------------------- */

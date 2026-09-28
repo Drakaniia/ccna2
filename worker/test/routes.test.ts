@@ -1,9 +1,11 @@
 import { afterEach, describe, expect, it, vi } from "vitest";
 import worker from "../src/index";
 import {
+  HANDOFF_PURPOSE,
   SESSION_COOKIE,
   STATE_COOKIE,
   STATE_TTL_SECONDS,
+  createHandoffToken,
   createSessionToken,
   signJwt,
   verifyJwt,
@@ -123,6 +125,18 @@ function cookieHeader(token: string): Record<string, string> {
   return { Cookie: `${STATE_COOKIE}=${token}` };
 }
 
+function post(path: string, body: unknown): Request {
+  return new Request(`https://worker.example${path}`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(body),
+  });
+}
+
+function bearer(token: string): Record<string, string> {
+  return { Authorization: `Bearer ${token}` };
+}
+
 function readSetCookie(res: Response, name: string): string | null {
   const raw = res.headers.get("set-cookie");
   if (!raw) return null;
@@ -160,6 +174,10 @@ describe("worker routes — health and CORS", () => {
     const res = await worker.fetch(new Request("https://worker.example/auth/session", { method: "OPTIONS" }), env, ctx);
     expect(res.status).toBe(204);
     expect(res.headers.get("access-control-allow-origin")).toBe(SITE_ORIGIN);
+    // The site sends the session token as a Bearer header, so the preflight has
+    // to allow Authorization or every session check fails before it is sent.
+    expect(res.headers.get("access-control-allow-headers")).toContain("Authorization");
+    expect(res.headers.get("access-control-allow-methods")).toContain("POST");
   });
 
   it("returns 404 for an unknown route", async () => {
@@ -230,7 +248,7 @@ describe("worker routes — /auth/callback", () => {
     expect(await res.text()).toContain("declined");
   });
 
-  it("admits a valid student, sets the session cookie and 302s with auth=ok", async () => {
+  it("admits a valid student and 302s with the handoff token in the fragment", async () => {
     stubTokenEndpoint({ id_token: idToken() });
     const { env, calls } = makeEnv();
     const token = await stateCookie("/ccna2/exam/2");
@@ -238,7 +256,18 @@ describe("worker routes — /auth/callback", () => {
     const res = await worker.fetch(get("/auth/callback?state=state-abc&code=abc", cookieHeader(token)), env, ctx);
 
     expect(res.status).toBe(302);
-    expect(res.headers.get("location")).toBe(`${SITE_ORIGIN}/ccna2/exam/2?auth=ok`);
+    // auth=ok still marks "just back from sign-in"; the session itself rides in
+    // the fragment, which is never sent to a server.
+    const location = res.headers.get("location")!;
+    expect(location.startsWith(`${SITE_ORIGIN}/ccna2/exam/2?auth=ok#s=`)).toBe(true);
+
+    const payload = await verifyJwt<{ purpose?: string; user?: SessionUser }>(
+      location.split("#s=")[1]!,
+      SECRET
+    );
+    expect(payload?.purpose).toBe(HANDOFF_PURPOSE);
+    expect(payload?.user?.studentId).toBe("2401117078");
+
     const session = readSetCookie(res, SESSION_COOKIE);
     expect(session).toBeTruthy();
     expect(res.headers.get("set-cookie")).toContain("SameSite=None");
@@ -308,6 +337,23 @@ describe("worker routes — session and logout", () => {
     expect(await res.json()).toEqual({ authenticated: false });
   });
 
+  it("returns the user for a Bearer token", async () => {
+    const { env } = makeEnv();
+    const token = await createSessionToken(student, SECRET);
+    const res = await worker.fetch(get("/auth/session", bearer(token)), env, ctx);
+    const body = (await res.json()) as { authenticated: boolean; user: { studentId: string } };
+    expect(body.authenticated).toBe(true);
+    expect(body.user.studentId).toBe("2401117078");
+    expect(res.headers.get("cache-control")).toBe("no-store");
+  });
+
+  it("refuses a handoff token sent as a session", async () => {
+    const { env } = makeEnv();
+    const handoff = await createHandoffToken(student, SECRET);
+    const res = await worker.fetch(get("/auth/session", bearer(handoff)), env, ctx);
+    expect(await res.json()).toEqual({ authenticated: false });
+  });
+
   it("clears the session cookie on logout", async () => {
     const { env } = makeEnv();
     const token = await createSessionToken(student, SECRET);
@@ -321,6 +367,36 @@ describe("worker routes — session and logout", () => {
     );
     expect(res.status).toBe(204);
     expect(res.headers.get("set-cookie")).toContain("Max-Age=0");
+  });
+});
+
+describe("worker routes — /auth/exchange", () => {
+  it("trades a handoff token for a usable session token", async () => {
+    const { env } = makeEnv();
+    const handoff = await createHandoffToken(student, SECRET);
+
+    const res = await worker.fetch(post("/auth/exchange", { s: handoff }), env, ctx);
+
+    expect(res.status).toBe(200);
+    const { token } = (await res.json()) as { token: string };
+    expect(token).toBeTruthy();
+
+    // The redeemed token is a real session, not another handoff.
+    const session = await verifyJwt<{ purpose?: string; studentId?: string }>(token, SECRET);
+    expect(session?.purpose).toBeUndefined();
+    expect(session?.studentId).toBe("2401117078");
+  });
+
+  it("rejects a session token, a foreign secret and a missing body", async () => {
+    const { env } = makeEnv();
+    const session = await createSessionToken(student, SECRET);
+    const foreign = await createHandoffToken(student, "attacker-secret");
+
+    for (const body of [{ s: session }, { s: foreign }, { s: "garbage" }, {}]) {
+      const res = await worker.fetch(post("/auth/exchange", body), env, ctx);
+      expect(res.status).toBe(400);
+      expect(await res.json()).toEqual({ error: "invalid_handoff" });
+    }
   });
 });
 

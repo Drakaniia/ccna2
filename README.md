@@ -73,18 +73,21 @@ npm run preview    # serve the production build locally
 
 Exam pages carry a **public 5-question preview**: a signed-out visitor can start an exam, answer five random questions, get their score, and read the explanations with no account at all. The preview attempt lives only in that visitor's own browser and is never sent to us. Trying to go past question 5 sends them to the sign-in page, where signing in with a Buksu student account lifts the cap and unlocks the whole module.
 
-Everything beyond that preview is gated behind a **Cloudflare Worker** (`worker/`) that performs Google OAuth 2.0 and issues an `httpOnly` session cookie. Only Buksu **student** accounts are admitted — a numeric student ID on the `student.buksu.edu.ph` domain (e.g. `2401117078@student.buksu.edu.ph`). Personal mailboxes and `@buksu.edu.ph` staff addresses are intentionally rejected. The home page and module chooser remain public.
+Everything beyond that preview is gated behind a **Cloudflare Worker** (`worker/`) that performs Google OAuth 2.0 and signs a session token. Only Buksu **student** accounts are admitted — a numeric student ID on the `student.buksu.edu.ph` domain (e.g. `2401117078@student.buksu.edu.ph`). Personal mailboxes and `@buksu.edu.ph` staff addresses are intentionally rejected. The home page and module chooser remain public.
 
 Why a Worker: GitHub Pages is static and cannot exchange an OAuth code, hold a client secret, or keep a session. The Worker is the only trusted component; the static site merely asks it who the visitor is.
+
+**The session travels as a Bearer token, not a cookie.** The Worker lives on `*.workers.dev` and the site on `*.github.io`, so a session cookie is *third-party* to the site — Safari/iOS, Firefox, Brave and Chrome's third-party-cookie settings drop it, which used to leave signed-in students stuck on the 5-question preview. Instead, `/auth/callback` puts a short-lived, one-time **handoff token** in the URL fragment (`#s=…`, never sent to a server) and the site redeems it at `POST /auth/exchange` for a session token it keeps in `localStorage` and sends as `Authorization: Bearer`. The cookie is still issued as a first-party fallback, but nothing depends on it.
 
 ### Worker API
 
 | Method | Route | Auth | Behavior |
 | --- | --- | --- | --- |
 | `GET` | `/auth/login` | none | Builds `state` + PKCE, 302s to Google. |
-| `GET` | `/auth/callback` | none | Validates `state`, exchanges the code, applies the admission rules, upserts D1 (fail-open), sets the cookie, 302s back to the site. |
-| `GET` | `/auth/session` | cookie | `{ authenticated, user }`. |
-| `POST` | `/auth/logout` | cookie | Clears this site's cookie, 204. |
+| `GET` | `/auth/callback` | none | Validates `state`, exchanges the code, applies the admission rules, upserts D1 (fail-open), sets the cookie, 302s back to the site with the handoff token in the fragment. |
+| `POST` | `/auth/exchange` | handoff token | Trades a handoff token for a session token. |
+| `GET` | `/auth/session` | bearer or cookie | `{ authenticated, user }`. |
+| `POST` | `/auth/logout` | cookie | Clears this site's cookie, 204. The site drops its stored token. |
 | `GET` | `/admin/users` | admin | Read-only roster for the admin page. |
 | `GET` | `/health` | none | Deployment smoke test. |
 

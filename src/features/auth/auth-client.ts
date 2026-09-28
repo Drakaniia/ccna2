@@ -68,22 +68,114 @@ export function cookieBlockedUrl(redirectPath: string): string {
   return `${sitePath("cookie-blocked")}?redirect=${encodeURIComponent(redirectPath)}`;
 }
 
+/* --------------------------------- session -------------------------------- */
+
+/** localStorage key holding the session token handed over at sign-in. */
+const TOKEN_KEY = "ccna-session-token";
+/** Fragment parameter the Worker uses for the handoff token (`#s=...`). */
+const HANDOFF_PARAM = "s";
+
+/**
+ * The session token lives in localStorage, not a cookie, because the Worker sits
+ * on a different site (workers.dev) from the exams (github.io): the session
+ * cookie is third-party to the site, and Safari/iOS, Firefox, Brave and Chrome's
+ * third-party-cookie settings all drop it. A header the page sends itself works
+ * on every device.
+ */
+function readToken(): string | null {
+  try {
+    return localStorage.getItem(TOKEN_KEY);
+  } catch {
+    return null; // storage blocked — this visit stays signed out
+  }
+}
+
+function writeToken(token: string | null): void {
+  try {
+    if (token) localStorage.setItem(TOKEN_KEY, token);
+    else localStorage.removeItem(TOKEN_KEY);
+  } catch {
+    /* storage unavailable — nothing to keep */
+  }
+}
+
+/**
+ * Redeem the handoff token the Worker put in the URL fragment at sign-in.
+ *
+ * One promise per page, so the exam shell and every island hydrate against the
+ * same exchange: an AccountChip that mounted a moment earlier can never read
+ * "signed out" while the token is still being traded.
+ */
+let signIn: Promise<void> | null = null;
+
+function finishSignIn(): Promise<void> {
+  if (!signIn) signIn = consumeHandoff();
+  return signIn;
+}
+
+async function consumeHandoff(): Promise<void> {
+  if (typeof window === "undefined") return;
+
+  let handoff: string | null = null;
+  try {
+    handoff = new URLSearchParams(window.location.hash.replace(/^#/, "")).get(HANDOFF_PARAM);
+  } catch {
+    return;
+  }
+  if (!handoff) return;
+
+  // Strip it from the address bar before redeeming: the token is spent either
+  // way, and this keeps it out of history and out of a shared screen.
+  window.history.replaceState(null, "", `${window.location.pathname}${window.location.search}`);
+
+  try {
+    const res = await fetch(`${AUTH_BASE_URL}/auth/exchange`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json", Accept: "application/json" },
+      body: JSON.stringify({ [HANDOFF_PARAM]: handoff }),
+    });
+    if (!res.ok) return;
+    const data = (await res.json()) as { token?: string };
+    if (typeof data.token === "string" && data.token) writeToken(data.token);
+  } catch {
+    /* offline or blocked — the visitor stays signed out and can sign in again */
+  }
+}
+
+/**
+ * Headers for a Worker request: the stored session token as a Bearer token when
+ * we have one, so Worker-authenticated calls work without the session cookie.
+ */
+export function authHeaders(extra: Record<string, string> = {}): Record<string, string> {
+  const token = readToken();
+  return { ...extra, ...(token ? { Authorization: `Bearer ${token}` } : {}) };
+}
+
 /** Ask the Worker who the visitor is. Never throws. */
 export async function fetchSession(): Promise<SessionResponse> {
+  await finishSignIn();
+  const token = readToken();
   try {
     const res = await fetch(`${AUTH_BASE_URL}/auth/session`, {
       credentials: "include",
-      headers: { Accept: "application/json" },
+      headers: authHeaders({ Accept: "application/json" }),
     });
     if (!res.ok) return { authenticated: false };
-    return (await res.json()) as SessionResponse;
+    const body = (await res.json()) as SessionResponse;
+    // The Worker answered, and it did not recognise the token we sent — drop it
+    // so a later visit stops replaying a dead session.
+    if (token && !body.authenticated) writeToken(null);
+    return body;
   } catch {
+    // A thrown fetch (offline, blocked) is not an answer, so the token stays.
     return { authenticated: false };
   }
 }
 
 /** End this site's session only (the Google session is left alone). */
 export async function signOut(returnTo: string = sitePath("login")): Promise<void> {
+  // The Worker can only clear its own cookie, so the stored token goes too.
+  writeToken(null);
   try {
     await fetch(`${AUTH_BASE_URL}/auth/logout`, { method: "POST", credentials: "include" });
   } catch {
