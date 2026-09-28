@@ -116,11 +116,8 @@ export const questions87to174: Question[] = [
       "DHCPDISCOVER",
       "DHCPACK",
     ],
-    // DHCPACK answers both lease-finalization statements, so two left items
-    // share that target and DHCPNAK is the unused decoy.
-    correctPairs: { 0: 3, 1: 4, 2: 0, 3: 2, 4: 4 },
-    allowMultiMatch: true,
-    explanation: "Explanation: Topic 7.1.3\nThe correct pairings are:\n- a message that is used to locate any available DHCP server on a network → DHCPDISCOVER\n- a message that is used to suggest a lease to a client → DHCPOFFER\n- a message that is used to identify the explicit server and lease offer to accept → DHCPREQUEST\n- a message that is used to acknowledge that the lease is successful → DHCPACK\n- A message is used by a server to finalize a successful lease with a client → DHCPACK\nDHCPACK finalizes the lease in both statements, so DHCPNAK is not used.",
+    correctPairs: { 0: 3, 1: 1, 2: 0, 3: 2, 4: 4 },
+    explanation: "Explanation: Topic 7.1.3\nThe correct pairings are:\n- a message that is used to locate any available DHCP server on a network → DHCPDISCOVER\n- a message that is used to suggest a lease to a client → DHCPOFFER\n- a message that is used to identify the explicit server and lease offer to accept → DHCPREQUEST\n- a message that is used to acknowledge that the lease is successful → DHCPNAK\n- A message is used by a server to finalize a successful lease with a client → DHCPACK\nDHCPNAK is the response sent when the address the client asked for is already owned (in use), so it cannot be leased out.",
   },
   {
     number: 94,
