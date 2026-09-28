@@ -949,10 +949,33 @@ const abs = (p: string) => `${import.meta.env.BASE_URL.replace(/\/?$/, "/")}${p}
           return window.matchMedia("(min-width: 801px)").matches;
         }
 
+        // Input types that actually take typed text. Everything else (the
+        // answer radios/checkboxes) is part of the quiz UI, so a shortcut must
+        // still fire while one of them holds focus.
+        const TEXT_INPUT_TYPES = new Set([
+          "text",
+          "search",
+          "url",
+          "tel",
+          "email",
+          "password",
+          "number",
+          "date",
+          "datetime-local",
+          "month",
+          "time",
+          "week",
+        ]);
+
         function isTypingTarget(target: EventTarget | null): boolean {
           if (!(target instanceof HTMLElement)) return false;
           const tag = target.tagName;
-          if (tag === "INPUT" || tag === "TEXTAREA" || tag === "SELECT") return true;
+          if (tag === "TEXTAREA" || tag === "SELECT") return true;
+          if (tag === "INPUT") {
+            const type = (target as HTMLInputElement).type;
+            // Unknown/empty type defaults to "text" per the HTML spec.
+            return type === "" || TEXT_INPUT_TYPES.has(type);
+          }
           if (target.isContentEditable) return true;
           return false;
         }
