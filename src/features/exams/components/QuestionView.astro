@@ -1,13 +1,13 @@
 ---
 import { Lock } from "lucide-react";
 import { RetryIcon } from "./lucide-icons.tsx";
-import { loginPageUrl } from "../../auth/auth-client";
+import { loginUrlFor } from "../../auth/auth-client";
 
-// The CTA has to carry the ?redirect= back to this exam, but `currentPath()`
-// reads `window`, which does not exist while the page is being built — so the
-// markup ships the bare login page and the script at the end of this file
-// upgrades the href in the browser.
-const signInHref = loginPageUrl("");
+// The button has to carry the `?redirect=` back to this exam, but
+// `currentPath()` reads `window`, which does not exist while the page is being
+// built — so the markup ships the bare OAuth start and the script at the end of
+// this file points it at the real return path in the browser.
+const signInHref = loginUrlFor("");
 ---
 
 <div class="question-view" id="qView">
@@ -28,10 +28,14 @@ const signInHref = loginPageUrl("");
 </div>
 
 {/*
-  Locked placeholder, sibling of #qView so it can take over the question body
+  Sign-in gate, sibling of #qView so it can take over the question body
   wholesale. It is a static placeholder on purpose: a preview attempt holds only
   the free questions, so there is no question text, code, or exhibit to blur.
   The exam page shows it with `qLocked.hidden = false; qView.hidden = true`.
+
+  This is the only sign-in surface in the exam: the Google button starts the
+  OAuth flow directly and hands the visitor back to this same question, so the
+  questions they already answered in the preview are still there on return.
 */}
 <div class="question-locked" id="qLocked" hidden>
   <div class="locked-blur" aria-hidden="true">
@@ -43,15 +47,38 @@ const signInHref = loginPageUrl("");
   <div class="locked-veil">
     <Lock size={22} strokeWidth={2} aria-hidden="true" focusable="false" />
     <p class="locked-title">Sign in to unlock the rest of this exam</p>
-    <a class="primary locked-cta" id="qLockedCta" href={signInHref} data-signin>Sign in</a>
+    <a class="locked-cta" id="qLockedCta" href={signInHref} data-signin>
+      <span class="locked-cta-badge" aria-hidden="true">
+        <svg viewBox="0 0 18 18" width="16" height="16">
+          <path
+            fill="#4285F4"
+            d="M17.64 9.2c0-.64-.06-1.25-.16-1.84H9v3.48h4.84a4.14 4.14 0 0 1-1.8 2.72v2.26h2.92c1.7-1.57 2.68-3.88 2.68-6.62Z"
+          ></path>
+          <path
+            fill="#34A853"
+            d="M9 18c2.43 0 4.47-.8 5.96-2.18l-2.92-2.26c-.8.54-1.84.86-3.04.86-2.34 0-4.32-1.58-5.03-3.7H.96v2.33A9 9 0 0 0 9 18Z"
+          ></path>
+          <path
+            fill="#FBBC05"
+            d="M3.97 10.72a5.4 5.4 0 0 1 0-3.44V4.95H.96a9 9 0 0 0 0 8.1l3.01-2.33Z"
+          ></path>
+          <path
+            fill="#EA4335"
+            d="M9 3.58c1.32 0 2.5.45 3.44 1.35l2.58-2.58C13.46.9 11.43 0 9 0A9 9 0 0 0 .96 4.95l3.01 2.33C4.68 5.16 6.66 3.58 9 3.58Z"
+          ></path>
+        </svg>
+      </span>
+      <span>Sign in with Google</span>
+    </a>
+    <p class="locked-note">Buksu student accounts only</p>
   </div>
 </div>
 
 <script>
-  import { currentPath, loginPageUrl } from "../../auth/auth-client";
+  import { currentPath, loginUrlFor } from "../../auth/auth-client";
 
   const cta = document.getElementById("qLockedCta") as HTMLAnchorElement | null;
-  if (cta) cta.href = loginPageUrl(currentPath());
+  if (cta) cta.href = loginUrlFor(currentPath());
 </script>
 
 <style is:global>
@@ -169,10 +196,10 @@ const signInHref = loginPageUrl("");
   }
 
   /* --------------------------------------------------------------------------
-     Locked panel — the preview-mode placeholder the exam page swaps in when a
+     Sign-in gate — the preview-mode placeholder the exam page swaps in when a
      signed-out visitor tries to go past the free questions. Only the blurred
      layer is hidden from assistive tech; the veil keeps the padlock, the copy,
-     and the sign-in link readable and focusable.
+     and the sign-in button readable and focusable.
      -------------------------------------------------------------------------- */
 
   .question-locked {
@@ -245,14 +272,14 @@ const signInHref = loginPageUrl("");
     color: var(--text);
   }
 
-  /* button.primary is element-scoped, so the anchor needs the pill treatment */
+  /* Google sign-in button. The badge is the only white surface on it, so the
+     four brand colours keep their contrast against the green fill. */
   .question-locked .locked-cta {
     display: inline-flex;
     align-items: center;
-    justify-content: center;
-    min-width: 101px;
+    gap: 10px;
     margin-top: 4px;
-    padding: 11px 31px;
+    padding: 10px 20px 10px 11px;
     border-radius: 25px;
     background: var(--green);
     color: #111;
@@ -260,6 +287,20 @@ const signInHref = loginPageUrl("");
     font-weight: 600;
     text-decoration: none;
     transition: background 140ms ease-out;
+  }
+
+  .question-locked .locked-cta-badge {
+    display: grid;
+    place-items: center;
+    width: 24px;
+    height: 24px;
+    flex: none;
+    border-radius: 50%;
+    background: #fff;
+  }
+
+  .question-locked .locked-cta-badge svg {
+    display: block;
   }
 
   .question-locked .locked-cta:hover {
@@ -270,6 +311,12 @@ const signInHref = loginPageUrl("");
   .question-locked .locked-cta:focus-visible {
     outline: 3px solid rgba(18, 160, 198, 0.45);
     outline-offset: 2px;
+  }
+
+  .question-locked .locked-note {
+    margin: 2px 0 0;
+    font-size: 12.5px;
+    color: var(--muted);
   }
 
   @keyframes locked-veil-in {

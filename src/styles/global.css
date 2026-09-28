@@ -195,6 +195,12 @@ button.primary:disabled {
   cursor: not-allowed;
 }
 
+/* Inert footer actions (the sign-in gate disables them) must not look clickable. */
+button.link-btn:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
 /* ---------- fixed footer / progress / side arrows ---------- */
 
 .progress {

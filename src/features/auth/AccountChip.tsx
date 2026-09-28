@@ -3,7 +3,7 @@ import { LogIn, LogOut, Users } from "lucide-react";
 import {
   currentPath,
   fetchSession,
-  loginPageUrl,
+  loginUrlFor,
   signOut,
   sitePath,
   type SessionResponse,
@@ -21,11 +21,12 @@ interface Props {
 /**
  * Signed-in account chip for the exam header (spec §9, decision 24).
  * Renders nothing while loading or when signed out — unless `showSignedOut` is
- * set, in which case signed out means a compact link to the login page.
+ * set, in which case signed out means a compact link that starts the Google
+ * sign-in flow.
  */
 export default function AccountChip({ showSignedOut = false }: Props) {
   const [session, setSession] = useState<SessionResponse | null>(null);
-  const [signInHref, setSignInHref] = useState(sitePath("login"));
+  const [signInHref, setSignInHref] = useState(loginUrlFor(sitePath("")));
 
   useEffect(() => {
     let alive = true;
@@ -41,7 +42,7 @@ export default function AccountChip({ showSignedOut = false }: Props) {
   // from `window`, so the href is filled in after hydration
   useEffect(() => {
     if (!showSignedOut || typeof window === "undefined") return;
-    setSignInHref(loginPageUrl(currentPath()));
+    setSignInHref(loginUrlFor(currentPath()));
   }, [showSignedOut]);
 
   const user = session?.authenticated ? session.user : undefined;
@@ -105,7 +106,7 @@ export default function AccountChip({ showSignedOut = false }: Props) {
       <button
         type="button"
         className="hdr-btn account-signout"
-        onClick={() => void signOut(sitePath("login"))}
+        onClick={() => void signOut(sitePath(""))}
         aria-label="Sign out"
         title="Sign out"
       >

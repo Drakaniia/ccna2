@@ -33,14 +33,16 @@ export function sitePath(path = ""): string {
   return clean ? `${SITE_BASE}/${clean}` : `${SITE_BASE}/`;
 }
 
-/** Start the OAuth flow, returning to `redirectPath` (a site-relative path). */
+/**
+ * Start the OAuth flow, returning to `redirectPath` (a site-relative path).
+ *
+ * This is the only sign-in entry point in the site: the gate on the first
+ * locked question, the header chip, the admin lock and the cookie-blocked
+ * retry all link here, so there is no sign-in page of our own to keep in sync
+ * or to bounce through.
+ */
 export function loginUrlFor(redirectPath: string): string {
   return `${AUTH_BASE_URL}/auth/login?redirect=${encodeURIComponent(redirectPath)}`;
-}
-
-/** URL of the site's own login page, preserving where the visitor was headed. */
-export function loginPageUrl(redirectPath: string): string {
-  return `${sitePath("login")}?redirect=${encodeURIComponent(redirectPath)}`;
 }
 
 /**
@@ -204,7 +206,7 @@ export async function fetchSession(): Promise<SessionResponse> {
 }
 
 /** End this site's session only (the Google session is left alone). */
-export async function signOut(returnTo: string = sitePath("login")): Promise<void> {
+export async function signOut(returnTo: string = sitePath("")): Promise<void> {
   // The Worker can only clear its own cookie, so the stored token goes too.
   writeToken(null);
   try {
@@ -220,7 +222,7 @@ export async function signOut(returnTo: string = sitePath("login")): Promise<voi
  *
  * `full` is any valid session — a Buksu student or an admin, since both hold the
  * cookie. `preview` is everyone else: they may answer the first few questions
- * for free and are sent to the login page when they try to go further.
+ * for free and are shown the sign-in gate when they try to go further.
  */
 export type AccessMode = "full" | "preview";
 

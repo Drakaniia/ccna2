@@ -71,7 +71,7 @@ npm run preview    # serve the production build locally
 
 ## Authentication (Buksu SSO)
 
-Exam pages carry a **public 5-question preview**: a signed-out visitor can start an exam, answer five random questions, get their score, and read the explanations with no account at all. The preview attempt lives only in that visitor's own browser and is never sent to us. Trying to go past question 5 sends them to the sign-in page, where signing in with a Buksu student account lifts the cap and unlocks the whole module.
+Exam pages carry a **public 5-question preview**: a signed-out visitor can start an exam, answer five random questions, get their score, and read the explanations with no account at all. The preview attempt lives only in that visitor's own browser and is never sent to us. Trying to go past question 5 replaces the question with a **"Sign in with Google"** button that starts the OAuth flow right there — there is no separate sign-in page. Signing in with a Buksu student account lifts the cap, unlocks the whole module, and keeps the questions already answered in the preview: the saved attempt is promoted to a full one on return, so the visitor comes back into the exam — on the first question they had not reached.
 
 Everything beyond that preview is gated behind a **Cloudflare Worker** (`worker/`) that performs Google OAuth 2.0 and signs a session token. Only Buksu **student** accounts are admitted — a numeric student ID on the `student.buksu.edu.ph` domain (e.g. `2401117078@student.buksu.edu.ph`). Personal mailboxes and `@buksu.edu.ph` staff addresses are intentionally rejected. The home page and module chooser remain public.
 

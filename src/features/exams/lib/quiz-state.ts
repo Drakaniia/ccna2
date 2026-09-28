@@ -68,8 +68,13 @@ function dropLegacyKeys(moduleId: string): void {
 
 function persist(): void {
   if (!ctx) return;
+  writeSaved(ctx.moduleId, ctx.state);
+}
+
+/** Store an attempt under its own access namespace. Never throws. */
+function writeSaved(moduleId: string, state: AttemptState): void {
   try {
-    localStorage.setItem(storageKey(ctx.moduleId, ctx.state.access), JSON.stringify(ctx.state));
+    localStorage.setItem(storageKey(moduleId, state.access), JSON.stringify(state));
   } catch {
     /* storage unavailable — quiz still works for the session */
   }
@@ -244,6 +249,36 @@ export function goNext(): void {
 export function goPrev(): void {
   const s = getState();
   if (s && s.current > 0) goTo(s.current - 1);
+}
+
+/**
+ * True when the cursor sits on the first locked question — the sign-in gate.
+ *
+ * A preview attempt holds only the free questions, so `current === order.length`
+ * is one past the last answerable position: progress reads "6 of 91", the tab
+ * strip highlights the first locked tab, and the question body shows the gate.
+ * Nothing may index `order` with it, which is what the callers check for.
+ */
+export function atGate(s: AttemptState | null): boolean {
+  return !!s && s.current >= s.order.length;
+}
+
+/**
+ * Put the cursor on the first locked question, where the sign-in gate lives.
+ *
+ * Jumping the cursor there (rather than veiling the question the visitor is
+ * already on) is what makes the gate read as question 6: the progress counter
+ * and the tab strip both say so, and the questions behind it stay one click
+ * away. No-op once the cursor is already at or past the gate, so a second press
+ * cannot walk further out.
+ */
+export function goToGate(): void {
+  if (!ctx) return;
+  if (atGate(ctx.state)) return;
+  mutate((s) => {
+    s.current = s.order.length;
+    ctx!.activeLeft = null;
+  });
 }
 
 /* ----------------------------------- answering -------------------------------- */
@@ -718,4 +753,94 @@ export function resumeQuiz(moduleId: string, module: ExamModule, access: AccessM
   ctx = { moduleId, module, state, access, activeLeft: null };
   emit(); // re-persist (normalized) and paint every subscribed view
   return state;
+}
+
+/* -------------------------------- promotion -------------------------------- */
+
+/**
+ * Whether a saved attempt holds anything worth resuming.
+ *
+ * A save left behind by pressing Start and walking away again — nothing
+ * answered, paired, checked, flagged or submitted — is empty, so the intro
+ * offers a plain Start instead of Resume, and there is nothing to promote.
+ */
+export function attemptHasProgress(s: AttemptState, module: ExamModule): boolean {
+  const answered = s.order.some((sourceIndex, p) => {
+    const q = module.questions[sourceIndex];
+    if (!q) return false;
+    return q.type === "pair"
+      ? !!s.pairs[p] && Object.keys(s.pairs[p] ?? {}).length > 0
+      : (s.answers[p]?.length ?? 0) > 0;
+  });
+  return (
+    answered ||
+    s.phase === "submit" ||
+    s.phase === "result" ||
+    s.checked.some(Boolean) ||
+    s.reviewed.some(Boolean)
+  );
+}
+
+/**
+ * Carry a signed-out visitor's preview attempt into full mode after they sign
+ * in, so the questions they already answered survive the sign-in round trip.
+ *
+ * Attempts are namespaced per access mode, so signing in would otherwise look
+ * for a key the preview never wrote and start the module from scratch. It does
+ * not have to: `buildAttempt` derives every shuffle from the seed, and a
+ * preview is just the full order sliced to the free count, so rebuilding with
+ * the *same* seed reproduces the preview's positions and option layouts
+ * exactly. Answers are stored as display indices against those layouts, so they
+ * can be copied straight across.
+ *
+ * Returns true when a full attempt was written and is worth resuming. Nothing
+ * is promoted when:
+ *   - the preview was empty, or already submitted (its score was shown; a
+ *     preview result is not a full attempt's result),
+ *   - a full attempt with progress already exists — that one is the student's
+ *     real work and must win.
+ *
+ * The preview save is left in place: signing out again resumes it as it was.
+ */
+export function promotePreviewAttempt(moduleId: string, module: ExamModule): boolean {
+  const preview = loadSaved(moduleId, module, "preview");
+  if (!preview || preview.phase !== "quiz") return false;
+  if (!attemptHasProgress(preview, module)) return false;
+
+  const existing = loadSaved(moduleId, module, "full");
+  if (existing && attemptHasProgress(existing, module)) return false;
+
+  const total = module.questions.length;
+  const state = buildAttempt(
+    module.questions,
+    preview.seed,
+    "full",
+    resolveLimit("full", moduleId, total),
+  );
+
+  // A full attempt can be shorter than the preview was when the student capped
+  // the item count below the free questions, so only the shared positions move.
+  const carried = Math.min(preview.order.length, state.order.length);
+  const answeredAt = (p: number): boolean => {
+    const q = module.questions[state.order[p]!];
+    return q.type === "pair"
+      ? !!state.pairs[p] && Object.keys(state.pairs[p] ?? {}).length > 0
+      : state.answers[p]!.length > 0;
+  };
+  for (let p = 0; p < carried; p += 1) {
+    state.answers[p] = [...preview.answers[p]!];
+    state.pairs[p] = preview.pairs[p] ? { ...preview.pairs[p] } : null;
+    state.skipped[p] = preview.skipped[p]!;
+    state.checked[p] = preview.checked[p]!;
+    state.reviewed[p] = preview.reviewed[p]!;
+  }
+  state.phase = "quiz";
+  // Come back on the first question with no answer yet — signing in was for the
+  // questions after the preview, so dropping the visitor on the last question
+  // they happened to be reading would be a small own-goal.
+  const nextUp = state.order.findIndex((_, p) => !answeredAt(p));
+  state.current = nextUp >= 0 ? nextUp : state.order.length - 1;
+
+  writeSaved(moduleId, state);
+  return true;
 }

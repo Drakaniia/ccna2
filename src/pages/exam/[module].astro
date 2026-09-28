@@ -300,6 +300,26 @@ const abs = (p: string) => `${import.meta.env.BASE_URL.replace(/\/?$/, "/")}${p}
         outline-offset: 2px;
       }
 
+      /* The gate's own tab: the current position, but a locked one. The dark
+         green `current` fill is the "answered" signal everywhere else, so the
+         locked surface is kept and the position is marked with a solid border
+         and full opacity instead. */
+      .qtab.locked.current {
+        opacity: 1;
+        background: #fff;
+        border-style: solid;
+        border-width: 2px;
+        border-color: var(--green-dark);
+        color: var(--green-dark);
+        font-weight: 600;
+      }
+
+      html[data-theme="dark"] .qtab.locked.current {
+        background: #23272d;
+        border-color: var(--green);
+        color: #a9d18f;
+      }
+
       @media (max-width: 600px) {
         .intro-screen {
           min-height: 50vh;
@@ -321,11 +341,12 @@ const abs = (p: string) => `${import.meta.env.BASE_URL.replace(/\/?$/, "/")}${p}
         cookieBlockedUrl,
         currentPath,
         fetchSession,
-        loginPageUrl,
         publishAccessMode,
         type AccessMode,
       } from "../../features/auth/auth-client";
       import {
+        attemptHasProgress,
+        atGate,
         backToQuiz,
         bootQuiz,
         checkCurrent,
@@ -336,9 +357,11 @@ const abs = (p: string) => `${import.meta.env.BASE_URL.replace(/\/?$/, "/")}${p}
         goNext,
         goPrev,
         goTo,
+        goToGate,
         hasAnswerFor,
         loadSaved,
         openSubmit,
+        promotePreviewAttempt,
         questionCount,
         rebootWithLimit,
         resetQuiz,
@@ -357,6 +380,16 @@ const abs = (p: string) => `${import.meta.env.BASE_URL.replace(/\/?$/, "/")}${p}
         const moduleId = document.body.dataset.module ?? "";
         const mod = availableModules[moduleId];
         if (!mod) return;
+
+        /*
+         * Signing in part-way through the public preview used to throw those
+         * answers away: attempts are namespaced per access mode, so full mode
+         * looked for a key the preview never wrote. The preview is promoted into
+         * a full attempt first, and a promotion is resumed straight away — the
+         * visitor came back mid-exam and should land on the question they left,
+         * not on the intro screen.
+         */
+        const promoted = access === "full" && promotePreviewAttempt(moduleId, mod);
 
         // Site root when deployed under a repo-name base path (GitHub Pages).
         const siteRoot = import.meta.env.BASE_URL.replace(/\/$/, "");
@@ -475,30 +508,15 @@ const abs = (p: string) => `${import.meta.env.BASE_URL.replace(/\/?$/, "/")}${p}
 
         /**
          * A saved attempt only counts as a session once there is something to
-         * come back to. A save left behind by pressing Start and walking away
-         * again — nothing answered, paired, checked or flagged — is empty, so
-         * the intro keeps offering a plain Start Exam instead of
-         * Resume Session / Start New Exam.
+         * come back to — see `attemptHasProgress`, which is also what decides
+         * whether a preview is worth promoting after sign-in.
          */
-        function hasSessionProgress(s: AttemptState): boolean {
-          const answered = s.order.some((sourceIndex, p) => {
-            const q = mod.questions[sourceIndex];
-            return q.type === "pair"
-              ? !!s.pairs[p] && Object.keys(s.pairs[p] ?? {}).length > 0
-              : (s.answers[p]?.length ?? 0) > 0;
-          });
-          return (
-            answered ||
-            s.phase === "submit" ||
-            s.phase === "result" ||
-            s.checked.some(Boolean) ||
-            s.reviewed.some(Boolean)
-          );
-        }
 
         // Saved session with progress? Swap Start Exam for Resume / Start New Exam + a summary.
-        const saved = loadSaved(moduleId, mod, access);
-        const hasSession = !!saved && hasSessionProgress(saved);
+        // A promotion already decided what this visit resumes, so the intro is
+        // not consulted at all.
+        const saved = promoted ? null : loadSaved(moduleId, mod, access);
+        const hasSession = !!saved && attemptHasProgress(saved, mod);
         if (saved && hasSession && resumeBox) {
           if (startBtn) startBtn.hidden = true;
           resumeBox.hidden = false;
@@ -522,6 +540,23 @@ const abs = (p: string) => `${import.meta.env.BASE_URL.replace(/\/?$/, "/")}${p}
           }
         });
 
+        // A visitor who came back from signing in mid-preview lands straight in
+        // the exam they left, with their answered questions intact.
+        if (promoted) resumeSession();
+
+        /**
+         * The footer is inert on the gate: there is no question to move on from
+         * and nothing to submit, so the buttons read as unavailable rather than
+         * quietly doing nothing when pressed.
+         */
+        function syncFooter(): void {
+          const gate = atGate(getState());
+          for (const id of ["footerNextBtn", "skipAllBtn", "reviewQBtn"]) {
+            const btn = $(id) as HTMLButtonElement | null;
+            if (btn) btn.disabled = gate;
+          }
+        }
+
         function chrome(): void {
           const st = getState();
           const m = getModule();
@@ -540,6 +575,7 @@ const abs = (p: string) => `${import.meta.env.BASE_URL.replace(/\/?$/, "/")}${p}
           syncExhibitVisibility();
           syncCheckBar();
           syncReviewBtn();
+          syncFooter();
 
           if (st.phase === "submit") renderSubmitView();
           if (st.phase === "result") renderResultView();
@@ -589,6 +625,13 @@ const abs = (p: string) => `${import.meta.env.BASE_URL.replace(/\/?$/, "/")}${p}
           const st = getState();
           const bar = $("checkBar");
           if (!st || !bar) return;
+
+          // The gate has no question under it, so there is nothing to check —
+          // and `hasAnswerFor` must not be asked about a locked position.
+          if (atGate(st)) {
+            bar.hidden = true;
+            return;
+          }
 
           const p = st.current;
           const isChecked = !!st.checked[p];
@@ -664,7 +707,10 @@ const abs = (p: string) => `${import.meta.env.BASE_URL.replace(/\/?$/, "/")}${p}
               btn.className = "qtab locked";
               btn.setAttribute("aria-disabled", "true");
               btn.title = "Sign in to unlock";
-              btn.addEventListener("click", goToLogin);
+              // The gate sits on the first locked tab, so that one is the
+              // current position — the cursor really is one past the attempt.
+              if (idx === p) btn.classList.add("current");
+              btn.addEventListener("click", openGate);
               tabs.appendChild(btn);
               continue;
             }
@@ -707,10 +753,11 @@ const abs = (p: string) => `${import.meta.env.BASE_URL.replace(/\/?$/, "/")}${p}
         }
 
         /**
-         * Take the question body over with the locked placeholder. Transient: a
-         * preview attempt only ever holds the free questions, so this is the
-         * visible beat between asking to go further and landing on the login
-         * page — the real question 6 text is never in the DOM to show.
+         * Take the question body over with the sign-in gate. Transient: a
+         * preview attempt only ever holds the free questions, so the real
+         * question 6 text is never in the DOM to show. The gate carries the
+         * Google sign-in button, so asking to go further and signing in are one
+         * click apart and no page sits in between.
          */
         function showLockPanel(): void {
           const view = $("qView");
@@ -723,7 +770,7 @@ const abs = (p: string) => `${import.meta.env.BASE_URL.replace(/\/?$/, "/")}${p}
         /**
          * Sitting on the last free question, where going further costs a sign-in.
          * A module small enough to fit inside the preview has nothing to unlock,
-         * so it never redirects (spec §7).
+         * so it never opens the gate (spec §7).
          */
         function atPreviewEnd(): boolean {
           if (access !== "preview") return false;
@@ -732,11 +779,15 @@ const abs = (p: string) => `${import.meta.env.BASE_URL.replace(/\/?$/, "/")}${p}
           return st.current >= st.order.length - 1;
         }
 
+        /** Put the cursor on the first locked question, where the gate lives. */
+        function openGate(): void {
+          goToGate();
+        }
+
+        /** Open the gate, but only when going further is actually gated. */
         function goToLogin(): void {
-          showLockPanel();
-          window.setTimeout(() => {
-            window.location.replace(loginPageUrl(currentPath()));
-          }, 180);
+          if (!atPreviewEnd()) return; // nothing is locked yet — let the click through
+          openGate();
         }
 
         function renderQuestionShell(): void {
@@ -745,9 +796,8 @@ const abs = (p: string) => `${import.meta.env.BASE_URL.replace(/\/?$/, "/")}${p}
           const panel = $("qLocked");
           if (!st || !view || !panel) return;
 
-          if (st.access === "preview" && st.current >= st.order.length) {
-            panel.hidden = false;
-            view.hidden = true;
+          if (st.access === "preview" && atGate(st)) {
+            showLockPanel();
             return;
           }
           panel.hidden = true;
@@ -900,11 +950,14 @@ const abs = (p: string) => `${import.meta.env.BASE_URL.replace(/\/?$/, "/")}${p}
         el("footerNextBtn")?.addEventListener("click", () => {
           const st = getState();
           if (!st) return;
+          // The gate is not a question: there is nothing to advance to and
+          // nothing to submit, so the button does nothing until they sign in.
+          if (atGate(st)) return;
           if (st.current < st.order.length - 1) {
             // Advancing out of a preview attempt is a sign-in prompt. The
             // button reads Submit on the last free question, so that path is
-            // left alone below (D6) — the prompt comes from `→`, Skip, and the
-            // locked tabs.
+            // left alone below (D6) — the prompt comes from `→`, Review
+            // Question, and the locked tabs.
             if (atPreviewEnd()) {
               goToLogin();
               return;
@@ -914,8 +967,14 @@ const abs = (p: string) => `${import.meta.env.BASE_URL.replace(/\/?$/, "/")}${p}
             openSubmit();
           }
         });
-        el("skipAllBtn")?.addEventListener("click", () => skipAll());
+        el("skipAllBtn")?.addEventListener("click", () => {
+          // Skipping everything from the gate would submit an attempt that was
+          // never really taken; the sign-in is the only way forward here.
+          if (atGate(getState())) return;
+          skipAll();
+        });
         el("reviewQBtn")?.addEventListener("click", () => {
+          if (atGate(getState())) return;
           if (atPreviewEnd()) {
             goToLogin();
             return;
@@ -1005,6 +1064,9 @@ const abs = (p: string) => `${import.meta.env.BASE_URL.replace(/\/?$/, "/")}${p}
           const st = getState();
           if (!st) return;
           if (st.phase !== "quiz") return;
+          // On the gate there is no question under the cursor, so only the two
+          // arrows mean anything — the rest would read past the attempt.
+          if (atGate(st) && e.key !== "ArrowLeft" && e.key !== "ArrowRight") return;
           // Desktop only
           if (!isDesktop()) return;
           if (e.key === "ArrowRight") {

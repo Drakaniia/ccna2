@@ -1,13 +1,13 @@
 ---
 import "../styles/global.css";
-import { SITE_BASE, loginPageUrl, safeReturnPath } from "../features/auth/auth-client";
+import { SITE_BASE, loginUrlFor, safeReturnPath } from "../features/auth/auth-client";
 
 // Static page: the query string is not known at build time, so the retry link
 // below is only the no-JS fallback. The script at the end of this file points it
 // at the path the visitor actually came from.
 const redirect = safeReturnPath(Astro.url.searchParams.get("redirect"));
 const homeHref = `${SITE_BASE}/`;
-const loginHref = loginPageUrl(redirect);
+const loginHref = loginUrlFor(redirect);
 ---
 
 <html lang="en">
@@ -51,7 +51,7 @@ const loginHref = loginPageUrl(redirect);
     <script>
       import {
         fetchSession,
-        loginPageUrl,
+        loginUrlFor,
         probeAuthService,
         safeReturnPath,
         type AuthServiceState,
@@ -123,7 +123,7 @@ const loginHref = loginPageUrl(redirect);
         // The retry link was rendered at build time with no query string, so it
         // must be pointed at the path this visitor actually came from.
         const retry = document.getElementById("cookieSignIn") as HTMLAnchorElement | null;
-        if (retry) retry.href = loginPageUrl(dest);
+        if (retry) retry.href = loginUrlFor(dest);
 
         applyCopy(await probeAuthService());
 
