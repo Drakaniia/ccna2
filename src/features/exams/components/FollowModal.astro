@@ -343,8 +343,9 @@ const CREDIT_IMG = abs("images/digal.jpg");
       if (!hasFollowed()) open();
     });
 
-    // First load of a session asks once; after that only the result screen
-    // and the credit bring it back.
-    if (!hasFollowed()) open();
+    // Disabled: the prompt no longer opens by itself on page load. It now only
+    // comes up when the visitor asks for it (the credit button) or when the
+    // result screen dispatches `follow:open`.
+    // if (!hasFollowed()) open();
   }
 </script>
