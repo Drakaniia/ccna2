@@ -22,7 +22,7 @@
   }
 
   .pair-item {
-    min-height: 52px;
+    min-height: 56px;
     padding: 0 14px 0 18px;
     display: flex;
     align-items: center;
@@ -72,45 +72,70 @@
     background: #eef7e9;
   }
 
+  /* the badge always sits on the INNER edge of its card (right edge for the
+     left column, left edge for the right column) and overlaps the border, so
+     the two badge circles face each other across the gap. */
   .pair-right {
-    flex-direction: row-reverse;
-    justify-content: flex-end;
     gap: 14px;
   }
 
+  .pair-right .pair-badge {
+    margin-left: -27px;
+  }
+
+  .pair-item:not(.pair-right) .pair-badge {
+    margin-right: -27px;
+  }
+
   .pair-badge {
-    min-width: 25px;
-    height: 25px;
+    box-sizing: border-box;
+    min-width: 30px;
+    height: 30px;
     border-radius: 50%;
+    border: 2px solid #cfe3d8;
     display: flex;
     align-items: center;
     justify-content: center;
     background: #d9f0e4;
     color: #397448;
     font-size: 13px;
-    font-weight: 600;
+    font-weight: 700;
+    /* above the connector lines so the line tucks under the circle */
+    position: relative;
+    z-index: 6;
     flex-shrink: 0;
-    padding: 0 7px;
+    padding: 0;
     white-space: nowrap;
   }
 
+  /* two left items can share one right target -> widen into a pill */
   .pair-badge.multi {
-    border-radius: 12px;
+    border-radius: 15px;
+    padding: 0 9px;
   }
 
   .pair-right .pair-badge {
     background: #e5f4f6;
     color: #337783;
+    border-color: #c3dfe4;
+  }
+
+  /* an unmatched badge reserves its slot but stays invisible (declared last so
+     it also wins over the right-column default above) */
+  .pair-badge.empty,
+  .pair-right .pair-badge.empty {
+    background: transparent;
+    border-color: transparent;
   }
 
   /* distinct light colors per pair letter (shared by left + matched right badge) */
-  .pair-badge.letter-0 { background: #ffe0bf; color: #8a4a0f; }
-  .pair-badge.letter-1 { background: #d3e6ff; color: #123f6e; }
-  .pair-badge.letter-2 { background: #d6f0d3; color: #1e5b1e; }
-  .pair-badge.letter-3 { background: #fbd8ec; color: #8c2c61; }
-  .pair-badge.letter-4 { background: #e2d9fb; color: #452a92; }
-  .pair-badge.letter-5 { background: #fbdada; color: #8f2020; }
-  .pair-badge.letter-6 { background: #fdf0c2; color: #7a5d08; }
+  .pair-badge.letter-0 { background: #ffe0bf; color: #8a4a0f; border-color: #e9a35c; }
+  .pair-badge.letter-1 { background: #d3e6ff; color: #123f6e; border-color: #6fa3e8; }
+  .pair-badge.letter-2 { background: #d6f0d3; color: #1e5b1e; border-color: #7cc173; }
+  .pair-badge.letter-3 { background: #fbd8ec; color: #8c2c61; border-color: #e58cbe; }
+  .pair-badge.letter-4 { background: #e2d9fb; color: #452a92; border-color: #a48fe6; }
+  .pair-badge.letter-5 { background: #fbdada; color: #8f2020; border-color: #e08a8a; }
+  .pair-badge.letter-6 { background: #fdf0c2; color: #7a5d08; border-color: #d8bd52; }
 
   .pair-lines {
     position: absolute;
@@ -176,7 +201,7 @@
 
   @media (max-width: 800px) {
     .pairing-board {
-      gap: 26px;
+      gap: 62px;
     }
   }
 </style>
@@ -309,6 +334,9 @@
         // matched right badges echo their left partner(s)' light color
         badge.classList.add(`letter-${(leftPos.get(pairedLefts[0]!) ?? pairedLefts[0]!) % PAIR_COLORS.length}`);
         badge.classList.add("multi");
+      } else {
+        // no partner yet: keep the slot sized but show nothing
+        badge.classList.add("empty");
       }
       badge.textContent = badgeText;
       const label = document.createElement("span");
@@ -416,34 +444,34 @@
       svg.appendChild(line);
     };
 
-    const lineEndpoints = (index: number): { a: { x: number; y: number } | null; b: { x: number; y: number } | null } => {
-      const leftEl = board.querySelector(`[data-left="${index}"]`) as HTMLElement | null;
-      const rightEl = board.querySelector(`[data-right="${index}"]`) as HTMLElement | null;
-      const lr = leftEl?.getBoundingClientRect();
-      const rr = rightEl?.getBoundingClientRect();
+    // Anchors sit on the letter badge, not the card: the line leaves the left
+    // badge on its right edge and lands on the right badge's left edge.
+    const badgeAnchor = (
+      item: Element | null,
+      side: "left" | "right"
+    ): { x: number; y: number } | null => {
+      if (!item) return null;
+      const target = (item.querySelector(".pair-badge") as HTMLElement | null) ?? (item as HTMLElement);
+      const r = target.getBoundingClientRect();
       return {
-        a: lr
-          ? { x: lr.right - boardRect.left - 10, y: lr.top - boardRect.top + lr.height / 2 }
-          : null,
-        b: rr
-          ? { x: rr.left - boardRect.left + 10, y: rr.top - boardRect.top + rr.height / 2 }
-          : null,
+        x: (side === "right" ? r.right : r.left) - boardRect.left,
+        y: r.top - boardRect.top + r.height / 2,
       };
     };
+
+    const leftItem = (L: number) => board.querySelector(`[data-left="${L}"]`);
+    const rightItem = (R: number) => board.querySelector(`[data-right="${R}"]`);
 
     // user pairings
     Object.entries(pairs).forEach(([left, right]) => {
       const L = Number(left);
-      const lpt = lineEndpoints(L).a;
-      const rpt = board.querySelector(`[data-right="${right}"]`) as HTMLElement | null;
-      if (!lpt || !rpt) return;
-      const rr = rpt.getBoundingClientRect();
-      const x2 = rr.left - boardRect.left + 10;
-      const y2 = rr.top - boardRect.top + rr.height / 2;
+      const from = badgeAnchor(leftItem(L), "right");
+      const to = badgeAnchor(rightItem(Number(right)), "left");
+      if (!from || !to) return;
 
       let color = "#3f4c52";
-      if (checked) color = right === expected.get(L) ? "#65ae4b" : "#d11111";
-      addLine(lpt.x, lpt.y, x2, y2, color);
+      if (checked) color = Number(right) === expected.get(L) ? "#65ae4b" : "#d11111";
+      addLine(from.x, from.y, to.x, to.y, color);
     });
 
     // when checked: reveal the correct pairing for any wrong or unpaired left
@@ -451,13 +479,10 @@
       expected.forEach((expRight, L) => {
         const userRight = pairs[L];
         if (userRight === expRight) return;
-        const lpt = lineEndpoints(L).a;
-        const rightEl = board.querySelector(`[data-right="${expRight}"]`) as HTMLElement | null;
-        if (!lpt || !rightEl) return;
-        const rr = rightEl.getBoundingClientRect();
-        const x2 = rr.left - boardRect.left + 10;
-        const y2 = rr.top - boardRect.top + rr.height / 2;
-        addLine(lpt.x, lpt.y, x2, y2, "#65ae4b", true);
+        const from = badgeAnchor(leftItem(L), "right");
+        const to = badgeAnchor(rightItem(expRight), "left");
+        if (!from || !to) return;
+        addLine(from.x, from.y, to.x, to.y, "#65ae4b", true);
       });
     }
   }
