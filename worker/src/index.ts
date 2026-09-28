@@ -33,6 +33,19 @@ interface StatePayload {
   redirect: string;
 }
 
+/**
+ * Version of the auth API the site talks to, reported by `/health`.
+ *
+ * Bump it whenever the site starts depending on a new endpoint or response
+ * shape, and raise `REQUIRED_AUTH_API` in `src/features/auth/auth-client.ts` to
+ * match. The site cannot work against an older Worker: a site deploy that
+ * outruns the Worker deploy (a failed `wrangler deploy`, for instance) would
+ * otherwise look to every visitor like their own browser was at fault. With the
+ * version in place the site can say which side is stale — and the Pages
+ * workflow refuses to publish a site whose Worker is behind.
+ */
+export const AUTH_API_VERSION = 2;
+
 export default {
   async fetch(request: Request, env: Env, _ctx: ExecutionContext): Promise<Response> {
     const url = new URL(request.url);
@@ -45,7 +58,7 @@ export default {
     try {
       switch (`${request.method} ${url.pathname}`) {
         case "GET /health":
-          return json({ ok: true, service: "ccna-auth" }, 200, cors);
+          return json({ ok: true, service: "ccna-auth", api: AUTH_API_VERSION }, 200, cors);
         case "GET /auth/login":
           return handleLogin(env, url, cors);
         case "GET /auth/callback":

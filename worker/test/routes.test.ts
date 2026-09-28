@@ -163,7 +163,9 @@ describe("worker routes — health and CORS", () => {
     const { env } = makeEnv();
     const res = await worker.fetch(get("/health"), env, ctx);
     expect(res.status).toBe(200);
-    expect(await res.json()).toEqual({ ok: true, service: "ccna-auth" });
+    // `api` is the handshake the site uses to tell a current Worker from a stale
+    // one; dropping it would make every sign-in failure look browser-caused.
+    expect(await res.json()).toEqual({ ok: true, service: "ccna-auth", api: 2 });
     expect(res.headers.get("access-control-allow-origin")).toBe(SITE_ORIGIN);
     expect(res.headers.get("access-control-allow-origin")).not.toBe("*");
     expect(res.headers.get("access-control-allow-credentials")).toBe("true");

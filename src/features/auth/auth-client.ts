@@ -61,6 +61,37 @@ export function safeReturnPath(raw: string | null | undefined): string {
 }
 
 /**
+ * Auth API this site needs from the Worker (see `AUTH_API_VERSION` in
+ * `worker/src/index.ts`). Bump it in the same change that starts using a new
+ * Worker endpoint, so a stale Worker is reported as a stale Worker.
+ */
+export const REQUIRED_AUTH_API = 2;
+
+/** How the Worker answered the version handshake. */
+export type AuthServiceState = "ready" | "outdated" | "unreachable";
+
+/**
+ * Ask the Worker which auth API it speaks.
+ *
+ * Redeeming a hand-off token needs a Worker from `REQUIRED_AUTH_API` onwards.
+ * Until this distinction existed, a site running ahead of its Worker (a failed
+ * `wrangler deploy`) showed the same "your sign-in did not finish" page as a
+ * genuinely expired link, and every visitor was told their browser was at
+ * fault. Never throws.
+ */
+export async function probeAuthService(): Promise<AuthServiceState> {
+  try {
+    const res = await fetch(`${AUTH_BASE_URL}/health`, { headers: { Accept: "application/json" } });
+    if (!res.ok) return "unreachable";
+    const body = (await res.json()) as { api?: unknown };
+    return typeof body.api === "number" && body.api >= REQUIRED_AUTH_API ? "ready" : "outdated";
+  } catch {
+    // No answer is not an old answer: the service may simply be unreachable.
+    return "unreachable";
+  }
+}
+
+/**
  * URL of the cookie-blocked explanation page, carrying where the visitor came
  * from so its "try again" link can bring them straight back afterwards.
  */

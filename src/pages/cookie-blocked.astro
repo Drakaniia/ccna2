@@ -31,18 +31,16 @@ const loginHref = loginPageUrl(redirect);
   <body class="cookie-body">
     <main class="cookie-card">
       <span class="cookie-kicker">CCNA 2 v7 Practice Exams</span>
-      <h1>Your sign-in did not finish</h1>
-      <p class="cookie-lead">
-        You signed in with Google successfully, but this site could not complete
-        the hand-over from the auth service. That usually means the browser
-        blocked the <strong>storage</strong> it needs, or the sign-in link was
-        already used or had expired.
+      <h1 id="cookieTitle">Your sign-in did not finish</h1>
+      <p class="cookie-lead" id="cookieLead">
+        Google signed you in, but the session did not make it back to this page.
+        That is usually a sign-in link that was already used or has expired, or
+        storage this page needs being blocked.
       </p>
-      <ul class="cookie-list">
+      <ul class="cookie-list" id="cookieTips">
         <li>Press “Try signing in again” and finish the Google prompt in one go.</li>
-        <li>Allow cookies and site data for this page — some browsers block them for sign-ins that cross domains.</li>
-        <li>Turn off strict tracking protection or “Prevent cross-site tracking” for this site.</li>
-        <li>If you are in a private/incognito window, try a normal window. Chrome or Firefox usually work; Safari and iOS browsers are the strictest.</li>
+        <li>Allow cookies and site data for this page — that is where the signed-in session is kept.</li>
+        <li>In a private/incognito window nothing survives the hand-over; use a normal window.</li>
       </ul>
       <div class="cookie-actions">
         <a class="cookie-btn primary" id="cookieSignIn" href={loginHref}>Try signing in again</a>
@@ -54,8 +52,69 @@ const loginHref = loginPageUrl(redirect);
       import {
         fetchSession,
         loginPageUrl,
+        probeAuthService,
         safeReturnPath,
+        type AuthServiceState,
       } from "../features/auth/auth-client";
+
+      /**
+       * What to say, by whose fault it is. The page is rendered with the
+       * "ready" copy and the real cause is filled in below: landing here with a
+       * stale auth service is a different problem, with a different owner, than
+       * an expired link — and telling a student to change browser settings for
+       * a fault on our side is worse than saying nothing.
+       */
+      const COPY: Record<AuthServiceState, { title: string; lead: string; tips: string[] }> = {
+        outdated: {
+          title: "Sign-in is broken on our side",
+          lead: "The sign-in service is running an older version than this page needs, so it cannot hand your session back. Changing browser or device settings will not help.",
+          tips: [
+            "Please try again a little later.",
+            "If it keeps happening, tell the site owner the auth service needs to be redeployed.",
+          ],
+        },
+        unreachable: {
+          title: "The sign-in service is unreachable",
+          lead: "This page could not reach the sign-in service at all, so the hand-over never happened. That is a connection problem, not a browser setting.",
+          tips: [
+            "Check your connection, then press “Try signing in again”.",
+            "A VPN, a strict firewall, or offline saving can block it too.",
+          ],
+        },
+        ready: {
+          title: "Your sign-in did not finish",
+          lead: "Google signed you in, but the session did not make it back to this page. That is usually a sign-in link that was already used or has expired, or storage this page needs being blocked.",
+          tips: [
+            "Press “Try signing in again” and finish the Google prompt in one go.",
+            "Allow cookies and site data for this page — that is where the signed-in session is kept.",
+            "In a private/incognito window nothing survives the hand-over; use a normal window.",
+          ],
+        },
+      };
+
+      function applyCopy(state: AuthServiceState): void {
+        const copy = COPY[state];
+        const title = document.getElementById("cookieTitle");
+        const lead = document.getElementById("cookieLead");
+        const tips = document.getElementById("cookieTips");
+        const retry = document.getElementById("cookieSignIn");
+
+        document.title = `${copy.title} — CCNA 2 v7 Practice Exams`;
+        if (title) title.textContent = copy.title;
+        if (lead) lead.textContent = copy.lead;
+        if (tips) {
+          tips.replaceChildren(
+            ...copy.tips.map((text) => {
+              const li = document.createElement("li");
+              li.textContent = text;
+              return li;
+            }),
+          );
+        }
+        // Retrying cannot work against a service that cannot redeem the link;
+        // never offer an action that is guaranteed to fail.
+        if (retry) retry.hidden = state === "outdated";
+      }
 
       (async function () {
         const params = new URLSearchParams(window.location.search);
@@ -66,7 +125,9 @@ const loginHref = loginPageUrl(redirect);
         const retry = document.getElementById("cookieSignIn") as HTMLAnchorElement | null;
         if (retry) retry.href = loginPageUrl(dest);
 
-        // If cookies actually work now, get out of the way.
+        applyCopy(await probeAuthService());
+
+        // If the session is fine after all, get out of the way.
         const session = await fetchSession();
         if (session.authenticated) {
           window.location.replace(dest);

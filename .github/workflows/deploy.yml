@@ -32,6 +32,31 @@ jobs:
     steps:
       - name: Checkout your repository using git
         uses: actions/checkout@v7
+
+      # The site can only sign students in against a Worker that speaks the
+      # same auth API (see AUTH_API_VERSION in worker/src/index.ts). Publishing
+      # a site ahead of its Worker locks everyone out of the exams and looks to
+      # each visitor like a fault in their own browser, so treat a Worker that
+      # is behind as a failed deploy. A Worker that cannot be reached at all is
+      # only a warning — a Cloudflare blip must not block unrelated site work.
+      - name: Check the auth Worker is up to date
+        run: |
+          required=2
+          if ! health=$(curl -fsS --max-time 10 https://ccna-auth.floresaybaez574.workers.dev/health); then
+            echo "::warning::Could not reach the auth Worker; skipping the auth API version check."
+            exit 0
+          fi
+          echo "auth Worker /health: $health"
+          api=$(printf '%s' "$health" | sed -n 's/.*"api"[[:space:]]*:[[:space:]]*\([0-9]*\).*/\1/p')
+          if [ -z "$api" ]; then
+            echo "::error::The deployed auth Worker predates the API-version handshake. Deploy worker/ (see worker-deploy.yml) before publishing this site."
+            exit 1
+          fi
+          if [ "$api" -lt "$required" ]; then
+            echo "::error::The deployed auth Worker speaks auth API $api but this site needs $required. Deploy worker/ first."
+            exit 1
+          fi
+
       - name: Install, build, and upload your site
         uses: withastro/action@v6
         env:
