@@ -4,7 +4,7 @@
 
 Interactive practice exams for the **CCNA 2 v7 (Switching, Routing, and Wireless Essentials)** module checkpoint quizzes, built as a static site with [Astro](https://astro.build).
 
-Choose an exam group from the home page and work through its questions with instant checking, explanations, exhibit images, and a final score gauge. Taking an exam requires signing in with a Buksu student Google account (see [Authentication](#authentication-buksu-sso)); the chooser itself stays public.
+Choose an exam group from the home page and work through its questions with instant checking, explanations, exhibit images, and a final score gauge. Every exam opens with a free 5-question preview; signing in with a Buksu student Google account (see [Authentication](#authentication-buksu-sso)) lifts the cap to the full module, and the chooser itself stays public.
 
 ## Features
 
@@ -71,7 +71,9 @@ npm run preview    # serve the production build locally
 
 ## Authentication (Buksu SSO)
 
-Exams are gated behind a **Cloudflare Worker** (`worker/`) that performs Google OAuth 2.0 and issues an `httpOnly` session cookie. Only Buksu **student** accounts are admitted — a numeric student ID on the `student.buksu.edu.ph` domain (e.g. `2401117078@student.buksu.edu.ph`). Personal mailboxes and `@buksu.edu.ph` staff addresses are intentionally rejected. The home page and module chooser remain public.
+Exam pages carry a **public 5-question preview**: a signed-out visitor can start an exam, answer five random questions, get their score, and read the explanations with no account at all. The preview attempt lives only in that visitor's own browser and is never sent to us. Trying to go past question 5 sends them to the sign-in page, where signing in with a Buksu student account lifts the cap and unlocks the whole module.
+
+Everything beyond that preview is gated behind a **Cloudflare Worker** (`worker/`) that performs Google OAuth 2.0 and issues an `httpOnly` session cookie. Only Buksu **student** accounts are admitted — a numeric student ID on the `student.buksu.edu.ph` domain (e.g. `2401117078@student.buksu.edu.ph`). Personal mailboxes and `@buksu.edu.ph` staff addresses are intentionally rejected. The home page and module chooser remain public.
 
 Why a Worker: GitHub Pages is static and cannot exchange an OAuth code, hold a client secret, or keep a session. The Worker is the only trusted component; the static site merely asks it who the visitor is.
 
