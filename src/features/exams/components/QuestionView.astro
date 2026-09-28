@@ -1,8 +1,16 @@
 ---
+import { Lock } from "lucide-react";
 import { RetryIcon, ReviewIcon } from "./lucide-icons.tsx";
+import { loginPageUrl } from "../../auth/auth-client";
+
+// The CTA has to carry the ?redirect= back to this exam, but `currentPath()`
+// reads `window`, which does not exist while the page is being built — so the
+// markup ships the bare login page and the script at the end of this file
+// upgrades the href in the browser.
+const signInHref = loginPageUrl("");
 ---
 
-<div class="question-view">
+<div class="question-view" id="qView">
   <h1 id="qTitle"></h1>
   <pre id="qCode" class="code-block" hidden></pre>
   <div class="question" id="qText"></div>
@@ -22,6 +30,33 @@ import { RetryIcon, ReviewIcon } from "./lucide-icons.tsx";
     </button>
   </div>
 </div>
+
+{/*
+  Locked placeholder, sibling of #qView so it can take over the question body
+  wholesale. It is a static placeholder on purpose: a preview attempt holds only
+  the free questions, so there is no question text, code, or exhibit to blur.
+  The exam page shows it with `qLocked.hidden = false; qView.hidden = true`.
+*/}
+<div class="question-locked" id="qLocked" hidden>
+  <div class="locked-blur" aria-hidden="true">
+    <span class="locked-line"></span>
+    <span class="locked-line"></span>
+    <span class="locked-line"></span>
+    <span class="locked-line"></span>
+  </div>
+  <div class="locked-veil">
+    <Lock size={22} strokeWidth={2} aria-hidden="true" focusable="false" />
+    <p class="locked-title">Sign in to unlock the rest of this exam</p>
+    <a class="primary locked-cta" id="qLockedCta" href={signInHref} data-signin>Sign in</a>
+  </div>
+</div>
+
+<script>
+  import { currentPath, loginPageUrl } from "../../auth/auth-client";
+
+  const cta = document.getElementById("qLockedCta") as HTMLAnchorElement | null;
+  if (cta) cta.href = loginPageUrl(currentPath());
+</script>
 
 <style is:global>
   .question-view h1 {
@@ -143,5 +178,136 @@ import { RetryIcon, ReviewIcon } from "./lucide-icons.tsx";
 
   .question-view .check-actions .link-btn:hover {
     color: var(--cyan);
+  }
+
+  /* --------------------------------------------------------------------------
+     Locked panel — the preview-mode placeholder the exam page swaps in when a
+     signed-out visitor tries to go past the free questions. Only the blurred
+     layer is hidden from assistive tech; the veil keeps the padlock, the copy,
+     and the sign-in link readable and focusable.
+     -------------------------------------------------------------------------- */
+
+  .question-locked {
+    position: relative;
+    max-width: 1000px;
+    min-height: 250px;
+    padding: 30px 26px;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    background: var(--bg);
+    overflow: hidden;
+  }
+
+  .question-locked .locked-blur {
+    filter: blur(7px);
+    pointer-events: none;
+    user-select: none;
+  }
+
+  .question-locked .locked-line {
+    display: block;
+    height: 13px;
+    margin: 0 0 15px;
+    border-radius: 7px;
+    background: var(--muted);
+  }
+
+  .question-locked .locked-line:nth-child(1) {
+    width: 100%;
+  }
+
+  .question-locked .locked-line:nth-child(2) {
+    width: 88%;
+  }
+
+  .question-locked .locked-line:nth-child(3) {
+    width: 94%;
+  }
+
+  .question-locked .locked-line:last-child {
+    width: 62%;
+    margin-bottom: 0;
+  }
+
+  .question-locked .locked-veil {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 9px;
+    padding: 24px;
+    text-align: center;
+    background: rgba(255, 255, 255, 0.82);
+    animation: locked-veil-in 160ms ease-out;
+  }
+
+  .question-locked .locked-veil svg {
+    display: block;
+    color: var(--muted);
+  }
+
+  .question-locked .locked-title {
+    margin: 0;
+    max-width: 34ch;
+    font-size: 16px;
+    font-weight: 600;
+    line-height: 1.4;
+    color: var(--text);
+  }
+
+  /* button.primary is element-scoped, so the anchor needs the pill treatment */
+  .question-locked .locked-cta {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 101px;
+    margin-top: 4px;
+    padding: 11px 31px;
+    border-radius: 25px;
+    background: var(--green);
+    color: #111;
+    font-size: 14px;
+    font-weight: 600;
+    text-decoration: none;
+    transition: background 140ms ease-out;
+  }
+
+  .question-locked .locked-cta:hover {
+    background: var(--green-dark);
+    color: #fff;
+  }
+
+  .question-locked .locked-cta:focus-visible {
+    outline: 3px solid rgba(18, 160, 198, 0.45);
+    outline-offset: 2px;
+  }
+
+  @keyframes locked-veil-in {
+    from {
+      opacity: 0;
+    }
+    to {
+      opacity: 1;
+    }
+  }
+
+  html[data-theme="dark"] .question-locked .locked-veil {
+    background: rgba(15, 18, 21, 0.86);
+  }
+
+  html[data-theme="dark"] .question-locked .locked-line {
+    background: #434d58;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .question-locked .locked-veil {
+      animation: none;
+    }
+
+    .question-locked .locked-cta {
+      transition: none;
+    }
   }
 </style>
