@@ -10,6 +10,7 @@ import ResultScreen from "../../features/exams/components/ResultScreen.astro";
 import FollowModal from "../../features/exams/components/FollowModal.astro";
 import LeaveGuard from "../../features/exams/components/LeaveGuard.astro";
 import { availableModules, moduleRegistry } from "../../features/exams/data";
+import { PREVIEW_QUESTION_COUNT } from "../../features/auth/auth-client";
 
 export async function getStaticPaths() {
   // Only modules with question data get a route; everything else 404s.
@@ -43,8 +44,9 @@ const abs = (p: string) => `${import.meta.env.BASE_URL.replace(/\/?$/, "/")}${p}
           document.documentElement.dataset.theme = "light";
         }
       })();
-      // Keep the exam hidden until the auth gate resolves, so a signed-out
-      // visitor never sees the questions before being redirected.
+      // Keep the exam hidden until the access mode resolves, so no question is
+      // ever painted before we know whether this visitor is on a preview or the
+      // full bank. Released in both modes — nothing stays invisible.
       document.documentElement.dataset.auth = "pending";
     </script>
     <link rel="icon" type="image/svg+xml" href={abs("favicon.svg")} />
@@ -62,6 +64,7 @@ const abs = (p: string) => `${import.meta.env.BASE_URL.replace(/\/?$/, "/")}${p}
           <h1>{mod.title}: {mod.subtitle}</h1>
           <p class="intro-qcount" id="introQCount">{mod.questions.length} Questions</p>
           <p class="intro-warn">Your progress is saved automatically as you go — if you refresh or close the page, you can pick up right where you left off. You can retake this exam as many times as you like.</p>
+          <p class="intro-warn" id="introPreviewNote" hidden>Answer the first {PREVIEW_QUESTION_COUNT} questions free — sign in to take the full exam.</p>
           <p class="intro-shortcut desktop-only">Desktop: use <kbd>←</kbd> <kbd>→</kbd> to go back / next · press <kbd>R</kbd> to shuffle the choices (or retry the question once it is checked).</p>
           <button type="button" class="primary intro-start" id="startExamBtn">Start Exam</button>
           <div class="intro-resume" id="introResume" hidden>
@@ -276,6 +279,27 @@ const abs = (p: string) => `${import.meta.env.BASE_URL.replace(/\/?$/, "/")}${p}
         }
       }
 
+      /* Preview mode — the tab strip runs the real module length, so the
+         positions past the free questions are dimmed rather than missing. They
+         stay focusable on purpose: a `disabled` tab is skipped by screen readers
+         and the keyboard, which would hide the only sign-in path. */
+      .qtab.locked {
+        opacity: 0.42;
+        border-style: dashed;
+        border-color: #b9c1c6;
+        color: var(--muted);
+        cursor: pointer;
+      }
+
+      .qtab.locked:hover {
+        opacity: 0.72;
+      }
+
+      .qtab.locked:focus-visible {
+        outline: 2px solid var(--cyan);
+        outline-offset: 2px;
+      }
+
       @media (max-width: 600px) {
         .intro-screen {
           min-height: 50vh;
@@ -293,7 +317,14 @@ const abs = (p: string) => `${import.meta.env.BASE_URL.replace(/\/?$/, "/")}${p}
       import { isQuestionCorrect } from "../../features/exams/lib/scoring";
       import { getEffectiveCount, LIMIT_EVENT } from "../../features/exams/lib/exam-limits";
       import { getCheckMode, MODE_EVENT } from "../../features/exams/lib/exam-mode";
-      import { ensureExamAccess, currentPath } from "../../features/auth/auth-client";
+      import {
+        currentPath,
+        fetchSession,
+        loginPageUrl,
+        publishAccessMode,
+        sitePath,
+        type AccessMode,
+      } from "../../features/auth/auth-client";
       import {
         backToQuiz,
         bootQuiz,
@@ -323,7 +354,7 @@ const abs = (p: string) => `${import.meta.env.BASE_URL.replace(/\/?$/, "/")}${p}
         type AttemptState,
       } from "../../features/exams/lib/quiz-state";
 
-      function main(): void {
+      function main(access: AccessMode): void {
         const moduleId = document.body.dataset.module ?? "";
         const mod = availableModules[moduleId];
         if (!mod) return;
@@ -341,14 +372,19 @@ const abs = (p: string) => `${import.meta.env.BASE_URL.replace(/\/?$/, "/")}${p}
 
         subscribe(chrome);
 
-        // Intro question count reflects per-exam limit (random subset).
+        // Intro question count reflects per-exam limit (random subset). A preview
+        // keeps the real module count (D3) — the cap is stated once, on the
+        // preview note below, instead of by quietly shrinking this number.
         function renderIntroCount(): void {
           const el = $("introQCount");
           if (!el) return;
-          const effective = getEffectiveCount(moduleId, mod.questions.length);
+          const real = mod.questions.length;
+          const effective = access === "preview" ? real : getEffectiveCount(moduleId, real);
           el.textContent = `${effective} Question${effective !== 1 ? "s" : ""}`;
         }
         renderIntroCount();
+        const previewNote = $("introPreviewNote");
+        if (access === "preview" && previewNote) previewNote.hidden = false;
         document.addEventListener(LIMIT_EVENT, (e) => {
           const detail = (e as CustomEvent).detail as { moduleId?: string } | undefined;
           if (!detail || detail.moduleId === moduleId) renderIntroCount();
@@ -394,7 +430,7 @@ const abs = (p: string) => `${import.meta.env.BASE_URL.replace(/\/?$/, "/")}${p}
         function startExam(): void {
           if (started) return;
           started = true;
-          bootQuiz(moduleId, mod); // fresh shuffle — discards any saved attempt
+          bootQuiz(moduleId, mod, access); // fresh shuffle — discards any saved attempt
           lastShellPos = -1;
           focusFirstTab();
         }
@@ -416,14 +452,18 @@ const abs = (p: string) => `${import.meta.env.BASE_URL.replace(/\/?$/, "/")}${p}
           if (s.phase === "result" && s.result) {
             return `Completed — scored ${s.result.score}% · ${answered} of ${total} answered${flagText}`;
           }
+          // The position clause shows the real module total so a preview never
+          // reads as if the module were only five questions long (D3); the
+          // answered count stays scoped to the attempt.
+          const shownTotal = s.access === "preview" ? s.total : total;
           return `In progress — ${answered} of ${total} answered · Question ${
             s.current + 1
-          } of ${total}${flagText}`;
+          } of ${shownTotal}${flagText}`;
         }
 
         function resumeSession(): void {
           if (started) return;
-          const restored = resumeQuiz(moduleId, mod);
+          const restored = resumeQuiz(moduleId, mod, access);
           if (!restored) {
             // Save went bad between load and click — fall back to a fresh attempt.
             startExam();
@@ -458,7 +498,7 @@ const abs = (p: string) => `${import.meta.env.BASE_URL.replace(/\/?$/, "/")}${p}
         }
 
         // Saved session with progress? Swap Start Exam for Resume / Start New Exam + a summary.
-        const saved = loadSaved(moduleId, mod);
+        const saved = loadSaved(moduleId, mod, access);
         const hasSession = !!saved && hasSessionProgress(saved);
         if (saved && hasSession && resumeBox) {
           if (startBtn) startBtn.hidden = true;
@@ -580,7 +620,10 @@ const abs = (p: string) => `${import.meta.env.BASE_URL.replace(/\/?$/, "/")}${p}
           const st = getState();
           const el = $("progress");
           if (!st || !el) return;
-          el.textContent = `${st.current + 1} of ${questionCount()} Questions`;
+          // A preview attempt is shorter than the module, so it reports the real
+          // total; full mode keeps the limit-aware count it has always shown.
+          const total = st.access === "preview" ? st.total : questionCount();
+          el.textContent = `${st.current + 1} of ${total} Questions`;
         }
 
         function renderTabs(): void {
@@ -594,14 +637,30 @@ const abs = (p: string) => `${import.meta.env.BASE_URL.replace(/\/?$/, "/")}${p}
 
           // One tab per *attempt position*, not per module question: a question
           // limit makes st.order shorter than m.questions, and every lookup
-          // below (answers, skipped, goTo) is keyed by attempt position.
-          st.order.forEach((sourceIndex, idx) => {
-            const q = m.questions[sourceIndex];
+          // below (answers, skipped, goTo) is keyed by attempt position. A
+          // preview is the exception: the strip runs the full module length
+          // (D3) and the positions past the attempt become locked sign-in
+          // affordances, so the exam does not look five questions long.
+          const tabCount = access === "preview" ? m.questions.length : st.order.length;
+          for (let idx = 0; idx < tabCount; idx += 1) {
             const btn = document.createElement("button");
             btn.type = "button";
-            btn.className = "qtab";
             btn.textContent = `Q${idx + 1}`;
 
+            if (idx >= st.order.length) {
+              // No answered / wrong / reviewed state: there is no attempt here
+              // to have state. `aria-disabled` rather than `disabled` so the tab
+              // stays reachable and announces why it does nothing.
+              btn.className = "qtab locked";
+              btn.setAttribute("aria-disabled", "true");
+              btn.title = "Sign in to unlock";
+              btn.addEventListener("click", goToLogin);
+              tabs.appendChild(btn);
+              continue;
+            }
+
+            btn.className = "qtab";
+            const q = m.questions[st.order[idx]];
             const answered =
               q.type === "pair"
                 ? !!st.pairs[idx] && Object.keys(st.pairs[idx] ?? {}).length > 0
@@ -623,7 +682,7 @@ const abs = (p: string) => `${import.meta.env.BASE_URL.replace(/\/?$/, "/")}${p}
 
             btn.addEventListener("click", () => goTo(idx));
             tabs.appendChild(btn);
-          });
+          }
 
           // keep the current tab visible in the scroll strip
           const cur = tabs.querySelector(".qtab.current");
@@ -634,10 +693,55 @@ const abs = (p: string) => `${import.meta.env.BASE_URL.replace(/\/?$/, "/")}${p}
           }
         }
 
-        function renderQuestionShell(): void {
-          const q = currentQuestion();
+        /**
+         * Take the question body over with the locked placeholder. Transient: a
+         * preview attempt only ever holds the free questions, so this is the
+         * visible beat between asking to go further and landing on the login
+         * page — the real question 6 text is never in the DOM to show.
+         */
+        function showLockPanel(): void {
+          const view = $("qView");
+          const panel = $("qLocked");
+          if (!view || !panel) return;
+          panel.hidden = false;
+          view.hidden = true;
+        }
+
+        /**
+         * Sitting on the last free question, where going further costs a sign-in.
+         * A module small enough to fit inside the preview has nothing to unlock,
+         * so it never redirects (spec §7).
+         */
+        function atPreviewEnd(): boolean {
+          if (access !== "preview") return false;
           const st = getState();
-          if (!q || !st) return;
+          if (!st || st.order.length >= st.total) return false;
+          return st.current >= st.order.length - 1;
+        }
+
+        function goToLogin(): void {
+          showLockPanel();
+          window.setTimeout(() => {
+            window.location.replace(loginPageUrl(currentPath()));
+          }, 180);
+        }
+
+        function renderQuestionShell(): void {
+          const st = getState();
+          const view = $("qView");
+          const panel = $("qLocked");
+          if (!st || !view || !panel) return;
+
+          if (st.access === "preview" && st.current >= st.order.length) {
+            panel.hidden = false;
+            view.hidden = true;
+            return;
+          }
+          panel.hidden = true;
+          view.hidden = false;
+
+          const q = currentQuestion();
+          if (!q) return;
 
           const title = $("qTitle");
           const code = $("qCode");
@@ -788,13 +892,27 @@ const abs = (p: string) => `${import.meta.env.BASE_URL.replace(/\/?$/, "/")}${p}
           const st = getState();
           if (!st) return;
           if (st.current < st.order.length - 1) {
+            // Advancing out of a preview attempt is a sign-in prompt. The
+            // button reads Submit on the last free question, so that path is
+            // left alone below (D6) — the prompt comes from `→`, Skip, and the
+            // locked tabs.
+            if (atPreviewEnd()) {
+              goToLogin();
+              return;
+            }
             goNext();
           } else {
             openSubmit();
           }
         });
         el("skipAllBtn")?.addEventListener("click", () => skipAll());
-        el("skipQBtn")?.addEventListener("click", () => skipCurrent());
+        el("skipQBtn")?.addEventListener("click", () => {
+          if (atPreviewEnd()) {
+            goToLogin();
+            return;
+          }
+          skipCurrent();
+        });
 
         el("doSubmitBtn")?.addEventListener("click", () => {
           const confirm = document.getElementById("confirmSubmit") as HTMLInputElement | null;
@@ -852,6 +970,10 @@ const abs = (p: string) => `${import.meta.env.BASE_URL.replace(/\/?$/, "/")}${p}
           if (!isDesktop()) return;
           if (e.key === "ArrowRight") {
             e.preventDefault();
+            if (atPreviewEnd()) {
+              goToLogin();
+              return;
+            }
             if (st.current < st.order.length - 1) goNext();
             else openSubmit();
           } else if (e.key === "ArrowLeft") {
@@ -871,10 +993,18 @@ const abs = (p: string) => `${import.meta.env.BASE_URL.replace(/\/?$/, "/")}${p}
       }
 
       async function init(): Promise<void> {
-        const allowed = await ensureExamAccess(currentPath());
-        if (!allowed) return; // already navigating to login / cookie-blocked
+        const session = await fetchSession();
+        // A `?auth=ok` return that still looks signed out means the browser
+        // dropped the cross-site cookie — the same bounce as before. It only
+        // happens after a real sign-in attempt, never on a plain preview visit.
+        if (!session.authenticated && new URLSearchParams(location.search).get("auth") === "ok") {
+          location.replace(sitePath("cookie-blocked"));
+          return;
+        }
+        const access: AccessMode = session.authenticated ? "full" : "preview";
         document.documentElement.dataset.auth = "ok";
-        main();
+        publishAccessMode(access);
+        main(access);
       }
 
       init();
