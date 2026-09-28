@@ -359,12 +359,15 @@ export function checkCurrent(): void {
   });
 }
 
-/** Flag / unflag the current question to revisit (its tab turns orange). */
+/**
+ * Flag / unflag the current question to revisit (its tab turns orange).
+ * Allowed before Check: the footer "Review Question" button lives outside the
+ * check bar, so a question can be flagged the moment it is read.
+ */
 export function toggleReview(): void {
   const s = getState();
   if (!ctx || !s) return;
   const p = s.current;
-  if (!s.checked[p]) return; // the solution must be revealed before reviewing
   mutate((st) => {
     st.reviewed[p] = !st.reviewed[p];
   });

@@ -84,7 +84,7 @@ const abs = (p: string) => `${import.meta.env.BASE_URL.replace(/\/?$/, "/")}${p}
 
       <footer class="quiz-footer">
         <button type="button" class="link-btn" id="skipAllBtn">Skip All</button>
-        <button type="button" class="link-btn" id="skipQBtn">Skip Question</button>
+        <button type="button" class="link-btn" id="reviewQBtn" aria-pressed="false">Review Question</button>
         <button type="button" class="primary" id="footerNextBtn">Submit</button>
       </footer>
     </div>
@@ -318,11 +318,11 @@ const abs = (p: string) => `${import.meta.env.BASE_URL.replace(/\/?$/, "/")}${p}
       import { getEffectiveCount, LIMIT_EVENT } from "../../features/exams/lib/exam-limits";
       import { getCheckMode, MODE_EVENT } from "../../features/exams/lib/exam-mode";
       import {
+        cookieBlockedUrl,
         currentPath,
         fetchSession,
         loginPageUrl,
         publishAccessMode,
-        sitePath,
         type AccessMode,
       } from "../../features/auth/auth-client";
       import {
@@ -346,7 +346,6 @@ const abs = (p: string) => `${import.meta.env.BASE_URL.replace(/\/?$/, "/")}${p}
         resumeQuiz,
         reviewAssessment,
         skipAll,
-        skipCurrent,
         submitQuiz,
         subscribe,
         toggleReview,
@@ -540,6 +539,7 @@ const abs = (p: string) => `${import.meta.env.BASE_URL.replace(/\/?$/, "/")}${p}
           syncExplanation();
           syncExhibitVisibility();
           syncCheckBar();
+          syncReviewBtn();
 
           if (st.phase === "submit") renderSubmitView();
           if (st.phase === "result") renderResultView();
@@ -581,9 +581,9 @@ const abs = (p: string) => `${import.meta.env.BASE_URL.replace(/\/?$/, "/")}${p}
 
         /**
          * Drives the row under the question: Check (manual mode, until the
-         * solution is revealed), plus Retry / Review once it is revealed.
-         * Re-runs on every state change and whenever the mode is switched in
-         * the settings modal, so no stale visibility survives a mode change.
+         * solution is revealed), plus Retry once it is revealed. Re-runs on
+         * every state change and whenever the mode is switched in the settings
+         * modal, so no stale visibility survives a mode change.
          */
         function syncCheckBar(): void {
           const st = getState();
@@ -592,7 +592,6 @@ const abs = (p: string) => `${import.meta.env.BASE_URL.replace(/\/?$/, "/")}${p}
 
           const p = st.current;
           const isChecked = !!st.checked[p];
-          const isReviewed = !!st.reviewed[p];
           const manual = getCheckMode() === "manual";
 
           const checkBtn = $("checkAnswerBtn") as HTMLButtonElement | null;
@@ -605,15 +604,26 @@ const abs = (p: string) => `${import.meta.env.BASE_URL.replace(/\/?$/, "/")}${p}
           }
           const retryBtn = $("retryQBtn");
           if (retryBtn) retryBtn.hidden = !isChecked;
-          const reviewBtn = $("reviewQBtn");
-          if (reviewBtn) {
-            reviewBtn.hidden = !isChecked;
-            reviewBtn.setAttribute("aria-pressed", isReviewed ? "true" : "false");
-          }
-          const reviewLabel = $("reviewQBtnLabel");
-          if (reviewLabel) reviewLabel.textContent = isReviewed ? "Reviewed" : "Review";
 
           bar.hidden = !showCheck && !isChecked;
+        }
+
+        /**
+         * The footer "Review Question" button reports the current question's
+         * flag: pressed while it is flagged, so the state is readable without
+         * going back to the tab strip. Pressing it again only moves on, so the
+         * flag is deliberately not a toggle and the tooltip does not offer to
+         * clear it.
+         */
+        function syncReviewBtn(): void {
+          const st = getState();
+          const btn = $("reviewQBtn");
+          if (!st || !btn) return;
+          const isReviewed = !!st.reviewed[st.current];
+          btn.setAttribute("aria-pressed", isReviewed ? "true" : "false");
+          btn.title = isReviewed
+            ? "Flagged for review — its tab is orange. Press to move to the next question."
+            : "Flag this question for review — its tab turns orange, then moves on.";
         }
 
         function renderProgress(): void {
@@ -668,11 +678,14 @@ const abs = (p: string) => `${import.meta.env.BASE_URL.replace(/\/?$/, "/")}${p}
 
             if (idx === p) {
               btn.classList.add("current");
+            } else if (st.reviewed[idx]) {
+              // Flagged to revisit — orange wins over every other state. It has
+              // to be tested above `unanswered`, because "Review Question"
+              // flags and moves on without answering, so a flagged question is
+              // usually unanswered and would otherwise never turn orange.
+              btn.classList.add("reviewed");
             } else if (st.skipped[idx] || !answered) {
               btn.classList.add("unanswered");
-            } else if (st.reviewed[idx]) {
-              // flagged to revisit — orange instead of the green/verdict color
-              btn.classList.add("reviewed");
             } else if (st.checked[idx] && !isQuestionCorrect(q, st, idx)) {
               btn.classList.add("wrong");
             } else {
@@ -884,10 +897,6 @@ const abs = (p: string) => `${import.meta.env.BASE_URL.replace(/\/?$/, "/")}${p}
         el("checkAnswerBtn")?.addEventListener("click", () => {
           checkCurrent();
         });
-        el("reviewQBtn")?.addEventListener("click", () => {
-          toggleReview();
-        });
-
         el("footerNextBtn")?.addEventListener("click", () => {
           const st = getState();
           if (!st) return;
@@ -906,12 +915,19 @@ const abs = (p: string) => `${import.meta.env.BASE_URL.replace(/\/?$/, "/")}${p}
           }
         });
         el("skipAllBtn")?.addEventListener("click", () => skipAll());
-        el("skipQBtn")?.addEventListener("click", () => {
+        el("reviewQBtn")?.addEventListener("click", () => {
           if (atPreviewEnd()) {
             goToLogin();
             return;
           }
-          skipCurrent();
+          const st = getState();
+          if (!st) return;
+          // Flags the current question (its tab turns orange) and moves on.
+          // An already-flagged question is left flagged — pressing again is a
+          // plain "next", not an unflag, so the tab never silently goes grey.
+          if (!st.reviewed[st.current]) toggleReview();
+          if (st.current < st.order.length - 1) goNext();
+          else openSubmit();
         });
 
         el("doSubmitBtn")?.addEventListener("click", () => {
@@ -1021,7 +1037,9 @@ const abs = (p: string) => `${import.meta.env.BASE_URL.replace(/\/?$/, "/")}${p}
         // dropped the cross-site cookie — the same bounce as before. It only
         // happens after a real sign-in attempt, never on a plain preview visit.
         if (!session.authenticated && new URLSearchParams(location.search).get("auth") === "ok") {
-          location.replace(sitePath("cookie-blocked"));
+          // Carry this exam's path along, so the recovery page's retry link can
+          // bring the student straight back here once cookies are allowed.
+          location.replace(cookieBlockedUrl(currentPath()));
           return;
         }
         const access: AccessMode = session.authenticated ? "full" : "preview";

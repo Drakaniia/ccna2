@@ -326,7 +326,7 @@ export default function HeaderActions({ moduleId, maxQuestions }: Props) {
                   </span>
                 </label>
               ))}
-              <p className="settings-hint">Applies to every exam. Press Review on a question to flag it — its tab turns orange.</p>
+              <p className="settings-hint">Applies to every exam. Press Review Question to flag the current question — its tab turns orange.</p>
             </fieldset>
 
             {showLimitField && (

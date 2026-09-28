@@ -167,6 +167,12 @@ button.link-btn {
   color: inherit;
 }
 
+/* a flagged question — the button mirrors its orange tab */
+button.link-btn[aria-pressed="true"] {
+  color: var(--orange-dark);
+  font-weight: 700;
+}
+
 button.primary {
   border: 0;
   border-radius: 25px;

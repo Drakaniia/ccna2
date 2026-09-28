@@ -1,25 +1,15 @@
 ---
 import "../styles/global.css";
 import { ArrowLeft, ArrowRight, CircleHelp, GraduationCap, Lock } from "lucide-react";
-import { AUTH_BASE_URL, SITE_BASE } from "../features/auth/auth-client";
+import { SITE_BASE, loginUrlFor, safeReturnPath } from "../features/auth/auth-client";
 
-// Only same-site paths under the repo base are accepted as a return target, so
-// the login page can never become an open redirect.
-function safeRedirect(raw: string): string {
-  const base = SITE_BASE ?? "";
-  const fallback = `${base}/`;
-  if (!raw) return fallback;
-  const value = raw.trim();
-  if (!value.startsWith("/") || value.startsWith("//") || value.includes("\\")) return fallback;
-  const pathOnly = value.split(/[?#]/)[0];
-  if (base === "") return value;
-  if (pathOnly === base || pathOnly === `${base}/`) return value;
-  if (!pathOnly.startsWith(`${base}/`)) return fallback;
-  return value;
-}
-
-const redirect = safeRedirect(Astro.url.searchParams.get("redirect") ?? "");
-const loginHref = `${AUTH_BASE_URL}/auth/login?redirect=${encodeURIComponent(redirect)}`;
+// This page is built statically, so `Astro.url.searchParams` is empty here: the
+// href below is only the no-JS fallback (the site root). The script at the end of
+// this file recomputes it from `?redirect=` in the browser — without that, every
+// sign-in from a locked exam would drop the visitor on the home page instead of
+// returning them to the exam they were trying to unlock.
+const redirect = safeReturnPath(Astro.url.searchParams.get("redirect"));
+const loginHref = loginUrlFor(redirect);
 const homeHref = `${SITE_BASE}/`;
 const privacyHref = `${SITE_BASE}/privacy/`;
 
@@ -169,12 +159,23 @@ const heroHeight = 600;
     </main>
 
     <script>
-      import { fetchSession, sitePath } from "../features/auth/auth-client";
+      import {
+        cookieBlockedUrl,
+        fetchSession,
+        loginUrlFor,
+        safeReturnPath,
+      } from "../features/auth/auth-client";
 
       (async function () {
         const params = new URLSearchParams(window.location.search);
-        const target = params.get("redirect") ?? "";
-        const dest = target.startsWith("/") ? target : sitePath("");
+        // Where the visitor was headed when they hit the lock — the exam page,
+        // the admin roster, or the home page when there is no redirect at all.
+        const dest = safeReturnPath(params.get("redirect"));
+
+        // The Google button's href was rendered at build time, before the query
+        // string existed, so it must be pointed at the real return path now.
+        const googleBtn = document.getElementById("googleSignIn") as HTMLAnchorElement | null;
+        if (googleBtn) googleBtn.href = loginUrlFor(dest);
 
         const session = await fetchSession();
         if (session.authenticated) {
@@ -186,7 +187,7 @@ const heroHeight = 600;
         // Returned from a "successful" callback yet still signed out: the
         // browser is blocking the cross-site cookie.
         if (params.get("auth") === "ok") {
-          window.location.replace(sitePath("cookie-blocked"));
+          window.location.replace(cookieBlockedUrl(dest));
         }
       })();
     </script>

@@ -43,6 +43,31 @@ export function loginPageUrl(redirectPath: string): string {
   return `${sitePath("login")}?redirect=${encodeURIComponent(redirectPath)}`;
 }
 
+/**
+ * Keep a return path on this site (everything else falls back to the site root),
+ * so a `redirect` query handed to the auth service can never become an open
+ * redirect. Mirrors the Worker's own `resolveRedirect` check.
+ */
+export function safeReturnPath(raw: string | null | undefined): string {
+  const fallback = `${SITE_BASE}/`;
+  if (!raw) return fallback;
+  const value = raw.trim();
+  if (!value.startsWith("/") || value.startsWith("//") || value.includes("\\")) return fallback;
+  const pathOnly = value.split(/[?#]/)[0];
+  if (SITE_BASE === "") return value;
+  if (pathOnly === SITE_BASE || pathOnly === `${SITE_BASE}/`) return value;
+  if (!pathOnly.startsWith(`${SITE_BASE}/`)) return fallback;
+  return value;
+}
+
+/**
+ * URL of the cookie-blocked explanation page, carrying where the visitor came
+ * from so its "try again" link can bring them straight back afterwards.
+ */
+export function cookieBlockedUrl(redirectPath: string): string {
+  return `${sitePath("cookie-blocked")}?redirect=${encodeURIComponent(redirectPath)}`;
+}
+
 /** Ask the Worker who the visitor is. Never throws. */
 export async function fetchSession(): Promise<SessionResponse> {
   try {

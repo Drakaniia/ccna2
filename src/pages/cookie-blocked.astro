@@ -1,10 +1,13 @@
 ---
 import "../styles/global.css";
-import { SITE_BASE } from "../features/auth/auth-client";
+import { SITE_BASE, loginPageUrl, safeReturnPath } from "../features/auth/auth-client";
 
-const redirect = Astro.url.searchParams.get("redirect") ?? "";
+// Static page: the query string is not known at build time, so the retry link
+// below is only the no-JS fallback. The script at the end of this file points it
+// at the path the visitor actually came from.
+const redirect = safeReturnPath(Astro.url.searchParams.get("redirect"));
 const homeHref = `${SITE_BASE}/`;
-const loginHref = `${SITE_BASE}/login${redirect ? `?redirect=${encodeURIComponent(redirect)}` : ""}`;
+const loginHref = loginPageUrl(redirect);
 ---
 
 <html lang="en">
@@ -41,21 +44,31 @@ const loginHref = `${SITE_BASE}/login${redirect ? `?redirect=${encodeURIComponen
         <li>If you are in a private/incognito window, try a normal window.</li>
       </ul>
       <div class="cookie-actions">
-        <a class="cookie-btn primary" href={loginHref}>Try signing in again</a>
+        <a class="cookie-btn primary" id="cookieSignIn" href={loginHref}>Try signing in again</a>
         <a class="cookie-btn ghost" href={homeHref}>Back to home</a>
       </div>
     </main>
 
     <script>
-      import { fetchSession, sitePath } from "../features/auth/auth-client";
+      import {
+        fetchSession,
+        loginPageUrl,
+        safeReturnPath,
+      } from "../features/auth/auth-client";
 
       (async function () {
-        // If cookies actually work now, get out of the way.
         const params = new URLSearchParams(window.location.search);
-        const target = params.get("redirect") ?? "";
+        const dest = safeReturnPath(params.get("redirect"));
+
+        // The retry link was rendered at build time with no query string, so it
+        // must be pointed at the path this visitor actually came from.
+        const retry = document.getElementById("cookieSignIn") as HTMLAnchorElement | null;
+        if (retry) retry.href = loginPageUrl(dest);
+
+        // If cookies actually work now, get out of the way.
         const session = await fetchSession();
         if (session.authenticated) {
-          window.location.replace(target.startsWith("/") ? target : sitePath(""));
+          window.location.replace(dest);
         }
       })();
     </script>

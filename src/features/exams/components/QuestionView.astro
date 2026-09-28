@@ -1,6 +1,6 @@
 ---
 import { Lock } from "lucide-react";
-import { RetryIcon, ReviewIcon } from "./lucide-icons.tsx";
+import { RetryIcon } from "./lucide-icons.tsx";
 import { loginPageUrl } from "../../auth/auth-client";
 
 // The CTA has to carry the ?redirect= back to this exam, but `currentPath()`
@@ -23,10 +23,6 @@ const signInHref = loginPageUrl("");
     <button type="button" class="link-btn retry-btn" id="retryQBtn" hidden>
       <RetryIcon size={15} strokeWidth={2.2} />
       Retry Question
-    </button>
-    <button type="button" class="link-btn review-btn" id="reviewQBtn" aria-pressed="false" hidden>
-      <ReviewIcon size={15} strokeWidth={2.2} />
-      <span id="reviewQBtnLabel">Review</span>
     </button>
   </div>
 </div>
@@ -158,21 +154,13 @@ const signInHref = loginPageUrl("");
     cursor: not-allowed;
   }
 
-  .question-view .check-actions .retry-btn,
-  .question-view .check-actions .review-btn {
+  .question-view .check-actions .retry-btn {
     display: inline-flex;
     align-items: center;
     gap: 6px;
   }
 
-  /* flagged for review — the button itself mirrors the orange tab */
-  .question-view .check-actions .review-btn[aria-pressed="true"] {
-    color: var(--orange-dark);
-    font-weight: 700;
-  }
-
-  .question-view .check-actions .retry-btn svg,
-  .question-view .check-actions .review-btn svg {
+  .question-view .check-actions .retry-btn svg {
     display: block;
   }
 
