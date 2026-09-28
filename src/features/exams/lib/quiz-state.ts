@@ -313,6 +313,10 @@ export function toggleChoice(optionDisplayIndex: number): "ok" | "cap" | "locked
   mutate((st) => {
     st.answers[p] = next;
     st.skipped[p] = false;
+    // A fresh answer retires the "flagged for review" mark — the flag exists to
+    // send the user back here, so answering is what clears it. Without this the
+    // tab would stay orange even though the question is now answered.
+    st.reviewed[p] = false;
     // auto-calc: reveal feedback as soon as the selection is complete.
     // In manual mode the selection is only recorded — Check reveals it.
     if (isAutoCheck()) st.checked[p] = next.length === need;
@@ -370,6 +374,8 @@ export function clickRightItem(rightDisplayIndex: number): void {
     next[active] = rightDisplayIndex;
     st.pairs[p] = next;
     st.skipped[p] = false;
+    // same as toggleChoice: a new pairing clears the review flag
+    st.reviewed[p] = false;
     ctx!.activeLeft = null;
     // auto-calc: feedback appears once every left item is paired.
     // In manual mode the pairing is only recorded — Check reveals it.
