@@ -1,13 +1,31 @@
 import { useEffect, useState } from "react";
-import { LogOut, Users } from "lucide-react";
-import { fetchSession, signOut, sitePath, type SessionResponse } from "./auth-client";
+import { LogIn, LogOut, Users } from "lucide-react";
+import {
+  currentPath,
+  fetchSession,
+  loginPageUrl,
+  signOut,
+  sitePath,
+  type SessionResponse,
+} from "./auth-client";
+
+interface Props {
+  /**
+   * Set by the exam page so a signed-out visitor still gets a sign-in link in
+   * the header. Left off on the public chooser, where the chip stays invisible
+   * while signed out.
+   */
+  showSignedOut?: boolean;
+}
 
 /**
  * Signed-in account chip for the exam header (spec §9, decision 24).
- * Renders nothing while loading or when signed out, so public pages stay clean.
+ * Renders nothing while loading or when signed out — unless `showSignedOut` is
+ * set, in which case signed out means a compact link to the login page.
  */
-export default function AccountChip() {
+export default function AccountChip({ showSignedOut = false }: Props) {
   const [session, setSession] = useState<SessionResponse | null>(null);
+  const [signInHref, setSignInHref] = useState(sitePath("login"));
 
   useEffect(() => {
     let alive = true;
@@ -19,8 +37,30 @@ export default function AccountChip() {
     };
   }, []);
 
+  // islands are server-rendered first, and the return path is only knowable
+  // from `window`, so the href is filled in after hydration
+  useEffect(() => {
+    if (!showSignedOut || typeof window === "undefined") return;
+    setSignInHref(loginPageUrl(currentPath()));
+  }, [showSignedOut]);
+
   const user = session?.authenticated ? session.user : undefined;
-  if (!user) return null;
+  if (!user) {
+    if (!showSignedOut || !session) return null;
+    return (
+      <div className="account-chip">
+        <a
+          className="account-admin"
+          href={signInHref}
+          data-signin
+          title="Sign in with your Buksu student account"
+        >
+          <LogIn size={14} />
+          <span>Sign in</span>
+        </a>
+      </div>
+    );
+  }
 
   // Only admins can open the roster (the Worker re-checks the role server-side),
   // so the link is rendered from the session rather than for everyone.

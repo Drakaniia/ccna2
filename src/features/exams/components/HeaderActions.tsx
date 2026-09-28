@@ -3,6 +3,7 @@ import { Maximize2, Moon, Settings, Sun } from "lucide-react";
 import { getStoredLimit, setStoredLimit } from "../lib/exam-limits";
 import { getCheckMode, setCheckMode, type CheckMode } from "../lib/exam-mode";
 import { getState } from "../lib/quiz-state";
+import { ACCESS_MODE_EVENT, currentAccessMode, type AccessMode } from "../../auth/auth-client";
 
 /**
  * Header action buttons (right side of the top bar):
@@ -35,6 +36,7 @@ function applyTheme(theme: Theme): void {
 
 export default function HeaderActions({ moduleId, maxQuestions }: Props) {
   const [theme, setTheme] = useState<Theme>("light");
+  const [access, setAccess] = useState<AccessMode>("full");
   const [fullView, setFullView] = useState(false);
   const [settingsOpen, setSettingsOpen] = useState(false);
   const [draft, setDraft] = useState<string>("");
@@ -48,15 +50,30 @@ export default function HeaderActions({ moduleId, maxQuestions }: Props) {
   } | null>(null);
   const inputRef = useRef<HTMLInputElement>(null);
   const triggerRef = useRef<HTMLButtonElement>(null);
+  const closeRef = useRef<HTMLButtonElement>(null);
   const confirmPrimaryRef = useRef<HTMLButtonElement>(null);
 
   const hasSettings = !!moduleId && typeof maxQuestions === "number" && maxQuestions > 0;
   const max = maxQuestions ?? 0;
+  // A preview attempt is fixed at the free question count, so the "Number of
+  // items" control has nothing to control (D12).
+  const showLimitField = access === "full";
 
   // islands are server-rendered first, so sync to the real (early-set) theme
   // only after hydration
   useEffect(() => {
     setTheme(readTheme());
+  }, []);
+
+  // The exam page resolves the mode from an awaited session fetch, which lands
+  // strictly after this island has hydrated — so reading `data-access` on mount
+  // only ever returns the "full" default. Listen for the page's publish event
+  // as well, or the limit control would show for a signed-out visitor.
+  useEffect(() => {
+    const sync = () => setAccess(currentAccessMode());
+    sync();
+    window.addEventListener(ACCESS_MODE_EVENT, sync);
+    return () => window.removeEventListener(ACCESS_MODE_EVENT, sync);
   }, []);
 
   useEffect(() => {
@@ -88,8 +105,11 @@ export default function HeaderActions({ moduleId, maxQuestions }: Props) {
       setDraft(stored === null ? "" : String(stored));
       setMode(getCheckMode());
       setError("");
-      // focus input after open animation
-      requestAnimationFrame(() => inputRef.current?.focus());
+      // focus the first control after open animation
+      requestAnimationFrame(() => {
+        if (showLimitField) inputRef.current?.focus();
+        else closeRef.current?.focus();
+      });
     }
     // prevent background scroll when any modal is open
     const anyOpen = settingsOpen || confirmOpen;
@@ -101,7 +121,7 @@ export default function HeaderActions({ moduleId, maxQuestions }: Props) {
     return () => {
       if (!anyOpen) document.body.style.overflow = "";
     };
-  }, [settingsOpen, confirmOpen, hasSettings, moduleId]);
+  }, [settingsOpen, confirmOpen, hasSettings, moduleId, showLimitField]);
 
   // focus confirm primary when confirm opens
   useEffect(() => {
@@ -130,6 +150,11 @@ export default function HeaderActions({ moduleId, maxQuestions }: Props) {
     // The feedback mode is read live by the quiz, so it applies immediately —
     // no restart prompt, unlike the question limit.
     setCheckMode(mode);
+    // A preview has no limit to write: the free question count is fixed.
+    if (!showLimitField) {
+      setSettingsOpen(false);
+      return;
+    }
     const trimmed = draft.trim();
     // empty => All
     if (trimmed === "") {
@@ -263,6 +288,7 @@ export default function HeaderActions({ moduleId, maxQuestions }: Props) {
             <div className="settings-head">
               <h2 id="settingsTitle">Exam settings</h2>
               <button
+                ref={closeRef}
                 type="button"
                 className="settings-close"
                 onClick={() => setSettingsOpen(false)}
@@ -273,7 +299,9 @@ export default function HeaderActions({ moduleId, maxQuestions }: Props) {
             </div>
 
             <p className="settings-desc">
-              Choose how many items to take. A random subset will be selected when the exam starts. Leave empty for all {max} questions.
+              {showLimitField
+                ? `Choose how many items to take. A random subset will be selected when the exam starts. Leave empty for all ${max} questions.`
+                : "Choose how to review your answers."}
             </p>
 
             <fieldset className="settings-mode">
@@ -301,56 +329,60 @@ export default function HeaderActions({ moduleId, maxQuestions }: Props) {
               <p className="settings-hint">Applies to every exam. Press Review on a question to flag it — its tab turns orange.</p>
             </fieldset>
 
-            <label className="settings-field" htmlFor="settingsLimit">
-              <span className="settings-label">Number of items</span>
-              <input
-                ref={inputRef}
-                id="settingsLimit"
-                type="number"
-                inputMode="numeric"
-                min={1}
-                max={max}
-                placeholder={`All (${max})`}
-                value={draft}
-                onChange={(e) => {
-                  setDraft(e.target.value);
-                  if (error) setError("");
-                }}
-                onKeyDown={(e) => {
-                  if (e.key === "Enter") {
-                    e.preventDefault();
-                    validateAndApply();
-                  }
-                }}
-              />
-            </label>
-            {error ? (
-              <p className="settings-error" role="alert">
-                {error}
-              </p>
-            ) : (
-              <p className="settings-hint">
-                Min 1 · Max {max} · Empty = all questions
-              </p>
-            )}
+            {showLimitField && (
+              <>
+                <label className="settings-field" htmlFor="settingsLimit">
+                  <span className="settings-label">Number of items</span>
+                  <input
+                    ref={inputRef}
+                    id="settingsLimit"
+                    type="number"
+                    inputMode="numeric"
+                    min={1}
+                    max={max}
+                    placeholder={`All (${max})`}
+                    value={draft}
+                    onChange={(e) => {
+                      setDraft(e.target.value);
+                      if (error) setError("");
+                    }}
+                    onKeyDown={(e) => {
+                      if (e.key === "Enter") {
+                        e.preventDefault();
+                        validateAndApply();
+                      }
+                    }}
+                  />
+                </label>
+                {error ? (
+                  <p className="settings-error" role="alert">
+                    {error}
+                  </p>
+                ) : (
+                  <p className="settings-hint">
+                    Min 1 · Max {max} · Empty = all questions
+                  </p>
+                )}
 
-            <div className="settings-presets" aria-label="Quick options">
-              {[10, 20, 50].map((v) => (
-                <button
-                  key={v}
-                  type="button"
-                  className="preset-btn"
-                  onClick={() => applyPreset(v)}
-                  disabled={v > max}
-                  title={v > max ? `Only ${max} available` : `Set to ${v}`}
-                >
-                  {v}
-                </button>
-              ))}
-              <button type="button" className="preset-btn preset-all" onClick={() => applyPreset(null)}>
-                All
-              </button>
-            </div>
+                <div className="settings-presets" aria-label="Quick options">
+                  {[10, 20, 50].map((v) => (
+                    <button
+                      key={v}
+                      type="button"
+                      className="preset-btn"
+                      onClick={() => applyPreset(v)}
+                      disabled={v > max}
+                      title={v > max ? `Only ${max} available` : `Set to ${v}`}
+                    >
+                      {v}
+                    </button>
+                  ))}
+                  <button type="button" className="preset-btn preset-all" onClick={() => applyPreset(null)}>
+                    All
+                  </button>
+                </div>
+              </>
+            )}
 
             <div className="settings-actions">
               <button type="button" className="link-btn" onClick={() => setSettingsOpen(false)}>

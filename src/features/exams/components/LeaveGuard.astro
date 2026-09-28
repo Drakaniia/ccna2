@@ -216,6 +216,13 @@ import { WarnIcon } from "./lucide-icons.tsx";
         return;
       }
       if (url.origin !== window.location.origin) return;
+      // Signing in is the whole point of the preview, and a preview attempt is a
+      // disposable freebie the visitor can restart with one click — so never put
+      // a "leave this exam?" prompt in front of the sign-in links. Full mode is
+      // untouched: a real attempt still warns.
+      if (document.documentElement.dataset.access === "preview" && anchor.hasAttribute("data-signin")) {
+        return;
+      }
       // Same document (different hash, or the identical URL) — no reload ahead.
       if (url.pathname === window.location.pathname && url.search === window.location.search) return;
 

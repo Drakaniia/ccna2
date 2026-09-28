@@ -43,7 +43,7 @@ for (const m of moduleRegistry) {
   </button>
   <div class="title">{title}</div>
   <div class="header-right">
-    <AccountChip client:load />
+    <AccountChip client:load showSignedOut={!!currentId} />
     <HeaderActions client:load moduleId={currentId} maxQuestions={maxQuestions} />
   </div>
 </header>
