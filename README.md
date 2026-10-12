@@ -26,7 +26,7 @@ Choose an exam group from the home page and work through its questions with inst
 | Module | Title | Status |
 | --- | --- | --- |
 | System Test | — | 🚧 Coming soon |
-| Modules 1 – 4 | Switching Concepts, VLANs, and InterVLAN Routing | 🚧 Coming soon |
+| Modules 1 – 4 | Switching Concepts, VLANs, and InterVLAN Routing | ✅ Available |
 | Modules 5 – 6 | Redundant Networks | ✅ Available |
 | Modules 7 – 9 | Available and Reliable Networks | ✅ Available |
 | Modules 10 – 13 | L2 Security and WLANs | ✅ Available |

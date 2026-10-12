@@ -1,4 +1,5 @@
 import type { ExamModule } from "../lib/types";
+import { modules14 } from "./modules-1-4";
 import { modules56 } from "./modules-5-6";
 import { modules79 } from "./modules-7-9";
 import { modules1013 } from "./modules-10-13";
@@ -31,7 +32,7 @@ export const moduleRegistry: ModuleMeta[] = [
     title: "Modules 1 - 4",
     subtitle: "Switching Concepts, VLANs, and InterVLAN Routing",
     groupLabel: "Checkpoint Exam",
-    available: false,
+    available: true,
   },
   {
     id: "modules-5-6",
@@ -79,6 +80,7 @@ export const moduleRegistry: ModuleMeta[] = [
 
 /** Modules that currently ship question data (keyed by registry id). */
 export const availableModules: Record<string, ExamModule> = {
+  [modules14.id]: modules14,
   [modules56.id]: modules56,
   [modules79.id]: modules79,
   [modules1013.id]: modules1013,
