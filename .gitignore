@@ -34,3 +34,7 @@ cisco-sans.zip
 .idea/
 
 .vscode/
+
+# local agent/browser extraction artifacts
+_extract/
+.omo/
