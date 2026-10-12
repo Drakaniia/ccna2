@@ -1,4 +1,5 @@
 import type { ExamModule } from "../lib/types";
+import { modules56 } from "./modules-5-6";
 import { modules79 } from "./modules-7-9";
 import { modules1013 } from "./modules-10-13";
 import { modules1416 } from "./modules-14-16";
@@ -37,7 +38,7 @@ export const moduleRegistry: ModuleMeta[] = [
     title: "Modules 5 - 6",
     subtitle: "Redundant Networks",
     groupLabel: "Checkpoint Exam",
-    available: false,
+    available: true,
   },
   {
     id: "modules-7-9",
@@ -78,6 +79,7 @@ export const moduleRegistry: ModuleMeta[] = [
 
 /** Modules that currently ship question data (keyed by registry id). */
 export const availableModules: Record<string, ExamModule> = {
+  [modules56.id]: modules56,
   [modules79.id]: modules79,
   [modules1013.id]: modules1013,
   [modules1416.id]: modules1416,
