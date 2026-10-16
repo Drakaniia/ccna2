@@ -3,7 +3,11 @@ import { mulberry32, range, seededShuffle } from "./shuffle";
 import { scoreAttempt, type AttemptResult } from "./scoring";
 import { getEffectiveLimit } from "./exam-limits";
 import { isAutoCheck } from "./exam-mode";
-import { PREVIEW_QUESTION_COUNT, isAccessMode, type AccessMode } from "../../auth/auth-client";
+import {
+  PREVIEW_QUESTION_COUNT,
+  isAccessMode,
+  type AccessMode,
+} from "../../auth/auth-client";
 
 export interface AttemptState {
   seed: number; // shuffle seed for this attempt
@@ -17,7 +21,12 @@ export interface AttemptState {
   current: number;
   checked: boolean[]; // questions whose Check feedback has been revealed
   reviewed: boolean[]; // questions the user flagged to revisit (tab turns orange)
-  phase: "quiz" | "submit" | "result";
+  /**
+   * `review` is a real phase, not "back to the quiz": reviewing a submitted
+   * attempt is read-only and reveals every verdict, so it cannot share the
+   * quiz phase's live inputs or its Check/Retry bar.
+   */
+  phase: "quiz" | "submit" | "result" | "review";
   result?: AttemptResult;
   /** access mode this attempt was built for — also the storage namespace */
   access: AccessMode;
@@ -74,7 +83,10 @@ function persist(): void {
 /** Store an attempt under its own access namespace. Never throws. */
 function writeSaved(moduleId: string, state: AttemptState): void {
   try {
-    localStorage.setItem(storageKey(moduleId, state.access), JSON.stringify(state));
+    localStorage.setItem(
+      storageKey(moduleId, state.access),
+      JSON.stringify(state),
+    );
   } catch {
     /* storage unavailable — quiz still works for the session */
   }
@@ -97,7 +109,11 @@ function freshSeed(): number {
  * A preview always takes a fixed small slice and never consults the stored
  * "Number of items" setting, so a stale `ccna-limit:` key cannot leak into it.
  */
-function resolveLimit(access: AccessMode, moduleId: string, total: number): number | undefined {
+function resolveLimit(
+  access: AccessMode,
+  moduleId: string,
+  total: number,
+): number | undefined {
   if (access === "preview") return Math.min(PREVIEW_QUESTION_COUNT, total);
   const limit = getEffectiveLimit(moduleId, total);
   return limit === total ? undefined : limit;
@@ -111,27 +127,37 @@ function buildAttempt(
 ): AttemptState {
   const rand = mulberry32(seed);
   const total = questions.length;
-  const effectiveTotal = limit !== undefined && limit !== null && limit > 0 && limit < total ? limit : total;
+  const effectiveTotal =
+    limit !== undefined && limit !== null && limit > 0 && limit < total
+      ? limit
+      : total;
 
   // One shuffle per source question (options for choice, right column for pair).
   const perSourceOption: (number[] | null)[] = questions.map((q) =>
-    q.type === "pair" ? null : seededShuffle(range(q.options.length), rand)
+    q.type === "pair" ? null : seededShuffle(range(q.options.length), rand),
   );
   const perSourceRight: (number[] | null)[] = questions.map((q) =>
-    q.type === "pair" ? seededShuffle(range(q.right.length), rand) : null
+    q.type === "pair" ? seededShuffle(range(q.right.length), rand) : null,
   );
   const perSourceLeft: (number[] | null)[] = questions.map((q) =>
-    q.type === "pair" ? seededShuffle(range(q.left.length), rand) : null
+    q.type === "pair" ? seededShuffle(range(q.left.length), rand) : null,
   );
 
   // Always random: shuffle full order then slice to limit for random subset.
   const fullOrder = seededShuffle(range(total), rand);
-  const order = effectiveTotal < total ? fullOrder.slice(0, effectiveTotal) : fullOrder;
+  const order =
+    effectiveTotal < total ? fullOrder.slice(0, effectiveTotal) : fullOrder;
 
   // Slot shuffles into per-display-position arrays.
-  const optionOrders: (number[] | null)[] = order.map((src) => perSourceOption[src]);
-  const rightOrders: (number[] | null)[] = order.map((src) => perSourceRight[src]);
-  const leftOrders: (number[] | null)[] = order.map((src) => perSourceLeft[src]);
+  const optionOrders: (number[] | null)[] = order.map(
+    (src) => perSourceOption[src],
+  );
+  const rightOrders: (number[] | null)[] = order.map(
+    (src) => perSourceRight[src],
+  );
+  const leftOrders: (number[] | null)[] = order.map(
+    (src) => perSourceLeft[src],
+  );
 
   return {
     seed,
@@ -161,11 +187,20 @@ function buildAttempt(
  * The question slice follows the access mode: a preview takes a short random
  * subset, full mode honours the stored "Number of items" setting when there is one.
  */
-export function bootQuiz(moduleId: string, module: ExamModule, access: AccessMode): AttemptState {
+export function bootQuiz(
+  moduleId: string,
+  module: ExamModule,
+  access: AccessMode,
+): AttemptState {
   dropLegacyKeys(moduleId);
   clearSaved(moduleId, access); // drop any previous session's stored attempt
   const total = module.questions.length;
-  const state = buildAttempt(module.questions, freshSeed(), access, resolveLimit(access, moduleId, total));
+  const state = buildAttempt(
+    module.questions,
+    freshSeed(),
+    access,
+    resolveLimit(access, moduleId, total),
+  );
   ctx = { moduleId, module, state, access, activeLeft: null };
   emit(); // initial paint for every subscribed view
   return state;
@@ -288,9 +323,12 @@ export function goToGate(): void {
  * Answers are recorded on every click; once the required count is reached the
  * question is auto-checked and locked — re-select only via Retry Question.
  */
-export function toggleChoice(optionDisplayIndex: number): "ok" | "cap" | "locked" {
+export function toggleChoice(
+  optionDisplayIndex: number,
+): "ok" | "cap" | "locked" {
   const s = getState();
   if (!ctx || !s) return "locked";
+  if (s.phase === "review") return "locked"; // reviewing a submitted attempt — inputs are inert
   const qRaw = ctx.module.questions[s.order[s.current]];
   if (qRaw.type === "pair") return "locked";
   const q = qRaw as ChoiceQuestion;
@@ -330,6 +368,7 @@ export function clickLeftItem(leftIndex: number): void {
   const q = currentQuestion();
   const s = getState();
   if (!q || q.type !== "pair" || !s) return;
+  if (s.phase === "review") return; // reviewing a submitted attempt — board is inert
   if (s.checked[s.current]) return; // locked once feedback is shown
   ctx.activeLeft = ctx.activeLeft === leftIndex ? null : leftIndex;
   emit();
@@ -346,6 +385,7 @@ export function clickRightItem(rightDisplayIndex: number): void {
   const s = getState();
   if (!q || q.type !== "pair" || !s) return;
   const p = s.current;
+  if (s.phase === "review") return; // reviewing a submitted attempt — board is inert
   if (s.checked[p]) return; // locked once feedback is shown
 
   mutate((st) => {
@@ -353,7 +393,9 @@ export function clickRightItem(rightDisplayIndex: number): void {
     let active = ctx!.activeLeft;
     if (active === null) {
       // editing flow: unlink the left partner of this right item and re-activate it
-      const pairedLeft = Object.keys(cur).find((l) => cur[Number(l)] === rightDisplayIndex);
+      const pairedLeft = Object.keys(cur).find(
+        (l) => cur[Number(l)] === rightDisplayIndex,
+      );
       if (pairedLeft !== undefined) {
         const next = { ...cur };
         delete next[Number(pairedLeft)];
@@ -367,7 +409,10 @@ export function clickRightItem(rightDisplayIndex: number): void {
     // target; otherwise evict any other left already claiming this right item.
     const next: Record<number, number> = {};
     Object.entries(cur).forEach(([l, r]) => {
-      if (Number(l) !== active && (q.allowMultiMatch || Number(r) !== rightDisplayIndex)) {
+      if (
+        Number(l) !== active &&
+        (q.allowMultiMatch || Number(r) !== rightDisplayIndex)
+      ) {
         next[Number(l)] = Number(r);
       }
     });
@@ -379,7 +424,8 @@ export function clickRightItem(rightDisplayIndex: number): void {
     ctx!.activeLeft = null;
     // auto-calc: feedback appears once every left item is paired.
     // In manual mode the pairing is only recorded — Check reveals it.
-    if (isAutoCheck()) st.checked[p] = Object.keys(next).length === q.left.length;
+    if (isAutoCheck())
+      st.checked[p] = Object.keys(next).length === q.left.length;
   });
 }
 
@@ -392,6 +438,7 @@ export function clickRightItem(rightDisplayIndex: number): void {
 export function checkCurrent(): void {
   const s = getState();
   if (!ctx || !s) return;
+  if (s.phase === "review") return; // nothing left to reveal
   const p = s.current;
   if (s.checked[p]) return;
   if (!hasAnswerFor(p)) return;
@@ -408,6 +455,7 @@ export function checkCurrent(): void {
 export function toggleReview(): void {
   const s = getState();
   if (!ctx || !s) return;
+  if (s.phase === "review") return; // the flag is part of the attempt being read back
   const p = s.current;
   mutate((st) => {
     st.reviewed[p] = !st.reviewed[p];
@@ -420,9 +468,17 @@ export function toggleReview(): void {
  * the same order half the time) it is rotated by one so the layout visibly
  * changes on every retry / reshuffle.
  */
-function rerollOrder(prev: number[] | null | undefined, length: number): number[] {
+function rerollOrder(
+  prev: number[] | null | undefined,
+  length: number,
+): number[] {
   let next = seededShuffle(range(length), mulberry32(freshSeed()));
-  if (length > 1 && prev && next.length === prev.length && next.every((v, i) => v === prev[i])) {
+  if (
+    length > 1 &&
+    prev &&
+    next.length === prev.length &&
+    next.every((v, i) => v === prev[i])
+  ) {
     next = [...next.slice(1), next[0]!];
   }
   return next;
@@ -437,6 +493,7 @@ function rerollOrder(prev: number[] | null | undefined, length: number): number[
  */
 export function clearCurrentAnswer(): void {
   if (!ctx) return;
+  if (atReview(ctx.state)) return; // Retry is inert while reviewing a submitted attempt
   mutate((s) => {
     const p = s.current;
     const q = ctx!.module.questions[s.order[p]];
@@ -466,6 +523,7 @@ export function clearCurrentAnswer(): void {
 export function reshuffleCurrent(): void {
   const s = getState();
   if (!ctx || !s) return;
+  if (s.phase === "review") return; // the layout is part of the attempt being read back
   const p = s.current;
   if (s.checked[p] || hasAnswerFor(p)) return;
   mutate((st) => {
@@ -479,7 +537,6 @@ export function reshuffleCurrent(): void {
     ctx!.activeLeft = null;
   });
 }
-
 
 /* ------------------------------------ submit ---------------------------------- */
 
@@ -506,12 +563,36 @@ export function backToQuiz(p?: number): void {
   });
 }
 
-/** Result screen: return to the quiz with all answers + Check feedback intact. */
+/**
+ * Result screen: enter review mode.
+ *
+ * Review is a read-only surface, so the whole attempt is revealed on entry:
+ * every position is marked `checked`, which is the same flag the renderers
+ * already use to show a verdict + explanation and to lock an answer. That is
+ * what makes "reveal for every question, including ones never Checked" work
+ * without threading the phase through every render path, and it means the
+ * score stored in `result` is the only thing that can ever be read here.
+ *
+ * `current` is deliberately left alone: review lands where the student left
+ * off, not on Q1.
+ */
 export function reviewAssessment(): void {
   mutate((s) => {
-    s.phase = "quiz";
-    s.current = 0;
+    s.phase = "review";
+    s.checked = s.checked.map(() => true);
   });
+}
+
+/** Review mode: back to the score screen. Never re-scores. */
+export function backToResults(): void {
+  mutate((s) => {
+    s.phase = "result";
+  });
+}
+
+/** True while a submitted attempt is being read back. */
+export function atReview(s: AttemptState | null = getState()): boolean {
+  return !!s && s.phase === "review";
 }
 
 /* ------------------------------------ helpers --------------------------------- */
@@ -609,7 +690,11 @@ function isPermutation(value: unknown, len: number): value is number[] {
  * or hand-copied payload. Saves predating the namespace have no `access` field
  * and are always full-bank attempts.
  */
-function normalizeSaved(data: unknown, module: ExamModule, access: AccessMode): AttemptState | null {
+function normalizeSaved(
+  data: unknown,
+  module: ExamModule,
+  access: AccessMode,
+): AttemptState | null {
   if (!data || typeof data !== "object") return null;
   const d = data as Partial<AttemptState>;
 
@@ -633,7 +718,10 @@ function normalizeSaved(data: unknown, module: ExamModule, access: AccessMode): 
   // anything longer keeps a full-bank payload that reached a preview key from
   // being replayed as a "preview" attempt with more unlocked questions than the
   // visitor is entitled to.
-  if (access === "preview" && n !== Math.min(PREVIEW_QUESTION_COUNT, module.questions.length)) {
+  if (
+    access === "preview" &&
+    n !== Math.min(PREVIEW_QUESTION_COUNT, module.questions.length)
+  ) {
     return null;
   }
 
@@ -654,7 +742,9 @@ function normalizeSaved(data: unknown, module: ExamModule, access: AccessMode): 
       const lo = d.leftOrders?.[p];
       optionOrders.push(null);
       rightOrders.push(ro);
-      leftOrders.push(isPermutation(lo, q.left.length) ? lo : range(q.left.length));
+      leftOrders.push(
+        isPermutation(lo, q.left.length) ? lo : range(q.left.length),
+      );
     } else {
       if (!isPermutation(oo, q.options.length)) return null;
       optionOrders.push(oo);
@@ -670,49 +760,76 @@ function normalizeSaved(data: unknown, module: ExamModule, access: AccessMode): 
     if (q.type === "pair" || !Array.isArray(raw)) return [];
     return raw.filter(
       (x, i) =>
-        Number.isInteger(x) && x >= 0 && x < q.options.length && raw.indexOf(x) === i,
+        Number.isInteger(x) &&
+        x >= 0 &&
+        x < q.options.length &&
+        raw.indexOf(x) === i,
     );
   });
 
   // Pairings — keep only left/right indices the question actually has.
-  const pairs: (Record<number, number> | null)[] = Array.from({ length: n }, (_, p) => {
-    const q = module.questions[order[p]!];
-    const raw = d.pairs?.[p];
-    if (q.type !== "pair" || !raw || typeof raw !== "object") return null;
-    const out: Record<number, number> = {};
-    for (const [l, r] of Object.entries(raw)) {
-      const li = Number(l);
-      const ri = Number(r);
-      if (
-        Number.isInteger(li) && li >= 0 && li < q.left.length &&
-        Number.isInteger(ri) && ri >= 0 && ri < q.right.length
-      ) {
-        out[li] = ri;
+  const pairs: (Record<number, number> | null)[] = Array.from(
+    { length: n },
+    (_, p) => {
+      const q = module.questions[order[p]!];
+      const raw = d.pairs?.[p];
+      if (q.type !== "pair" || !raw || typeof raw !== "object") return null;
+      const out: Record<number, number> = {};
+      for (const [l, r] of Object.entries(raw)) {
+        const li = Number(l);
+        const ri = Number(r);
+        if (
+          Number.isInteger(li) &&
+          li >= 0 &&
+          li < q.left.length &&
+          Number.isInteger(ri) &&
+          ri >= 0 &&
+          ri < q.right.length
+        ) {
+          out[li] = ri;
+        }
       }
-    }
-    return Object.keys(out).length > 0 ? out : null;
-  });
+      return Object.keys(out).length > 0 ? out : null;
+    },
+  );
 
   const bools = (v: unknown): boolean[] =>
     Array.from({ length: n }, (_, i) => Array.isArray(v) && v[i] === true);
 
-  const phase = d.phase === "submit" || d.phase === "result" ? d.phase : "quiz";
+  let phase: AttemptState["phase"] =
+    d.phase === "submit" || d.phase === "result" || d.phase === "review"
+      ? d.phase
+      : "quiz";
   let result: AttemptResult | undefined;
-  if (phase === "result") {
+  if (phase === "result" || phase === "review") {
     const r = d.result;
     if (
-      !r || typeof r !== "object" ||
-      !Number.isFinite(r.score) || !Number.isFinite(r.correct) || !Number.isFinite(r.total)
+      !r ||
+      typeof r !== "object" ||
+      !Number.isFinite(r.score) ||
+      !Number.isFinite(r.correct) ||
+      !Number.isFinite(r.total)
     ) {
-      return null; // a result screen without a grade is unusable — drop the save
+      // A result screen without a grade is unusable, so the save is dropped.
+      // A review save without one is only missing the screen it returns to, so
+      // it is demoted to a plain mid-quiz state instead of being rejected.
+      if (phase === "result") return null;
+      phase = "quiz";
+    } else {
+      result = {
+        score: Math.round(r.score),
+        correct: Math.round(r.correct),
+        total: Math.round(r.total),
+        passed: !!r.passed,
+      };
     }
-    result = {
-      score: Math.round(r.score),
-      correct: Math.round(r.correct),
-      total: Math.round(r.total),
-      passed: !!r.passed,
-    };
   }
+
+  // Review is revealed for every position by definition, so a save resumed
+  // mid-review comes back fully revealed even if its `checked` array was
+  // hand-edited or written by an older build.
+  const checked = bools(d.checked);
+  if (phase === "review") checked.fill(true);
 
   return {
     seed: Number.isFinite(d.seed) ? (d.seed as number) : 0,
@@ -726,7 +843,7 @@ function normalizeSaved(data: unknown, module: ExamModule, access: AccessMode): 
     current: Number.isInteger(d.current)
       ? Math.min(Math.max(d.current as number, 0), n - 1)
       : 0,
-    checked: bools(d.checked),
+    checked,
     reviewed: bools(d.reviewed),
     phase,
     access,
@@ -736,7 +853,11 @@ function normalizeSaved(data: unknown, module: ExamModule, access: AccessMode): 
 }
 
 /** Read + validate the saved attempt without booting the quiz (intro screen). */
-export function loadSaved(moduleId: string, module: ExamModule, access: AccessMode): AttemptState | null {
+export function loadSaved(
+  moduleId: string,
+  module: ExamModule,
+  access: AccessMode,
+): AttemptState | null {
   try {
     dropLegacyKeys(moduleId);
     const raw = localStorage.getItem(storageKey(moduleId, access));
@@ -753,7 +874,11 @@ export function loadSaved(moduleId: string, module: ExamModule, access: AccessMo
  * exactly as they were. Returns null when there is no usable save in this access
  * mode (the caller falls back to bootQuiz for a fresh start).
  */
-export function resumeQuiz(moduleId: string, module: ExamModule, access: AccessMode): AttemptState | null {
+export function resumeQuiz(
+  moduleId: string,
+  module: ExamModule,
+  access: AccessMode,
+): AttemptState | null {
   const state = loadSaved(moduleId, module, access);
   if (!state) return null;
   ctx = { moduleId, module, state, access, activeLeft: null };
@@ -770,7 +895,10 @@ export function resumeQuiz(moduleId: string, module: ExamModule, access: AccessM
  * answered, paired, checked, flagged or submitted — is empty, so the intro
  * offers a plain Start instead of Resume, and there is nothing to promote.
  */
-export function attemptHasProgress(s: AttemptState, module: ExamModule): boolean {
+export function attemptHasProgress(
+  s: AttemptState,
+  module: ExamModule,
+): boolean {
   const answered = s.order.some((sourceIndex, p) => {
     const q = module.questions[sourceIndex];
     if (!q) return false;
@@ -782,6 +910,7 @@ export function attemptHasProgress(s: AttemptState, module: ExamModule): boolean
     answered ||
     s.phase === "submit" ||
     s.phase === "result" ||
+    s.phase === "review" ||
     s.checked.some(Boolean) ||
     s.reviewed.some(Boolean)
   );
@@ -808,7 +937,10 @@ export function attemptHasProgress(s: AttemptState, module: ExamModule): boolean
  *
  * The preview save is left in place: signing out again resumes it as it was.
  */
-export function promotePreviewAttempt(moduleId: string, module: ExamModule): boolean {
+export function promotePreviewAttempt(
+  moduleId: string,
+  module: ExamModule,
+): boolean {
   const preview = loadSaved(moduleId, module, "preview");
   if (!preview || preview.phase !== "quiz") return false;
   if (!attemptHasProgress(preview, module)) return false;
