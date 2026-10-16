@@ -205,7 +205,8 @@ button.link-btn:disabled {
 
 .progress {
   position: fixed;
-  bottom: 74px;
+  /* Clears the footer, which itself grows by the bottom safe-area inset. */
+  bottom: calc(74px + env(safe-area-inset-bottom, 0px));
   left: 50%;
   transform: translateX(-50%);
   background: #faf7f0;
@@ -220,15 +221,55 @@ footer.quiz-footer {
   bottom: 0;
   left: 0;
   right: 0;
-  height: 73px;
+  /* `min-height` + auto height rather than a fixed height: the bar has to be
+     able to grow by the home-indicator inset, which is 0 everywhere else. The
+     73px of content still sits in the same place, so desktop is untouched. */
+  min-height: calc(73px + env(safe-area-inset-bottom, 0px));
   background: #fafafa;
   border-top: 1px solid #ddd;
   display: flex;
   align-items: center;
   justify-content: flex-end;
   padding: 0 74px;
+  padding-bottom: env(safe-area-inset-bottom, 0px);
   gap: 16px;
   z-index: 2;
+}
+
+/*
+ * Two footers, one per phase, both `footer.quiz-footer` so they share the bar
+ * and every bar-wide rule below. The phase is already mirrored onto <body>, so
+ * the swap is CSS-only and cannot disagree with the machine that produced it.
+ */
+body[data-phase="review"] footer.quiz-footer:not(.review-footer) {
+  display: none;
+}
+
+body:not([data-phase="review"]) footer.quiz-footer.review-footer {
+  display: none;
+}
+
+/*
+ * Touch targets. The link buttons used to be text with no padding, so their hit
+ * area was the glyphs themselves — well under the 44px minimum. The row is kept
+ * (not stacked), so the padding goes on the button and the gap is trimmed on
+ * narrow screens instead.
+ */
+footer.quiz-footer button {
+  min-height: 44px;
+  white-space: nowrap;
+}
+
+footer.quiz-footer button.link-btn {
+  display: inline-flex;
+  align-items: center;
+  padding: 0 6px;
+}
+
+footer.quiz-footer button.primary {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
 }
 
 /* ---------- responsive base ---------- */
@@ -238,8 +279,25 @@ footer.quiz-footer {
     margin: 28px 20px 120px;
   }
 
+  /* Horizontal only — the vertical padding above carries the safe-area inset
+     and must survive the breakpoint. */
   footer.quiz-footer {
-    padding: 0 18px;
+    padding-left: 18px;
+    padding-right: 18px;
+    gap: 10px;
+  }
+}
+
+@media (max-width: 390px) {
+  footer.quiz-footer {
+    padding-left: 12px;
+    padding-right: 12px;
+    gap: 6px;
+  }
+
+  footer.quiz-footer button.link-btn {
+    padding: 0 4px;
+    font-size: 13px;
   }
 }
 
@@ -249,7 +307,36 @@ footer.quiz-footer {
 
 header.topbar {
   overflow: hidden;
-  transition: height 260ms ease, padding 260ms ease;
+  transition:
+    min-height 260ms ease,
+    padding 260ms ease;
+}
+
+/*
+ * Offline notice. It sits in normal flow directly under the top bar, so it is
+ * visible on the intro, quiz, submit and review screens alike. Raised by the
+ * exam page when the session check could not reach the Worker, or whenever the
+ * browser reports no network.
+ */
+.offline-banner {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 9px 16px;
+  background: #fff4d6;
+  border-bottom: 1px solid #e8d49a;
+  color: #6b4e00;
+  font-size: 13px;
+  font-weight: 600;
+  line-height: 1.35;
+  text-align: center;
+}
+
+html[data-theme="dark"] .offline-banner {
+  background: #3a3013;
+  border-bottom-color: #584716;
+  color: #f4d99a;
 }
 
 /* let React islands inside the top bar participate in its flex layout */
@@ -444,7 +531,9 @@ html[data-theme="dark"] .pair-lines line[stroke="#3f4c52"] {
 html[data-theme="dark"] .drawer {
   background: rgba(30, 34, 40, 0.85);
   border-right-color: rgba(255, 255, 255, 0.07);
-  box-shadow: 0 0 0 1px rgba(0, 0, 0, 0.5), 8px 0 40px rgba(0, 0, 0, 0.5);
+  box-shadow:
+    0 0 0 1px rgba(0, 0, 0, 0.5),
+    8px 0 40px rgba(0, 0, 0, 0.5);
 }
 
 html[data-theme="dark"] .drawer-close {
@@ -528,8 +617,8 @@ html[data-theme="dark"] .module-card.disabled h2 {
 
 .site-credit {
   position: fixed;
-  bottom: 14px;
-  right: 18px;
+  bottom: calc(14px + env(safe-area-inset-bottom, 0px));
+  right: calc(18px + env(safe-area-inset-right, 0px));
   z-index: 10;
 }
 
@@ -545,7 +634,10 @@ html[data-theme="dark"] .module-card.disabled h2 {
   cursor: pointer;
   -webkit-backdrop-filter: blur(6px);
   backdrop-filter: blur(6px);
-  transition: transform 100ms ease-out, color 140ms ease, border-color 140ms ease;
+  transition:
+    transform 100ms ease-out,
+    color 140ms ease,
+    border-color 140ms ease;
 }
 
 .site-credit-btn:hover {
@@ -554,7 +646,9 @@ html[data-theme="dark"] .module-card.disabled h2 {
 }
 
 /* Feedback on the press, not the release. */
-.site-credit-btn:active { transform: scale(0.97); }
+.site-credit-btn:active {
+  transform: scale(0.97);
+}
 
 /* On the exam page the chip belongs to the result screen only — during an
    active exam it would sit on top of the question, and the intro/submit
@@ -580,7 +674,9 @@ html[data-theme="dark"] .site-credit-btn {
 
 /* Reduced motion — keep the colour response, drop the scale. */
 @media (prefers-reduced-motion: reduce) {
-  .site-credit-btn:active { transform: none; }
+  .site-credit-btn:active {
+    transform: none;
+  }
 }
 
 /* Reduced transparency — frost into an opaque chip. */
@@ -590,7 +686,9 @@ html[data-theme="dark"] .site-credit-btn {
     -webkit-backdrop-filter: none;
     backdrop-filter: none;
   }
-  html[data-theme="dark"] .site-credit-btn { background: #23272d; }
+  html[data-theme="dark"] .site-credit-btn {
+    background: #23272d;
+  }
 }
 
 /* ==========================================================================
@@ -610,26 +708,44 @@ html[data-theme="dark"] .site-credit-btn {
 }
 
 @keyframes settingsScrimIn {
-  from { opacity: 0; }
-  to { opacity: 1; }
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
 }
 
 .settings-modal {
   width: min(440px, 92vw);
+  /* The modal now carries an offline section on top of the item limit, so it
+     has to be able to scroll instead of pushing its own Apply button off a
+     390px-tall viewport. */
+  max-height: min(88vh, 760px);
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
   background: rgba(255, 255, 255, 0.96);
   -webkit-backdrop-filter: blur(18px) saturate(160%);
   backdrop-filter: blur(18px) saturate(160%);
   border: 1px solid rgba(255, 255, 255, 0.6);
   border-radius: 16px;
-  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.18), 0 0 0 1px rgba(0, 0, 0, 0.04);
+  box-shadow:
+    0 12px 40px rgba(0, 0, 0, 0.18),
+    0 0 0 1px rgba(0, 0, 0, 0.04);
   padding: 22px 22px 18px;
   color: var(--text);
   animation: settingsModalIn 220ms cubic-bezier(0.32, 0.72, 0, 1) forwards;
 }
 
 @keyframes settingsModalIn {
-  from { opacity: 0; transform: translateY(8px) scale(0.98); }
-  to { opacity: 1; transform: translateY(0) scale(1); }
+  from {
+    opacity: 0;
+    transform: translateY(8px) scale(0.98);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
 }
 
 .settings-head {
@@ -661,7 +777,9 @@ html[data-theme="dark"] .site-credit-btn {
   cursor: pointer;
 }
 
-.settings-close:hover { background: rgba(0, 0, 0, 0.1); }
+.settings-close:hover {
+  background: rgba(0, 0, 0, 0.1);
+}
 
 .settings-desc {
   margin: 0 0 16px;
@@ -694,7 +812,9 @@ html[data-theme="dark"] .site-credit-btn {
   color: var(--text);
   background: #fff;
   outline: none;
-  transition: border-color 0.15s ease, box-shadow 0.15s ease;
+  transition:
+    border-color 0.15s ease,
+    box-shadow 0.15s ease;
 }
 
 .settings-field input:focus {
@@ -702,7 +822,10 @@ html[data-theme="dark"] .site-credit-btn {
   box-shadow: 0 0 0 3px rgba(18, 160, 198, 0.18);
 }
 
-.settings-field input::placeholder { color: #9aa3ab; font-weight: 500; }
+.settings-field input::placeholder {
+  color: #9aa3ab;
+  font-weight: 500;
+}
 
 .settings-error {
   margin: 8px 0 0;
@@ -715,6 +838,90 @@ html[data-theme="dark"] .site-credit-btn {
   margin: 8px 0 0;
   font-size: 12.5px;
   color: #8a8f94;
+}
+
+/* offline section — per-exam download switch, state + size readout, install */
+.settings-offline {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin: 18px 0 0;
+  padding-top: 16px;
+  border-top: 1px solid var(--border);
+}
+
+.settings-switch {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  padding: 9px 11px;
+  border: 1px solid var(--border);
+  border-radius: 7px;
+  background: #fff;
+  cursor: pointer;
+  transition:
+    border-color 0.14s ease,
+    background 0.14s ease;
+}
+
+.settings-switch:hover {
+  border-color: var(--cyan);
+}
+
+.settings-switch:has(input:checked) {
+  border-color: var(--cyan);
+  background: #eef7fa;
+}
+
+.settings-switch input {
+  margin: 2px 0 0;
+  flex: none;
+  width: 18px;
+  height: 18px;
+  accent-color: var(--cyan);
+  cursor: pointer;
+}
+
+.settings-switch > span {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.settings-switch input:focus-visible {
+  outline: 3px solid rgba(18, 160, 198, 0.35);
+  outline-offset: 2px;
+}
+
+.settings-status {
+  margin: 0;
+  font-size: 12.5px;
+  font-weight: 600;
+  color: var(--muted);
+}
+
+.settings-install {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 6px;
+}
+
+.settings-install .settings-hint {
+  margin: 0;
+  line-height: 1.5;
+}
+
+.preset-btn.install-btn {
+  background: var(--green);
+  border-color: var(--green);
+  color: #111;
+}
+
+.preset-btn.install-btn:hover {
+  background: var(--green-dark);
+  border-color: var(--green-dark);
+  color: #fff;
 }
 
 /* solution-feedback mode radio group */
@@ -741,10 +948,14 @@ html[data-theme="dark"] .site-credit-btn {
   border-radius: 7px;
   background: #fff;
   cursor: pointer;
-  transition: border-color 0.14s ease, background 0.14s ease;
+  transition:
+    border-color 0.14s ease,
+    background 0.14s ease;
 }
 
-.mode-option:hover { border-color: var(--cyan); }
+.mode-option:hover {
+  border-color: var(--cyan);
+}
 
 .mode-option:has(input:checked) {
   border-color: var(--cyan);
@@ -758,11 +969,22 @@ html[data-theme="dark"] .site-credit-btn {
   cursor: pointer;
 }
 
-.mode-option > span { display: flex; flex-direction: column; gap: 2px; }
+.mode-option > span {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
 
-.mode-title { font-size: 13.5px; font-weight: 700; color: var(--text); }
+.mode-title {
+  font-size: 13.5px;
+  font-weight: 700;
+  color: var(--text);
+}
 
-.mode-desc { font-size: 12px; color: #8a8f94; }
+.mode-desc {
+  font-size: 12px;
+  color: #8a8f94;
+}
 
 .mode-option input:focus-visible {
   outline: 3px solid rgba(18, 160, 198, 0.35);
@@ -786,13 +1008,29 @@ html[data-theme="dark"] .site-credit-btn {
   font-weight: 700;
   cursor: pointer;
   color: var(--text);
-  transition: background 0.14s ease, border-color 0.14s ease;
+  transition:
+    background 0.14s ease,
+    border-color 0.14s ease;
 }
 
-.preset-btn:hover { border-color: var(--cyan); background: rgba(18, 160, 198, 0.08); }
-.preset-btn:disabled { opacity: 0.4; cursor: not-allowed; }
-.preset-btn.preset-all { background: var(--green); border-color: var(--green); color: #111; }
-.preset-btn.preset-all:hover { background: var(--green-dark); border-color: var(--green-dark); color: #fff; }
+.preset-btn:hover {
+  border-color: var(--cyan);
+  background: rgba(18, 160, 198, 0.08);
+}
+.preset-btn:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+.preset-btn.preset-all {
+  background: var(--green);
+  border-color: var(--green);
+  color: #111;
+}
+.preset-btn.preset-all:hover {
+  background: var(--green-dark);
+  border-color: var(--green-dark);
+  color: #fff;
+}
 
 .settings-actions {
   display: flex;
@@ -811,30 +1049,43 @@ html[data-theme="dark"] .site-credit-btn {
 }
 
 @media (max-width: 480px) {
-  .settings-modal { padding: 18px 16px 14px; }
+  .settings-modal {
+    padding: 18px 16px 14px;
+  }
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .settings-scrim, .settings-modal { animation: none; }
+  .settings-scrim,
+  .settings-modal {
+    animation: none;
+  }
 }
 
 /* Dark theme — settings */
 html[data-theme="dark"] .settings-modal {
   background: rgba(30, 34, 40, 0.96);
   border-color: rgba(255, 255, 255, 0.08);
-  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.5), 0 0 0 1px rgba(255, 255, 255, 0.06);
+  box-shadow:
+    0 12px 40px rgba(0, 0, 0, 0.5),
+    0 0 0 1px rgba(255, 255, 255, 0.06);
 }
 
 html[data-theme="dark"] .settings-close {
   background: rgba(255, 255, 255, 0.08);
   color: #cfd6dc;
 }
-html[data-theme="dark"] .settings-close:hover { background: rgba(255, 255, 255, 0.14); }
+html[data-theme="dark"] .settings-close:hover {
+  background: rgba(255, 255, 255, 0.14);
+}
 
-html[data-theme="dark"] .settings-label { color: #98a1aa; }
+html[data-theme="dark"] .settings-label {
+  color: #98a1aa;
+}
 html[data-theme="dark"] .settings-desc,
 html[data-theme="dark"] .settings-hint,
-html[data-theme="dark"] .settings-foot { color: #98a1aa; }
+html[data-theme="dark"] .settings-foot {
+  color: #98a1aa;
+}
 
 html[data-theme="dark"] .settings-field input {
   background: #23272d;
@@ -850,8 +1101,15 @@ html[data-theme="dark"] .preset-btn {
   border-color: #3c454f;
   color: var(--text);
 }
-html[data-theme="dark"] .preset-btn:hover { background: #2a3238; border-color: var(--cyan); }
-html[data-theme="dark"] .preset-btn.preset-all { background: var(--green); border-color: var(--green); color: #111; }
+html[data-theme="dark"] .preset-btn:hover {
+  background: #2a3238;
+  border-color: var(--cyan);
+}
+html[data-theme="dark"] .preset-btn.preset-all {
+  background: var(--green);
+  border-color: var(--green);
+  color: #111;
+}
 
 html[data-theme="dark"] .mode-option {
   background: #23272d;
@@ -861,11 +1119,35 @@ html[data-theme="dark"] .mode-option:has(input:checked) {
   background: #1d2b31;
   border-color: var(--cyan);
 }
-html[data-theme="dark"] .mode-title { color: var(--text); }
-html[data-theme="dark"] .mode-desc { color: #98a1aa; }
+html[data-theme="dark"] .mode-title {
+  color: var(--text);
+}
+html[data-theme="dark"] .mode-desc {
+  color: #98a1aa;
+}
+
+html[data-theme="dark"] .settings-offline {
+  border-top-color: #3c454f;
+}
+
+html[data-theme="dark"] .settings-switch {
+  background: #23272d;
+  border-color: #3c454f;
+}
+
+html[data-theme="dark"] .settings-switch:has(input:checked) {
+  background: #1d2b31;
+  border-color: var(--cyan);
+}
+
+html[data-theme="dark"] .settings-status {
+  color: #98a1aa;
+}
 
 /* Confirm restart — shares scrim/modal base, adds centered warning treatment */
-.confirm-scrim { z-index: 340; }
+.confirm-scrim {
+  z-index: 340;
+}
 
 .confirm-modal {
   width: min(420px, 92vw);
@@ -928,8 +1210,12 @@ html[data-theme="dark"] .confirm-icon {
   color: #ffca28;
 }
 
-html[data-theme="dark"] .confirm-title { color: var(--text); }
-html[data-theme="dark"] .confirm-desc { color: var(--muted); }
+html[data-theme="dark"] .confirm-title {
+  color: var(--text);
+}
+html[data-theme="dark"] .confirm-desc {
+  color: var(--muted);
+}
 
 /* ==========================================================================
    Follow prompt — GitHub CTA that waits to be dismissed.
@@ -949,7 +1235,9 @@ html[data-theme="dark"] .confirm-desc { color: var(--muted); }
   transition: opacity 200ms ease;
 }
 
-.follow-scrim.is-open { opacity: 1; }
+.follow-scrim.is-open {
+  opacity: 1;
+}
 
 .follow-modal {
   position: relative;
@@ -960,7 +1248,9 @@ html[data-theme="dark"] .confirm-desc { color: var(--muted); }
   backdrop-filter: blur(18px) saturate(160%);
   border: 1px solid rgba(255, 255, 255, 0.6);
   border-radius: 18px;
-  box-shadow: 0 18px 50px rgba(0, 0, 0, 0.22), 0 0 0 1px rgba(0, 0, 0, 0.04);
+  box-shadow:
+    0 18px 50px rgba(0, 0, 0, 0.22),
+    0 0 0 1px rgba(0, 0, 0, 0.04);
   color: var(--text);
   /* Materialize: blur radius and scale arrive together so the surface reads
      as a material landing, not a plain opacity fade. */
@@ -1038,11 +1328,17 @@ html[data-theme="dark"] .confirm-desc { color: var(--muted); }
   box-shadow: 0 1px 4px rgba(0, 0, 0, 0.3);
   color: #fff;
   cursor: pointer;
-  transition: transform 100ms ease-out, background 140ms ease;
+  transition:
+    transform 100ms ease-out,
+    background 140ms ease;
 }
 
-.follow-close:hover { background: rgba(0, 0, 0, 0.72); }
-.follow-close:active { transform: scale(0.9); }
+.follow-close:hover {
+  background: rgba(0, 0, 0, 0.72);
+}
+.follow-close:active {
+  transform: scale(0.9);
+}
 
 .follow-x {
   width: 15px;
@@ -1095,15 +1391,27 @@ html[data-theme="dark"] .confirm-desc { color: var(--muted); }
   font-size: 14px;
   font-weight: 600;
   text-decoration: none;
-  transition: transform 100ms ease-out, background 140ms ease;
+  transition:
+    transform 100ms ease-out,
+    background 140ms ease;
 }
 
-.follow-cta:hover { background: #2b3237; }
-.follow-cta:active { transform: scale(0.97); }
+.follow-cta:hover {
+  background: #2b3237;
+}
+.follow-cta:active {
+  transform: scale(0.97);
+}
 
-.follow-cta svg { display: block; flex: none; }
+.follow-cta svg {
+  display: block;
+  flex: none;
+}
 
-.follow-later { font-size: 13px; color: var(--muted); }
+.follow-later {
+  font-size: 13px;
+  color: var(--muted);
+}
 
 /* Carousel controls ride on the photo, anchored to its bottom edge. No scrim —
    the dots carry their own ring and the arrow its own chip, so each stays
@@ -1122,7 +1430,9 @@ html[data-theme="dark"] .confirm-desc { color: var(--muted); }
   pointer-events: none;
 }
 
-.follow-nav > * { pointer-events: auto; }
+.follow-nav > * {
+  pointer-events: auto;
+}
 
 .follow-dots {
   display: flex;
@@ -1143,13 +1453,17 @@ html[data-theme="dark"] .confirm-desc { color: var(--muted); }
   background: #fff;
   box-shadow: 0 0 0 1.5px rgba(0, 0, 0, 0.45);
   cursor: pointer;
-  transition: transform 160ms ease, box-shadow 160ms ease;
+  transition:
+    transform 160ms ease,
+    box-shadow 160ms ease;
 }
 
 .follow-dot.is-current {
   background: var(--cyan);
   transform: scale(1.3);
-  box-shadow: 0 0 0 1.5px rgba(0, 0, 0, 0.45), 0 0 6px rgba(18, 160, 198, 0.9);
+  box-shadow:
+    0 0 0 1.5px rgba(0, 0, 0, 0.45),
+    0 0 6px rgba(18, 160, 198, 0.9);
 }
 
 .follow-dot:focus-visible,
@@ -1174,19 +1488,31 @@ html[data-theme="dark"] .confirm-desc { color: var(--muted); }
   transition: transform 100ms ease-out;
 }
 
-.follow-next:active { transform: scale(0.94); }
-.follow-next svg { display: block; }
+.follow-next:active {
+  transform: scale(0.94);
+}
+.follow-next svg {
+  display: block;
+}
 
 /* One arrow, two jobs: forward by default, back on the final slide. */
-.follow-next .follow-next-back { display: none; }
-.follow-next.is-back .follow-next-fwd { display: none; }
-.follow-next.is-back .follow-next-back { display: block; }
+.follow-next .follow-next-back {
+  display: none;
+}
+.follow-next.is-back .follow-next-fwd {
+  display: none;
+}
+.follow-next.is-back .follow-next-back {
+  display: block;
+}
 
 /* Dark theme — follow prompt */
 html[data-theme="dark"] .follow-modal {
   background: rgba(30, 34, 40, 0.96);
   border-color: rgba(255, 255, 255, 0.08);
-  box-shadow: 0 18px 50px rgba(0, 0, 0, 0.55), 0 0 0 1px rgba(255, 255, 255, 0.06);
+  box-shadow:
+    0 18px 50px rgba(0, 0, 0, 0.55),
+    0 0 0 1px rgba(255, 255, 255, 0.06);
 }
 
 html[data-theme="dark"] .follow-media {
@@ -1195,30 +1521,45 @@ html[data-theme="dark"] .follow-media {
 }
 
 html[data-theme="dark"] .follow-desc,
-html[data-theme="dark"] .follow-later { color: var(--muted); }
+html[data-theme="dark"] .follow-later {
+  color: var(--muted);
+}
 
-html[data-theme="dark"] .follow-cta { background: #f2f3f4; color: #171b1e; }
-html[data-theme="dark"] .follow-cta:hover { background: #ffffff; }
+html[data-theme="dark"] .follow-cta {
+  background: #f2f3f4;
+  color: #171b1e;
+}
+html[data-theme="dark"] .follow-cta:hover {
+  background: #ffffff;
+}
 
 /* .follow-dot and .follow-next sit on the photo in both themes, so they carry
    their own contrast and need no theme variants. */
 
 @media (max-width: 480px) {
-  .follow-body { padding: 16px 16px 24px; }
+  .follow-body {
+    padding: 16px 16px 24px;
+  }
 }
 
 /* Reduced motion keeps the feedback, drops the movement: cross-fade only. */
 @media (prefers-reduced-motion: reduce) {
-  .follow-scrim { transition: opacity 160ms linear; }
+  .follow-scrim {
+    transition: opacity 160ms linear;
+  }
   .follow-modal,
   .follow-scrim.is-open .follow-modal {
     transform: none;
     transition: opacity 160ms linear;
   }
   .follow-close:active,
-  .follow-cta:active { transform: none; }
+  .follow-cta:active {
+    transform: none;
+  }
   /* Still page the carousel, just without the slide. */
-  .follow-track { transition: none; }
+  .follow-track {
+    transition: none;
+  }
 }
 
 /* Reduced transparency: frost into an opaque surface rather than stacking. */
