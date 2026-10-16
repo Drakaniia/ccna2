@@ -65,7 +65,9 @@ function makeDb(opts: { failWrites?: boolean; rows?: unknown[] } = {}) {
     return statement;
   };
 
-  const db = { prepare: (sql: string) => makeStatement(sql) } as unknown as D1Database;
+  const db = {
+    prepare: (sql: string) => makeStatement(sql),
+  } as unknown as D1Database;
   return { db, calls };
 }
 
@@ -118,7 +120,11 @@ function idToken(overrides: Record<string, unknown> = {}): string {
 
 /** A signed state cookie as `/auth/login` would issue it. */
 function stateCookie(redirect = "/ccna2/"): Promise<string> {
-  return signJwt({ state: "state-abc", verifier: "verifier-123", redirect }, SECRET, STATE_TTL_SECONDS);
+  return signJwt(
+    { state: "state-abc", verifier: "verifier-123", redirect },
+    SECRET,
+    STATE_TTL_SECONDS,
+  );
 }
 
 function cookieHeader(token: string): Record<string, string> {
@@ -148,7 +154,13 @@ function readSetCookie(res: Response, name: string): string | null {
 function stubTokenEndpoint(body: unknown, status = 200): void {
   vi.stubGlobal(
     "fetch",
-    vi.fn(async () => new Response(JSON.stringify(body), { status, headers: { "Content-Type": "application/json" } }))
+    vi.fn(
+      async () =>
+        new Response(JSON.stringify(body), {
+          status,
+          headers: { "Content-Type": "application/json" },
+        }),
+    ),
   );
 }
 
@@ -165,7 +177,11 @@ describe("worker routes — health and CORS", () => {
     expect(res.status).toBe(200);
     // `api` is the handshake the site uses to tell a current Worker from a stale
     // one; dropping it would make every sign-in failure look browser-caused.
-    expect(await res.json()).toEqual({ ok: true, service: "ccna-auth", api: 2 });
+    expect(await res.json()).toEqual({
+      ok: true,
+      service: "ccna-auth",
+      api: 2,
+    });
     expect(res.headers.get("access-control-allow-origin")).toBe(SITE_ORIGIN);
     expect(res.headers.get("access-control-allow-origin")).not.toBe("*");
     expect(res.headers.get("access-control-allow-credentials")).toBe("true");
@@ -173,12 +189,18 @@ describe("worker routes — health and CORS", () => {
 
   it("answers an OPTIONS preflight with 204", async () => {
     const { env } = makeEnv();
-    const res = await worker.fetch(new Request("https://worker.example/auth/session", { method: "OPTIONS" }), env, ctx);
+    const res = await worker.fetch(
+      new Request("https://worker.example/auth/session", { method: "OPTIONS" }),
+      env,
+      ctx,
+    );
     expect(res.status).toBe(204);
     expect(res.headers.get("access-control-allow-origin")).toBe(SITE_ORIGIN);
     // The site sends the session token as a Bearer header, so the preflight has
     // to allow Authorization or every session check fails before it is sent.
-    expect(res.headers.get("access-control-allow-headers")).toContain("Authorization");
+    expect(res.headers.get("access-control-allow-headers")).toContain(
+      "Authorization",
+    );
     expect(res.headers.get("access-control-allow-methods")).toContain("POST");
   });
 
@@ -197,9 +219,13 @@ describe("worker routes — /auth/login", () => {
 
     expect(res.status).toBe(302);
     const location = new URL(res.headers.get("location")!);
-    expect(location.origin + location.pathname).toBe("https://accounts.google.com/o/oauth2/v2/auth");
+    expect(location.origin + location.pathname).toBe(
+      "https://accounts.google.com/o/oauth2/v2/auth",
+    );
     expect(location.searchParams.get("client_id")).toBe(CLIENT_ID);
-    expect(location.searchParams.get("redirect_uri")).toBe(`${WORKER_URL}/auth/callback`);
+    expect(location.searchParams.get("redirect_uri")).toBe(
+      `${WORKER_URL}/auth/callback`,
+    );
     expect(location.searchParams.get("code_challenge_method")).toBe("S256");
     expect(location.searchParams.get("state")).toBeTruthy();
 
@@ -212,12 +238,26 @@ describe("worker routes — /auth/login", () => {
   it("keeps a same-base redirect and rejects an open redirect", async () => {
     const { env } = makeEnv();
 
-    const okRes = await worker.fetch(get("/auth/login?redirect=/ccna2/exam/1"), env, ctx);
-    const okState = (await verifyJwt<{ redirect: string }>(readSetCookie(okRes, STATE_COOKIE)!, SECRET))!;
+    const okRes = await worker.fetch(
+      get("/auth/login?redirect=/ccna2/exam/1"),
+      env,
+      ctx,
+    );
+    const okState = (await verifyJwt<{ redirect: string }>(
+      readSetCookie(okRes, STATE_COOKIE)!,
+      SECRET,
+    ))!;
     expect(okState.redirect).toBe("/ccna2/exam/1");
 
-    const evilRes = await worker.fetch(get("/auth/login?redirect=https://evil.example/phish"), env, ctx);
-    const evilState = (await verifyJwt<{ redirect: string }>(readSetCookie(evilRes, STATE_COOKIE)!, SECRET))!;
+    const evilRes = await worker.fetch(
+      get("/auth/login?redirect=https://evil.example/phish"),
+      env,
+      ctx,
+    );
+    const evilState = (await verifyJwt<{ redirect: string }>(
+      readSetCookie(evilRes, STATE_COOKIE)!,
+      SECRET,
+    ))!;
     expect(evilState.redirect).toBe("/ccna2/");
   });
 });
@@ -228,7 +268,11 @@ describe("worker routes — /auth/callback", () => {
     vi.stubGlobal("fetch", fetchSpy);
     const { env } = makeEnv();
 
-    const res = await worker.fetch(get("/auth/callback?state=state-abc&code=abc"), env, ctx);
+    const res = await worker.fetch(
+      get("/auth/callback?state=state-abc&code=abc"),
+      env,
+      ctx,
+    );
     expect(res.status).toBe(200);
     expect(await res.text()).toContain("expired");
     expect(fetchSpy).not.toHaveBeenCalled();
@@ -238,14 +282,22 @@ describe("worker routes — /auth/callback", () => {
   it("denies when state does not match", async () => {
     const { env } = makeEnv();
     const token = await stateCookie();
-    const res = await worker.fetch(get("/auth/callback?state=WRONG&code=abc", cookieHeader(token)), env, ctx);
+    const res = await worker.fetch(
+      get("/auth/callback?state=WRONG&code=abc", cookieHeader(token)),
+      env,
+      ctx,
+    );
     expect(res.status).toBe(200);
     expect(await res.text()).toContain("expired");
   });
 
   it("renders a friendly page when Google returns error=access_denied", async () => {
     const { env } = makeEnv();
-    const res = await worker.fetch(get("/auth/callback?error=access_denied"), env, ctx);
+    const res = await worker.fetch(
+      get("/auth/callback?error=access_denied"),
+      env,
+      ctx,
+    );
     expect(res.status).toBe(200);
     expect(await res.text()).toContain("declined");
   });
@@ -255,17 +307,23 @@ describe("worker routes — /auth/callback", () => {
     const { env, calls } = makeEnv();
     const token = await stateCookie("/ccna2/exam/2");
 
-    const res = await worker.fetch(get("/auth/callback?state=state-abc&code=abc", cookieHeader(token)), env, ctx);
+    const res = await worker.fetch(
+      get("/auth/callback?state=state-abc&code=abc", cookieHeader(token)),
+      env,
+      ctx,
+    );
 
     expect(res.status).toBe(302);
     // auth=ok still marks "just back from sign-in"; the session itself rides in
     // the fragment, which is never sent to a server.
     const location = res.headers.get("location")!;
-    expect(location.startsWith(`${SITE_ORIGIN}/ccna2/exam/2?auth=ok#s=`)).toBe(true);
+    expect(location.startsWith(`${SITE_ORIGIN}/ccna2/exam/2?auth=ok#s=`)).toBe(
+      true,
+    );
 
     const payload = await verifyJwt<{ purpose?: string; user?: SessionUser }>(
       location.split("#s=")[1]!,
-      SECRET
+      SECRET,
     );
     expect(payload?.purpose).toBe(HANDOFF_PURPOSE);
     expect(payload?.user?.studentId).toBe("2401117078");
@@ -280,11 +338,17 @@ describe("worker routes — /auth/callback", () => {
   });
 
   it("rejects a non-Buksu identity with a 403 denied page", async () => {
-    stubTokenEndpoint({ id_token: idToken({ email: "someone@gmail.com", email_verified: true }) });
+    stubTokenEndpoint({
+      id_token: idToken({ email: "someone@gmail.com", email_verified: true }),
+    });
     const { env, calls } = makeEnv();
     const token = await stateCookie();
 
-    const res = await worker.fetch(get("/auth/callback?state=state-abc&code=abc", cookieHeader(token)), env, ctx);
+    const res = await worker.fetch(
+      get("/auth/callback?state=state-abc&code=abc", cookieHeader(token)),
+      env,
+      ctx,
+    );
 
     expect(res.status).toBe(403);
     expect(await res.text()).toContain("Buksu student");
@@ -295,7 +359,11 @@ describe("worker routes — /auth/callback", () => {
     stubTokenEndpoint({ id_token: idToken({ aud: "someone-elses-client" }) });
     const { env } = makeEnv();
     const token = await stateCookie();
-    const res = await worker.fetch(get("/auth/callback?state=state-abc&code=abc", cookieHeader(token)), env, ctx);
+    const res = await worker.fetch(
+      get("/auth/callback?state=state-abc&code=abc", cookieHeader(token)),
+      env,
+      ctx,
+    );
     expect(res.status).toBe(200);
     expect(await res.text()).toContain("bad_audience");
   });
@@ -307,7 +375,11 @@ describe("worker routes — /auth/callback", () => {
     (env as Env).DB = db;
     const token = await stateCookie();
 
-    const res = await worker.fetch(get("/auth/callback?state=state-abc&code=abc", cookieHeader(token)), env, ctx);
+    const res = await worker.fetch(
+      get("/auth/callback?state=state-abc&code=abc", cookieHeader(token)),
+      env,
+      ctx,
+    );
 
     expect(res.status).toBe(302);
     expect(readSetCookie(res, SESSION_COOKIE)).toBeTruthy();
@@ -324,8 +396,15 @@ describe("worker routes — session and logout", () => {
   it("returns the user for a valid session cookie", async () => {
     const { env } = makeEnv();
     const token = await createSessionToken(student, SECRET);
-    const res = await worker.fetch(get("/auth/session", { Cookie: `${SESSION_COOKIE}=${token}` }), env, ctx);
-    const body = (await res.json()) as { authenticated: boolean; user: { studentId: string; role: string } };
+    const res = await worker.fetch(
+      get("/auth/session", { Cookie: `${SESSION_COOKIE}=${token}` }),
+      env,
+      ctx,
+    );
+    const body = (await res.json()) as {
+      authenticated: boolean;
+      user: { studentId: string; role: string };
+    };
     expect(body.authenticated).toBe(true);
     expect(body.user.studentId).toBe("2401117078");
     expect(body.user.role).toBe("student");
@@ -335,15 +414,26 @@ describe("worker routes — session and logout", () => {
   it("ignores a token signed with the wrong secret", async () => {
     const { env } = makeEnv();
     const token = await createSessionToken(student, "attacker-secret");
-    const res = await worker.fetch(get("/auth/session", { Cookie: `${SESSION_COOKIE}=${token}` }), env, ctx);
+    const res = await worker.fetch(
+      get("/auth/session", { Cookie: `${SESSION_COOKIE}=${token}` }),
+      env,
+      ctx,
+    );
     expect(await res.json()).toEqual({ authenticated: false });
   });
 
   it("returns the user for a Bearer token", async () => {
     const { env } = makeEnv();
     const token = await createSessionToken(student, SECRET);
-    const res = await worker.fetch(get("/auth/session", bearer(token)), env, ctx);
-    const body = (await res.json()) as { authenticated: boolean; user: { studentId: string } };
+    const res = await worker.fetch(
+      get("/auth/session", bearer(token)),
+      env,
+      ctx,
+    );
+    const body = (await res.json()) as {
+      authenticated: boolean;
+      user: { studentId: string };
+    };
     expect(body.authenticated).toBe(true);
     expect(body.user.studentId).toBe("2401117078");
     expect(res.headers.get("cache-control")).toBe("no-store");
@@ -352,7 +442,11 @@ describe("worker routes — session and logout", () => {
   it("refuses a handoff token sent as a session", async () => {
     const { env } = makeEnv();
     const handoff = await createHandoffToken(student, SECRET);
-    const res = await worker.fetch(get("/auth/session", bearer(handoff)), env, ctx);
+    const res = await worker.fetch(
+      get("/auth/session", bearer(handoff)),
+      env,
+      ctx,
+    );
     expect(await res.json()).toEqual({ authenticated: false });
   });
 
@@ -365,7 +459,7 @@ describe("worker routes — session and logout", () => {
         headers: { Cookie: `${SESSION_COOKIE}=${token}` },
       }),
       env,
-      ctx
+      ctx,
     );
     expect(res.status).toBe(204);
     expect(res.headers.get("set-cookie")).toContain("Max-Age=0");
@@ -377,14 +471,21 @@ describe("worker routes — /auth/exchange", () => {
     const { env } = makeEnv();
     const handoff = await createHandoffToken(student, SECRET);
 
-    const res = await worker.fetch(post("/auth/exchange", { s: handoff }), env, ctx);
+    const res = await worker.fetch(
+      post("/auth/exchange", { s: handoff }),
+      env,
+      ctx,
+    );
 
     expect(res.status).toBe(200);
     const { token } = (await res.json()) as { token: string };
     expect(token).toBeTruthy();
 
     // The redeemed token is a real session, not another handoff.
-    const session = await verifyJwt<{ purpose?: string; studentId?: string }>(token, SECRET);
+    const session = await verifyJwt<{ purpose?: string; studentId?: string }>(
+      token,
+      SECRET,
+    );
     expect(session?.purpose).toBeUndefined();
     expect(session?.studentId).toBe("2401117078");
   });
@@ -412,38 +513,65 @@ describe("worker routes — /admin/users", () => {
   it("rejects a student with 403", async () => {
     const { env } = makeEnv();
     const token = await createSessionToken(sessionUser("student"), SECRET);
-    const res = await worker.fetch(get("/admin/users", { Cookie: `${SESSION_COOKIE}=${token}` }), env, ctx);
+    const res = await worker.fetch(
+      get("/admin/users", { Cookie: `${SESSION_COOKIE}=${token}` }),
+      env,
+      ctx,
+    );
     expect(res.status).toBe(403);
   });
 
   it("returns the roster for an admin", async () => {
-    const rows = [{ student_id: "2400000000", email: "2400000000@student.buksu.edu.ph" }];
+    const rows = [
+      { student_id: "2400000000", email: "2400000000@student.buksu.edu.ph" },
+    ];
     const { db } = makeDb({ rows });
     const { env } = makeEnv();
     (env as Env).DB = db;
     const token = await createSessionToken(sessionUser("admin"), SECRET);
 
-    const res = await worker.fetch(get("/admin/users", { Cookie: `${SESSION_COOKIE}=${token}` }), env, ctx);
+    const res = await worker.fetch(
+      get("/admin/users", { Cookie: `${SESSION_COOKIE}=${token}` }),
+      env,
+      ctx,
+    );
     expect(res.status).toBe(200);
     // The handler stamps the live role onto each row.
-    expect(await res.json()).toEqual({ users: rows.map((row) => ({ ...row, role: "admin" })) });
+    expect(await res.json()).toEqual({
+      users: rows.map((row) => ({ ...row, role: "admin" })),
+    });
   });
 
   it("labels a stale row as admin once ADMIN_EMAIL lists it", async () => {
     // Simulates a row written before the account was promoted: the stored role
     // is 'student', but the live config now includes it.
     const rows = [
-      { student_id: "2401115560", email: "2401115560@student.buksu.edu.ph", role: "student", login_count: 1 },
-      { student_id: "2401101397", email: "2401101397@student.buksu.edu.ph", role: "student", login_count: 1 },
+      {
+        student_id: "2401115560",
+        email: "2401115560@student.buksu.edu.ph",
+        role: "student",
+        login_count: 1,
+      },
+      {
+        student_id: "2401101397",
+        email: "2401101397@student.buksu.edu.ph",
+        role: "student",
+        login_count: 1,
+      },
     ];
     const { db } = makeDb({ rows });
     const { env } = makeEnv({
-      ADMIN_EMAIL: "2401117078@student.buksu.edu.ph,2401115560@student.buksu.edu.ph",
+      ADMIN_EMAIL:
+        "2401117078@student.buksu.edu.ph,2401115560@student.buksu.edu.ph",
     });
     (env as Env).DB = db;
     const token = await createSessionToken(sessionUser("admin"), SECRET);
 
-    const res = await worker.fetch(get("/admin/users", { Cookie: `${SESSION_COOKIE}=${token}` }), env, ctx);
+    const res = await worker.fetch(
+      get("/admin/users", { Cookie: `${SESSION_COOKIE}=${token}` }),
+      env,
+      ctx,
+    );
     const body = (await res.json()) as { users: { role: string }[] };
     expect(body.users.map((u) => u.role)).toEqual(["admin", "student"]);
   });

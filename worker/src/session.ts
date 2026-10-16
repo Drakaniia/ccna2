@@ -28,12 +28,16 @@ export interface SessionClaims extends SessionUser {
 function bytesToB64url(bytes: Uint8Array): string {
   let binary = "";
   for (const b of bytes) binary += String.fromCharCode(b);
-  return btoa(binary).replace(/\+/g, "-").replace(/\//g, "_").replace(/=+$/, "");
+  return btoa(binary)
+    .replace(/\+/g, "-")
+    .replace(/\//g, "_")
+    .replace(/=+$/, "");
 }
 
 function b64urlToBytes(value: string): Uint8Array {
   const padded = value.replace(/-/g, "+").replace(/_/g, "/");
-  const pad = padded.length % 4 === 0 ? "" : "=".repeat(4 - (padded.length % 4));
+  const pad =
+    padded.length % 4 === 0 ? "" : "=".repeat(4 - (padded.length % 4));
   const binary = atob(padded + pad);
   const bytes = new Uint8Array(binary.length);
   for (let i = 0; i < binary.length; i += 1) bytes[i] = binary.charCodeAt(i);
@@ -56,14 +60,15 @@ async function importKey(secret: string): Promise<CryptoKey> {
     encoder.encode(secret),
     { name: "HMAC", hash: "SHA-256" },
     false,
-    ["sign", "verify"]
+    ["sign", "verify"],
   );
 }
 
 function constantTimeEqual(a: string, b: string): boolean {
   if (a.length !== b.length) return false;
   let diff = 0;
-  for (let i = 0; i < a.length; i += 1) diff |= a.charCodeAt(i) ^ b.charCodeAt(i);
+  for (let i = 0; i < a.length; i += 1)
+    diff |= a.charCodeAt(i) ^ b.charCodeAt(i);
   return diff === 0;
 }
 
@@ -74,12 +79,16 @@ export async function signJwt(
   payload: Record<string, unknown>,
   secret: string,
   ttlSeconds: number,
-  now: number = Math.floor(Date.now() / 1000)
+  now: number = Math.floor(Date.now() / 1000),
 ): Promise<string> {
   const header = encodeSegment({ alg: "HS256", typ: "JWT" });
   const body = encodeSegment({ ...payload, iat: now, exp: now + ttlSeconds });
   const data = `${header}.${body}`;
-  const signature = await crypto.subtle.sign("HMAC", await importKey(secret), encoder.encode(data));
+  const signature = await crypto.subtle.sign(
+    "HMAC",
+    await importKey(secret),
+    encoder.encode(data),
+  );
   return `${data}.${bytesToB64url(new Uint8Array(signature))}`;
 }
 
@@ -87,7 +96,7 @@ export async function signJwt(
 export async function verifyJwt<T = Record<string, unknown>>(
   token: string,
   secret: string,
-  now: number = Math.floor(Date.now() / 1000)
+  now: number = Math.floor(Date.now() / 1000),
 ): Promise<(T & { iat: number; exp: number }) | null> {
   const parts = token.split(".");
   if (parts.length !== 3) return null;
@@ -96,9 +105,10 @@ export async function verifyJwt<T = Record<string, unknown>>(
     const expected = await crypto.subtle.sign(
       "HMAC",
       await importKey(secret),
-      encoder.encode(`${header}.${body}`)
+      encoder.encode(`${header}.${body}`),
     );
-    if (!constantTimeEqual(signature, bytesToB64url(new Uint8Array(expected)))) return null;
+    if (!constantTimeEqual(signature, bytesToB64url(new Uint8Array(expected))))
+      return null;
 
     const payload = decodeSegment<T & { iat: number; exp: number }>(body);
     if (typeof payload.exp !== "number" || payload.exp <= now) return null;
@@ -122,7 +132,7 @@ export async function verifyJwt<T = Record<string, unknown>>(
 export function createHandoffToken(
   user: SessionUser,
   secret: string,
-  now: number = Math.floor(Date.now() / 1000)
+  now: number = Math.floor(Date.now() / 1000),
 ): Promise<string> {
   return signJwt(
     {
@@ -138,7 +148,7 @@ export function createHandoffToken(
     },
     secret,
     HANDOFF_TTL_SECONDS,
-    now
+    now,
   );
 }
 
@@ -146,7 +156,7 @@ export function createHandoffToken(
 export function createSessionToken(
   user: SessionUser,
   secret: string,
-  now: number = Math.floor(Date.now() / 1000)
+  now: number = Math.floor(Date.now() / 1000),
 ): Promise<string> {
   return signJwt(
     {
@@ -159,7 +169,7 @@ export function createSessionToken(
     },
     secret,
     SESSION_TTL_SECONDS,
-    now
+    now,
   );
 }
 
@@ -171,9 +181,13 @@ export function createSessionToken(
 export async function verifySessionToken(
   token: string,
   secret: string,
-  now: number = Math.floor(Date.now() / 1000)
+  now: number = Math.floor(Date.now() / 1000),
 ): Promise<SessionClaims | null> {
-  const claims = await verifyJwt<SessionClaims & { purpose?: string }>(token, secret, now);
+  const claims = await verifyJwt<SessionClaims & { purpose?: string }>(
+    token,
+    secret,
+    now,
+  );
   if (!claims || claims.purpose !== undefined) return null;
   return claims;
 }
@@ -189,7 +203,11 @@ export interface CookieOptions {
 }
 
 /** Serialise one Set-Cookie header value. */
-export function serializeCookie(name: string, value: string, opts: CookieOptions = {}): string {
+export function serializeCookie(
+  name: string,
+  value: string,
+  opts: CookieOptions = {},
+): string {
   const parts = [`${name}=${value}`];
   parts.push(`Path=${opts.path ?? "/"}`);
   if (opts.httpOnly !== false) parts.push("HttpOnly");
@@ -200,7 +218,9 @@ export function serializeCookie(name: string, value: string, opts: CookieOptions
 }
 
 /** Parse a Cookie request header into a name → value map. */
-export function parseCookieHeader(header: string | null | undefined): Record<string, string> {
+export function parseCookieHeader(
+  header: string | null | undefined,
+): Record<string, string> {
   const out: Record<string, string> = {};
   if (!header) return out;
   for (const pair of header.split(";")) {
@@ -214,7 +234,11 @@ export function parseCookieHeader(header: string | null | undefined): Record<str
 }
 
 /** Session cookie with the cross-site flags production needs, but dev-friendly. */
-export function sessionCookie(value: string, secure: boolean, maxAge?: number): string {
+export function sessionCookie(
+  value: string,
+  secure: boolean,
+  maxAge?: number,
+): string {
   return serializeCookie(SESSION_COOKIE, value, {
     httpOnly: true,
     secure,

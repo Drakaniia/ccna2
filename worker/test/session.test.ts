@@ -37,7 +37,9 @@ describe("session token", () => {
   it("rejects a tampered payload", async () => {
     const token = await createSessionToken(user, SECRET);
     const [header, , signature] = token.split(".");
-    const forged = `${header}.${btoa(JSON.stringify({ email: "attacker@example.com" }))
+    const forged = `${header}.${btoa(
+      JSON.stringify({ email: "attacker@example.com" }),
+    )
       .replace(/\+/g, "-")
       .replace(/\//g, "_")
       .replace(/=+$/, "")}.${signature}`;
@@ -47,7 +49,9 @@ describe("session token", () => {
   it("rejects a tampered signature", async () => {
     const token = await createSessionToken(user, SECRET);
     const last = token.slice(-1) === "A" ? "B" : "A";
-    expect(await verifySessionToken(token.slice(0, -1) + last, SECRET)).toBeNull();
+    expect(
+      await verifySessionToken(token.slice(0, -1) + last, SECRET),
+    ).toBeNull();
   });
 
   it("rejects a token signed with a different secret", async () => {
@@ -58,7 +62,9 @@ describe("session token", () => {
   it("rejects an expired token", async () => {
     const now = 1_700_000_000;
     const token = await createSessionToken(user, SECRET, now);
-    expect(await verifySessionToken(token, SECRET, now + SESSION_TTL_SECONDS + 1)).toBeNull();
+    expect(
+      await verifySessionToken(token, SECRET, now + SESSION_TTL_SECONDS + 1),
+    ).toBeNull();
   });
 
   it("rejects a malformed token", async () => {
