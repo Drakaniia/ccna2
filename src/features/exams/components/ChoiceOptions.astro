@@ -147,6 +147,39 @@
     font-size: 13px;
     line-height: 1.5;
   }
+
+  /* An option label is allowed to shrink and wrap; without this a long command
+     or interface name would widen the list past the viewport. */
+  .option span {
+    min-width: 0;
+    overflow-wrap: anywhere;
+  }
+
+  /* Phone widths: the desktop padding (27px) and gap (29px) are two thirds of
+     the available 390px between them, so both give way. The 44px+ tap target is
+     untouched — this only moves the content inward. */
+  @media (max-width: 560px) {
+    .option {
+      padding: 12px 14px;
+      gap: 12px;
+      min-height: 56px;
+    }
+
+    .option.code-option {
+      padding-top: 12px;
+      padding-bottom: 12px;
+    }
+
+    .option.code-option span {
+      font-size: 12.5px;
+    }
+
+    /* The corner tick shrinks with the row so it never covers the text. */
+    .option.selected:after {
+      width: 28px;
+      height: 28px;
+    }
+  }
 </style>
 
 <script>

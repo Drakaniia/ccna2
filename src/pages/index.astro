@@ -12,7 +12,7 @@ const abs = (p: string) => `${import.meta.env.BASE_URL.replace(/\/?$/, "/")}${p}
 <html lang="en">
   <head>
     <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
     <script is:inline>
       (function () {
         try {
@@ -26,6 +26,9 @@ const abs = (p: string) => `${import.meta.env.BASE_URL.replace(/\/?$/, "/")}${p}
     </script>
     <link rel="icon" type="image/svg+xml" href={abs("favicon.svg")} />
     <link rel="icon" href={abs("favicon.ico")} />
+    <link rel="apple-touch-icon" href={abs("icons/apple-touch-icon.png")} />
+    <link rel="manifest" href={abs("manifest.webmanifest")} />
+    <meta name="theme-color" content="#4d9838" />
     <meta name="description" content="CCNA 2 v7 (SRWE) practice exams — module checkpoint quizzes." />
     <title>CCNA 2 v7 Practice Exams</title>
   </head>
@@ -71,6 +74,16 @@ const abs = (p: string) => `${import.meta.env.BASE_URL.replace(/\/?$/, "/")}${p}
       </footer>
     </div>
     <FollowModal />
+
+    <script>
+      import { captureInstallPrompt, registerServiceWorker } from "../features/pwa/pwa-client";
+
+      // The chooser is usually the first page a visitor sees, so it is where
+      // the install prompt has to be caught — the event fires once, long before
+      // anyone opens the settings modal that offers the button.
+      captureInstallPrompt();
+      registerServiceWorker();
+    </script>
   </body>
 </html>
 
@@ -177,7 +190,7 @@ const abs = (p: string) => `${import.meta.env.BASE_URL.replace(/\/?$/, "/")}${p}
 
   .site-credit {
     position: fixed;
-    bottom: 14px;
-    right: 18px;
+    bottom: calc(14px + env(safe-area-inset-bottom, 0px));
+    right: calc(18px + env(safe-area-inset-right, 0px));
   }
 </style>

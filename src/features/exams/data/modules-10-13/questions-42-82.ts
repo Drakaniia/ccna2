@@ -305,7 +305,14 @@ export const questions42to82: Question[] = [
     type: "multi",
     text: "What two IEEE 802.11 wireless standards operate only in the 5 GHz range? (Choose two.)",
     choose: 2,
-    options: ["802.11g", "802.11ad", "802.11ac", "802.11a", "802.11n", "802.11b"],
+    options: [
+      "802.11g",
+      "802.11ad",
+      "802.11ac",
+      "802.11a",
+      "802.11n",
+      "802.11b",
+    ],
     correct: [2, 3],
     explanation:
       "Explanation: Topic 12.1.4\nThe 802.11a and 802.11ac standards operate only in the 5 GHZ range. The 802.11b and 802.11g standards operate only in the 2.4 GHz range. The 802.11n standard operates in both the 2.4 and 5 GHz ranges. The 802.11ad standard operates in the 2.4, 5, and 60 GHz ranges.",
@@ -467,7 +474,7 @@ export const questions42to82: Question[] = [
     ],
     correct: [0, 2],
     explanation:
-      "Explanation: Topic 13.4.3\nThe \"split-the-traffic\" approach optimizes wireless performance by using the 2.4 GHz and 5 GHz bands as two separate networks to manage data flow more effectively. In this configuration, the 5 GHz band is dedicated to high-bandwidth, time-sensitive traffic like streaming multimedia because it is less crowded and has more interference-free channels, while the 2.4 GHz band is used for basic, non-time-sensitive tasks such as web browsing and email.",
+      'Explanation: Topic 13.4.3\nThe "split-the-traffic" approach optimizes wireless performance by using the 2.4 GHz and 5 GHz bands as two separate networks to manage data flow more effectively. In this configuration, the 5 GHz band is dedicated to high-bandwidth, time-sensitive traffic like streaming multimedia because it is less crowded and has more interference-free channels, while the 2.4 GHz band is used for basic, non-time-sensitive tasks such as web browsing and email.',
   },
   {
     number: 82,

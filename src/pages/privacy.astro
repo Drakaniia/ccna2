@@ -10,7 +10,10 @@ const updated = "28 September 2026";
 <html lang="en">
   <head>
     <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <link rel="apple-touch-icon" href={`${SITE_BASE}/icons/apple-touch-icon.png`} />
+    <link rel="manifest" href={`${SITE_BASE}/manifest.webmanifest`} />
+    <meta name="theme-color" content="#4d9838" />
     <script is:inline>
       (function () {
         try {
@@ -30,6 +33,12 @@ const updated = "28 September 2026";
     />
   </head>
   <body>
+    <script>
+      import { registerServiceWorker } from "../features/pwa/pwa-client";
+
+      registerServiceWorker();
+    </script>
+
     <main class="policy">
       <span class="policy-kicker">CCNA 2 v7 — SRWE Practice Exams</span>
       <h1>Privacy policy</h1>

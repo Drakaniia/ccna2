@@ -43,8 +43,12 @@ export interface RuleResult {
 /** Read rule configuration out of the Worker environment. */
 export function configFromEnv(env: Env): RuleConfig {
   return {
-    allowedEmailDomain: (env.ALLOWED_EMAIL_DOMAIN || "student.buksu.edu.ph").trim().toLowerCase(),
-    allowedHdDomains: (env.ALLOWED_HD_DOMAINS || "student.buksu.edu.ph,buksu.edu.ph")
+    allowedEmailDomain: (env.ALLOWED_EMAIL_DOMAIN || "student.buksu.edu.ph")
+      .trim()
+      .toLowerCase(),
+    allowedHdDomains: (
+      env.ALLOWED_HD_DOMAINS || "student.buksu.edu.ph,buksu.edu.ph"
+    )
       .split(",")
       .map((d) => d.trim().toLowerCase())
       .filter(Boolean),
@@ -72,7 +76,10 @@ function emailLocalPart(email: string): string {
  * Evaluate a decoded Google identity against the admission rules.
  * Pure and synchronous — pass a clock-free set of claims.
  */
-export function evaluateIdentity(claims: GoogleClaims, config: RuleConfig): RuleResult {
+export function evaluateIdentity(
+  claims: GoogleClaims,
+  config: RuleConfig,
+): RuleResult {
   const raw = typeof claims.email === "string" ? claims.email : "";
   const email = raw.trim().toLowerCase();
 
@@ -103,7 +110,8 @@ export function evaluateIdentity(claims: GoogleClaims, config: RuleConfig): Rule
   }
 
   // Rule 4 — tolerated Workspace hosted-domain claim.
-  const hd = typeof claims.hd === "string" ? claims.hd.trim().toLowerCase() : "";
+  const hd =
+    typeof claims.hd === "string" ? claims.hd.trim().toLowerCase() : "";
   if (hd && !config.allowedHdDomains.includes(hd)) {
     return { allowed: false, reason: "wrong_hd", role: "student" };
   }

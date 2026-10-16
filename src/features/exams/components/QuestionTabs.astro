@@ -2,6 +2,13 @@
 import { ChevronLeftIcon, ChevronRightIcon } from "./lucide-icons.tsx";
 ---
 
+<!--
+  The sentinel is a zero-height probe parked directly above the strip. Once the
+  strip pins, this scrolls past the viewport top, which is what tells the
+  observer the strip is stuck (see the script below).
+-->
+<div class="quiz-nav-sentinel" id="quizNavSentinel" aria-hidden="true"></div>
+
 <div class="quiz-nav">
   <button type="button" class="nav-arrow left" id="navLeft" aria-label="Scroll tabs left">
     <ChevronLeftIcon size={32} strokeWidth={1.4} />
@@ -12,8 +19,47 @@ import { ChevronLeftIcon, ChevronRightIcon } from "./lucide-icons.tsx";
   </button>
 </div>
 
+<script>
+  /**
+   * The strip is `position: sticky`, so it stays put while the question scrolls
+   * under it — but a pinned strip with a flat 1px border reads as a slice cut
+   * across the content rather than a surface floating above it. A shadow that
+   * appears only while stuck gives that edge depth, and fades back out on the
+   * way down so the strip settles into the page again.
+   *
+   * A sentinel does the detecting: `IntersectionObserver` on the strip itself
+   * cannot tell "stuck" from "not yet scrolled to", because the strip is inside
+   * the viewport either way. A zero-height probe just above it has no such
+   * ambiguity — it is on screen until the strip pins, then leaves.
+   */
+  function main(): void {
+    const nav = document.querySelector<HTMLElement>(".quiz-nav");
+    const sentinel = document.getElementById("quizNavSentinel");
+    if (!nav || !sentinel) return;
+    if (sentinel.dataset.watched === "1") return;
+    sentinel.dataset.watched = "1";
+
+    // A 1px negative top margin collapses the sentinel to the strip's own top
+    // edge, so the class flips on the frame the strip actually pins.
+    const io = new IntersectionObserver(
+      ([entry]) => {
+        nav.classList.toggle("is-stuck", !entry.isIntersecting);
+      },
+      { rootMargin: "-1px 0px 0px 0px", threshold: 0 },
+    );
+    io.observe(sentinel);
+  }
+
+  main();
+</script>
+
 <style is:global>
   /* Question tab strip — tab buttons are built client-side, so the rules are global. */
+  /* Zero-height probe above the strip — never painted, only observed. */
+  .quiz-nav-sentinel {
+    height: 0;
+  }
+
   .quiz-nav {
     height: 92px;
     border-bottom: 1px solid #ddd;
@@ -21,8 +67,36 @@ import { ChevronLeftIcon, ChevronRightIcon } from "./lucide-icons.tsx";
     align-items: flex-end;
     padding: 0 34px 9px;
     gap: 10px;
-    position: relative;
+    /* Sticky, not fixed: the strip pins within `.app`'s flow and scrolls away
+       with it at the end of the page. `z-index` clears the fixed footer (2) and
+       progress chip (3) while staying under the result overlay (60) and the
+       modals (320+). */
+    position: sticky;
+    top: 0;
+    z-index: 4;
     background: #fafafa;
+    /* Opaque already, so question content passing underneath is hidden rather
+       than showing through the strip. */
+    transition: box-shadow 200ms ease;
+  }
+
+  /* Depth on the scroll edge. Present only while pinned, so the strip looks
+     flush with the page when it is still in normal flow. */
+  .quiz-nav.is-stuck {
+    box-shadow: 0 6px 18px -8px rgba(0, 0, 0, 0.3);
+  }
+
+  html[data-theme="dark"] .quiz-nav.is-stuck {
+    /* Lower alpha: a strong black shadow muddies against the dark surface. */
+    box-shadow: 0 6px 18px -8px rgba(0, 0, 0, 0.55);
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    /* Reduced motion is not "no feedback" — the shadow still marks the stuck
+       state, it only stops fading between the two. */
+    .quiz-nav {
+      transition: none;
+    }
   }
 
   .quiz-nav .tabs {
@@ -44,31 +118,44 @@ import { ChevronLeftIcon, ChevronRightIcon } from "./lucide-icons.tsx";
     height: 0;
   }
 
+  /*
+   * A 44px touch target around the same 32px chevron. Only the hit area grows:
+   * a centred 32px icon in a 44px box starts 6px in, which is exactly where it
+   * started in the old 34px box, so the chevrons do not move. Only the box's
+   * outer edge grows, which is why `.quiz-nav`'s padding has to clear it —
+   * otherwise the left arrow sits on top of the first tab at phone widths.
+   */
   .nav-arrow {
     position: absolute;
-    bottom: 12px;
+    bottom: 6px;
     display: grid;
     place-items: center;
-    width: 34px;
-    height: 34px;
+    width: 44px;
+    height: 44px;
     cursor: pointer;
     border: 0;
     background: none;
     color: inherit;
     padding: 0;
     z-index: 2;
+    border-radius: 50%;
+    -webkit-tap-highlight-color: transparent;
   }
 
   .nav-arrow svg {
     display: block;
   }
 
+  .nav-arrow:active {
+    background: rgba(0, 0, 0, 0.06);
+  }
+
   .nav-arrow.left {
-    left: 5px;
+    left: 0;
   }
 
   .nav-arrow.right {
-    right: 10px;
+    right: 5px;
   }
 
   .qtab {
@@ -123,11 +210,17 @@ import { ChevronLeftIcon, ChevronRightIcon } from "./lucide-icons.tsx";
   @media (max-width: 800px) {
     .quiz-nav {
       height: 70px;
-      padding: 0 20px 6px;
+      /* Wide enough that the strip begins where the 44px arrow ends, so the
+         first tab is never under it. */
+      padding: 0 44px 6px;
     }
 
     .nav-arrow {
-      bottom: 9px;
+      bottom: 4px;
     }
+  }
+
+  html[data-theme="dark"] .nav-arrow:active {
+    background: rgba(255, 255, 255, 0.1);
   }
 </style>

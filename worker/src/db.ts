@@ -27,7 +27,10 @@ export interface UpsertIdentity {
  * Insert or refresh a roster row, keyed on email so a re-created Google
  * account keeps a single row (spec §7). Callers treat failures as fail-open.
  */
-export async function upsertUser(db: D1Database, identity: UpsertIdentity): Promise<void> {
+export async function upsertUser(
+  db: D1Database,
+  identity: UpsertIdentity,
+): Promise<void> {
   const now = new Date().toISOString();
   await db
     .prepare(
@@ -44,7 +47,7 @@ export async function upsertUser(db: D1Database, identity: UpsertIdentity): Prom
          role          = excluded.role,
          login_count   = users.login_count + 1,
          last_login_at = excluded.last_login_at,
-         updated_at    = excluded.updated_at`
+         updated_at    = excluded.updated_at`,
     )
     .bind(
       identity.sub,
@@ -55,7 +58,7 @@ export async function upsertUser(db: D1Database, identity: UpsertIdentity): Prom
       identity.familyName ?? null,
       identity.picture ?? null,
       identity.role,
-      now
+      now,
     )
     .run();
 }
@@ -67,7 +70,7 @@ export async function listUsers(db: D1Database): Promise<RosterRow[]> {
       `SELECT student_id, email, name, picture, role, login_count,
               first_login_at, last_login_at
          FROM users
-        ORDER BY last_login_at DESC`
+        ORDER BY last_login_at DESC`,
     )
     .all<RosterRow>();
   return result.results ?? [];

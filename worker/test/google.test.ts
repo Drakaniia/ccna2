@@ -6,18 +6,26 @@ function b64urlText(text: string): string {
   const bytes = new TextEncoder().encode(text);
   let binary = "";
   for (const b of bytes) binary += String.fromCharCode(b);
-  return btoa(binary).replace(/\+/g, "-").replace(/\//g, "_").replace(/=+$/, "");
+  return btoa(binary)
+    .replace(/\+/g, "-")
+    .replace(/\//g, "_")
+    .replace(/=+$/, "");
 }
 
 function token(payload: unknown): string {
   return `${b64urlText(JSON.stringify({ alg: "RS256", typ: "JWT" }))}.${b64urlText(
-    JSON.stringify(payload)
+    JSON.stringify(payload),
   )}.not-a-real-signature`;
 }
 
 describe("decodeIdToken", () => {
   it("decodes multi-byte UTF-8 claims instead of mojibake", () => {
-    const claims = decodeIdToken(token({ email: "2401117078@student.buksu.edu.ph", name: "Alistair Ybañez" }));
+    const claims = decodeIdToken(
+      token({
+        email: "2401117078@student.buksu.edu.ph",
+        name: "Alistair Ybañez",
+      }),
+    );
     expect(claims?.name).toBe("Alistair Ybañez");
   });
 
@@ -27,7 +35,9 @@ describe("decodeIdToken", () => {
   });
 
   it("round-trips ASCII claims unchanged", () => {
-    expect(decodeIdToken(token({ name: "Juan Dela Cruz" }))?.name).toBe("Juan Dela Cruz");
+    expect(decodeIdToken(token({ name: "Juan Dela Cruz" }))?.name).toBe(
+      "Juan Dela Cruz",
+    );
   });
 
   it("returns null for malformed tokens", () => {
@@ -45,12 +55,16 @@ describe("buildAuthorizeUrl", () => {
         redirectUri: "https://worker.example/auth/callback",
         state: "state-value",
         codeChallenge: "challenge-value",
-      })
+      }),
     );
-    expect(url.origin + url.pathname).toBe("https://accounts.google.com/o/oauth2/v2/auth");
+    expect(url.origin + url.pathname).toBe(
+      "https://accounts.google.com/o/oauth2/v2/auth",
+    );
     expect(url.searchParams.get("scope")).toBe("openid email profile");
     expect(url.searchParams.get("code_challenge_method")).toBe("S256");
-    expect(url.searchParams.get("redirect_uri")).toBe("https://worker.example/auth/callback");
+    expect(url.searchParams.get("redirect_uri")).toBe(
+      "https://worker.example/auth/callback",
+    );
     expect(url.searchParams.get("prompt")).toBe("select_account");
   });
 });
@@ -62,10 +76,16 @@ describe("generatePkce", () => {
     expect(challenge).toMatch(/^[A-Za-z0-9_-]+$/);
 
     // The challenge must be the base64url SHA-256 of the verifier.
-    const digest = await crypto.subtle.digest("SHA-256", new TextEncoder().encode(verifier));
+    const digest = await crypto.subtle.digest(
+      "SHA-256",
+      new TextEncoder().encode(verifier),
+    );
     let binary = "";
     for (const b of new Uint8Array(digest)) binary += String.fromCharCode(b);
-    const expected = btoa(binary).replace(/\+/g, "-").replace(/\//g, "_").replace(/=+$/, "");
+    const expected = btoa(binary)
+      .replace(/\+/g, "-")
+      .replace(/\//g, "_")
+      .replace(/=+$/, "");
     expect(challenge).toBe(expected);
   });
 

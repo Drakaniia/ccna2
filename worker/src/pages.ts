@@ -39,7 +39,10 @@ const STYLE = `
     min-height: 100vh;
     display: grid;
     place-items: center;
-    padding: 32px 18px;
+    /* Covers the notch and the home indicator on a phone: these pages are
+       rendered by the Worker, so they get no layout from the static site. */
+    padding: calc(32px + env(safe-area-inset-top, 0px)) calc(18px + env(safe-area-inset-right, 0px))
+      calc(32px + env(safe-area-inset-bottom, 0px)) calc(18px + env(safe-area-inset-left, 0px));
     font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
     background: #f4f7f4;
     color: #17211b;
@@ -97,7 +100,7 @@ function layout(title: string, body: string): string {
 <html lang="en">
 <head>
   <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
   <meta name="robots" content="noindex" />
   <title>${esc(title)}</title>
   <style>${STYLE}</style>
@@ -111,7 +114,11 @@ function layout(title: string, body: string): string {
 /* ---------------------------------- pages --------------------------------- */
 
 /** "Buksu account required" page (spec §4 rejection UX). */
-export function deniedPage(env: Env, message: string, redirect: string | null): string {
+export function deniedPage(
+  env: Env,
+  message: string,
+  redirect: string | null,
+): string {
   const retry = loginUrl(env, redirect);
   return layout(
     "Buksu account required",
@@ -129,12 +136,17 @@ export function deniedPage(env: Env, message: string, redirect: string | null): 
       <a class="btn btn-primary" href="${esc(retry)}">Try another account</a>
       <a class="btn btn-ghost" href="${esc(siteUrl(env))}">Back to home</a>
     </div>
-    <p class="foot">Signed in with the wrong account? Choose “Try another account” and pick a different Google login.</p>`
+    <p class="foot">Signed in with the wrong account? Choose “Try another account” and pick a different Google login.</p>`,
   );
 }
 
 /** Generic failure page (state mismatch, Google error, unexpected exception). */
-export function errorPage(env: Env, title: string, message: string, redirect: string | null = null): string {
+export function errorPage(
+  env: Env,
+  title: string,
+  message: string,
+  redirect: string | null = null,
+): string {
   const retry = loginUrl(env, redirect);
   return layout(
     title,
@@ -145,7 +157,7 @@ export function errorPage(env: Env, title: string, message: string, redirect: st
     <div class="actions">
       <a class="btn btn-primary" href="${esc(retry)}">Try signing in again</a>
       <a class="btn btn-ghost" href="${esc(siteUrl(env))}">Back to home</a>
-    </div>`
+    </div>`,
   );
 }
 

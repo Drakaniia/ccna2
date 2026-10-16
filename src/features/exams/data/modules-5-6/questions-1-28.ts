@@ -6,12 +6,7 @@ export const questions1to28: Question[] = [
     number: 1,
     type: "single",
     text: "What additional information is contained in the 12-bit extended system ID of a BPDU?",
-    options: [
-      "MAC address",
-      "VLAN ID",
-      "IP address",
-      "port ID",
-    ],
+    options: ["MAC address", "VLAN ID", "IP address", "port ID"],
     correct: [1],
     explanation:
       "Explanation: Topic 5.2.1\nThe bridge ID is made up of the bridge priority, the extended system ID, and the MAC address. With PVST, the 12-bit extended system ID field carries the VLAN ID, which is what allows a switch to run a separate spanning-tree instance for each VLAN.",
@@ -19,8 +14,7 @@ export const questions1to28: Question[] = [
   {
     number: 2,
     type: "single",
-    text:
-      "During the implementation of Spanning Tree Protocol, all switches are rebooted by the network administrator. What is the first step of the spanning-tree election process?",
+    text: "During the implementation of Spanning Tree Protocol, all switches are rebooted by the network administrator. What is the first step of the spanning-tree election process?",
     options: [
       "Each switch with a lower root ID than its neighbor will not send BPDUs.",
       "All the switches send out BPDUs advertising themselves as the root bridge.",
@@ -34,14 +28,8 @@ export const questions1to28: Question[] = [
   {
     number: 3,
     type: "single",
-    text:
-      "Which STP port role is adopted by a switch port if there is no other port with a lower cost to the root bridge?",
-    options: [
-      "designated port",
-      "root port",
-      "alternate",
-      "disabled port",
-    ],
+    text: "Which STP port role is adopted by a switch port if there is no other port with a lower cost to the root bridge?",
+    options: ["designated port", "root port", "alternate", "disabled port"],
     correct: [1],
     explanation:
       "Explanation: Topic 5.2.5\nThe root port is the port with the lowest cost to reach the root bridge.",
@@ -49,8 +37,7 @@ export const questions1to28: Question[] = [
   {
     number: 4,
     type: "multi",
-    text:
-      "Which two concepts relate to a switch port that is intended to have only end devices attached and intended never to be used to connect to another switch? (Choose two.)",
+    text: "Which two concepts relate to a switch port that is intended to have only end devices attached and intended never to be used to connect to another switch? (Choose two.)",
     options: [
       "bridge ID",
       "edge port",
@@ -98,11 +85,7 @@ export const questions1to28: Question[] = [
         height: 364,
       },
     ],
-    left: [
-      "Rapid PVST+",
-      "STP",
-      "MSTP",
-    ],
+    left: ["Rapid PVST+", "STP", "MSTP"],
     right: [
       "a Cisco enhancement of RSTP to provide a spanning-tree instance for each VLAN",
       "the legacy standard for STP that runs all VLANs in a single spanning-tree instance",
@@ -111,20 +94,13 @@ export const questions1to28: Question[] = [
     ],
     correctPairs: { 0: 0, 1: 1, 2: 2 },
     explanation:
-      "Explanation: Topic 5.3.1\nThe correct pairings are:\n- Rapid PVST+ → a Cisco enhancement of RSTP to provide a spanning-tree instance for each VLAN\n- STP → the legacy standard for STP that runs all VLANs in a single spanning-tree instance\n- MSTP → a protocol that allows multiple VLANs to run in a single spanning-tree instance\nThe description \"an evolution of STP that provides faster convergence\" refers to RSTP and is not used.",
+      'Explanation: Topic 5.3.1\nThe correct pairings are:\n- Rapid PVST+ → a Cisco enhancement of RSTP to provide a spanning-tree instance for each VLAN\n- STP → the legacy standard for STP that runs all VLANs in a single spanning-tree instance\n- MSTP → a protocol that allows multiple VLANs to run in a single spanning-tree instance\nThe description "an evolution of STP that provides faster convergence" refers to RSTP and is not used.',
   },
   {
     number: 7,
     type: "multi",
-    text:
-      "In which two port states does a switch learn MAC addresses and process BPDUs in a PVST network? (Choose two.)",
-    options: [
-      "disabled",
-      "forwarding",
-      "listening",
-      "blocking",
-      "learning",
-    ],
+    text: "In which two port states does a switch learn MAC addresses and process BPDUs in a PVST network? (Choose two.)",
+    options: ["disabled", "forwarding", "listening", "blocking", "learning"],
     correct: [1, 4],
     choose: 2,
     explanation:
@@ -133,8 +109,7 @@ export const questions1to28: Question[] = [
   {
     number: 8,
     type: "single",
-    text:
-      "If no bridge priority is configured in PVST, which criteria is considered when electing the root bridge?",
+    text: "If no bridge priority is configured in PVST, which criteria is considered when electing the root bridge?",
     options: [
       "lowest MAC address",
       "lowest IP address",
@@ -161,13 +136,7 @@ export const questions1to28: Question[] = [
       "IEEE standard that reduces the number of STP instances",
       "Proprietary per VLAN implementation of IEEE 802.1w",
     ],
-    right: [
-      "PVST+",
-      "RSTP",
-      "MSTP",
-      "MST",
-      "Rapid PVST+",
-    ],
+    right: ["PVST+", "RSTP", "MSTP", "MST", "Rapid PVST+"],
     correctPairs: { 0: 0, 1: 1, 2: 2, 3: 4 },
     explanation:
       "Explanation: Topic 5.3.1\nThe correct pairings are:\n- PVST+ → Cisco implementation of IEEE 802.1D\n- RSTP → fast converging enhancement of IEEE 802.1D\n- MSTP → IEEE standard that reduces the number of STP instances\n- Rapid PVST+ → proprietary per VLAN implementation of IEEE 802.1w\nThe option MST is not used.",
@@ -175,15 +144,8 @@ export const questions1to28: Question[] = [
   {
     number: 10,
     type: "multi",
-    text:
-      "When the show spanning-tree vlan 33 command is issued on a switch, three ports are shown in the forwarding state. In which two port roles could these interfaces function while in the forwarding state? (Choose two.)",
-    options: [
-      "alternate",
-      "designated",
-      "disabled",
-      "blocked",
-      "root",
-    ],
+    text: "When the show spanning-tree vlan 33 command is issued on a switch, three ports are shown in the forwarding state. In which two port roles could these interfaces function while in the forwarding state? (Choose two.)",
+    options: ["alternate", "designated", "disabled", "blocked", "root"],
     correct: [1, 4],
     choose: 2,
     explanation:
@@ -220,14 +182,8 @@ export const questions1to28: Question[] = [
   {
     number: 13,
     type: "single",
-    text:
-      "Which spanning tree standard supports only one root bridge so that traffic from all VLANs flows over the same path?",
-    options: [
-      "PVST+",
-      "802.1D",
-      "MST",
-      "Rapid PVST",
-    ],
+    text: "Which spanning tree standard supports only one root bridge so that traffic from all VLANs flows over the same path?",
+    options: ["PVST+", "802.1D", "MST", "Rapid PVST"],
     correct: [1],
     explanation:
       "Explanation: Topic 5.3.1\nMST is the Cisco implementation of MSTP, an IEEE standard protocol that provides up to 16 instances of RSTP. PVST+ provides a separate 802.1D spanning-tree instance for each VLAN that is configured in the network. 802.1D is the original STP standard defined by the IEEE and allows for only one root bridge for all VLANs. 802.1w, or RSTP, provides faster convergence but still uses only one STP instance for all VLANs.",
@@ -250,8 +206,7 @@ export const questions1to28: Question[] = [
   {
     number: 15,
     type: "single",
-    text:
-      "What is the value used to determine which port on a non-root bridge will become a root port in a STP network?",
+    text: "What is the value used to determine which port on a non-root bridge will become a root port in a STP network?",
     options: [
       "the path cost",
       "the highest MAC address of all the ports in the switch",
@@ -265,20 +220,14 @@ export const questions1to28: Question[] = [
   {
     number: 16,
     type: "single",
-    text:
-      "Refer to the exhibit. Which switch will be the root bridge after the election process is complete?",
+    text: "Refer to the exhibit. Which switch will be the root bridge after the election process is complete?",
     exhibit: {
       src: "/images/modules-5-6/q16-exhibit.png",
       alt: "Exhibit for question 16: switch topology used to elect the STP root bridge",
       width: 496,
       height: 382,
     },
-    options: [
-      "S1",
-      "S2",
-      "S3",
-      "S4",
-    ],
+    options: ["S1", "S2", "S3", "S4"],
     correct: [1],
     explanation:
       "Explanation: Topic 5.2.2\nThe root bridge is determined by the lowest bridge ID, which consists of the priority value and the MAC address. Because the priority values of all of the switches are identical, the MAC address is used to determine the root bridge. Because S2 has the lowest MAC address, S2 becomes the root bridge.",
@@ -286,8 +235,7 @@ export const questions1to28: Question[] = [
   {
     number: 17,
     type: "multi",
-    text:
-      "What are two drawbacks to turning spanning tree off and having multiple paths through the Layer 2 switch network? (Choose two.)",
+    text: "What are two drawbacks to turning spanning tree off and having multiple paths through the Layer 2 switch network? (Choose two.)",
     options: [
       "The MAC address table becomes unstable.",
       "The switch acts like a hub.",
@@ -303,15 +251,8 @@ export const questions1to28: Question[] = [
   {
     number: 18,
     type: "single",
-    text:
-      "A small company network has six interconnected Layer 2 switches. Currently all switches are using the default bridge priority value. Which value can be used to configure the bridge priority of one of the switches to ensure that it becomes the root bridge in this design?",
-    options: [
-      "1",
-      "28672",
-      "32768",
-      "34816",
-      "61440",
-    ],
+    text: "A small company network has six interconnected Layer 2 switches. Currently all switches are using the default bridge priority value. Which value can be used to configure the bridge priority of one of the switches to ensure that it becomes the root bridge in this design?",
+    options: ["1", "28672", "32768", "34816", "61440"],
     correct: [1],
     explanation:
       "Explanation: Topic 5.2.1\nThe default bridge priority value for all Cisco switches is 32768. The range is 0 to 61440 in increments of 4096. Thus, the values 1 and 34816 are invalid. Configuring one switch with the lower value of 28672 (and leaving the bridge priority value of all other switches unchanged) will make the switch become the root bridge.",
@@ -319,12 +260,10 @@ export const questions1to28: Question[] = [
   {
     number: 19,
     type: "single",
-    text:
-      "Refer to the exhibit. The administrator tried to create an EtherChannel between S1 and the other two switches via the commands that are shown, but was unsuccessful. What is the problem?",
+    text: "Refer to the exhibit. The administrator tried to create an EtherChannel between S1 and the other two switches via the commands that are shown, but was unsuccessful. What is the problem?",
     exhibit: {
       src: "/images/modules-5-6/q19-exhibit.png",
-      alt:
-        "Exhibit for question 19: EtherChannel commands issued between S1 and two other switches",
+      alt: "Exhibit for question 19: EtherChannel commands issued between S1 and two other switches",
       width: 417,
       height: 236,
     },
@@ -356,8 +295,7 @@ export const questions1to28: Question[] = [
   {
     number: 21,
     type: "multi",
-    text:
-      "What are two requirements to be able to configure an EtherChannel between two switches? (Choose two.)",
+    text: "What are two requirements to be able to configure an EtherChannel between two switches? (Choose two.)",
     options: [
       "All the interfaces need to work at the same speed.",
       "All interfaces need to be assigned to different VLANs.",
@@ -373,8 +311,7 @@ export const questions1to28: Question[] = [
   {
     number: 22,
     type: "single",
-    text:
-      "Refer to the exhibit. On the basis of the output that is shown, what can be determined about the EtherChannel bundle?",
+    text: "Refer to the exhibit. On the basis of the output that is shown, what can be determined about the EtherChannel bundle?",
     exhibit: {
       src: "/images/modules-5-6/q22-exhibit.png",
       alt: "Exhibit for question 22: show etherchannel summary output",
@@ -394,8 +331,7 @@ export const questions1to28: Question[] = [
   {
     number: 23,
     type: "multi",
-    text:
-      "Which two parameters must match on the ports of two switches to create a PAgP EtherChannel between the switches? (Choose two.)",
+    text: "Which two parameters must match on the ports of two switches to create a PAgP EtherChannel between the switches? (Choose two.)",
     options: [
       "port ID",
       "PAgP mode",
@@ -411,8 +347,7 @@ export const questions1to28: Question[] = [
   {
     number: 24,
     type: "single",
-    text:
-      "Refer to the exhibit. A network administrator is configuring an EtherChannel link between two switches, SW1 and SW2. Which statement describes the effect after the commands are issued on SW1 and SW2?",
+    text: "Refer to the exhibit. A network administrator is configuring an EtherChannel link between two switches, SW1 and SW2. Which statement describes the effect after the commands are issued on SW1 and SW2?",
     exhibit: {
       src: "/images/modules-5-6/q24-exhibit.png",
       alt: "Exhibit for question 24: EtherChannel configuration on SW1 and SW2",
@@ -427,13 +362,12 @@ export const questions1to28: Question[] = [
     ],
     correct: [3],
     explanation:
-      "Explanation: Topic 6.1.7\nThe interfaces GigabitEthernet 0/1 and GigabitEthernet 0/2 are configured \"on\" for the EtherChannel link. This mode forces the interface to channel without PAgP or LACP. The EtherChannel will be established only if the other side is also set to \"on\". However, the mode on SW2 side is set to PAgP desirable. Thus the EtherChannel link will not be established.",
+      'Explanation: Topic 6.1.7\nThe interfaces GigabitEthernet 0/1 and GigabitEthernet 0/2 are configured "on" for the EtherChannel link. This mode forces the interface to channel without PAgP or LACP. The EtherChannel will be established only if the other side is also set to "on". However, the mode on SW2 side is set to PAgP desirable. Thus the EtherChannel link will not be established.',
   },
   {
     number: 25,
     type: "single",
-    text:
-      "Refer to the exhibit. A network administrator is configuring an EtherChannel link between two switches, SW1 and SW2. However, the EtherChannel link fails to establish. What change in configuration would correct the problem?",
+    text: "Refer to the exhibit. A network administrator is configuring an EtherChannel link between two switches, SW1 and SW2. However, the EtherChannel link fails to establish. What change in configuration would correct the problem?",
     exhibit: {
       src: "/images/modules-5-6/q25-exhibit.png",
       alt: "Exhibit for question 25: EtherChannel configuration on SW1 and SW2",
@@ -453,8 +387,7 @@ export const questions1to28: Question[] = [
   {
     number: 26,
     type: "single",
-    text:
-      "A network administrator configured an EtherChannel link with three interfaces between two switches. What is the result if one of the three interfaces is down?",
+    text: "A network administrator configured an EtherChannel link with three interfaces between two switches. What is the result if one of the three interfaces is down?",
     options: [
       "The remaining two interfaces continue to load balance traffic.",
       "The remaining two interfaces become separate links between the two switches.",
@@ -468,8 +401,7 @@ export const questions1to28: Question[] = [
   {
     number: 27,
     type: "single",
-    text:
-      "A network administrator is configuring an EtherChannel link between switches SW1 and SW2 by using the command SW1(config-if-range)# channel-group 1 mode auto. Which command must be used on SW2 to enable this EtherChannel?",
+    text: "A network administrator is configuring an EtherChannel link between switches SW1 and SW2 by using the command SW1(config-if-range)# channel-group 1 mode auto. Which command must be used on SW2 to enable this EtherChannel?",
     options: [
       "SW2(config-if-range)# channel-group 1 mode passive",
       "SW2(config-if-range)# channel-group 1 mode desirable",
@@ -483,14 +415,8 @@ export const questions1to28: Question[] = [
   {
     number: 28,
     type: "single",
-    text:
-      "Which technology is an open protocol standard that allows switches to automatically bundle physical ports into a single logical link?",
-    options: [
-      "PAgP",
-      "LACP",
-      "Multilink PPP",
-      "DTP",
-    ],
+    text: "Which technology is an open protocol standard that allows switches to automatically bundle physical ports into a single logical link?",
+    options: ["PAgP", "LACP", "Multilink PPP", "DTP"],
     correct: [1],
     explanation:
       "Explanation: Topic 6.1.8\nLACP, or Link Aggregation Control Protocol, is defined by IEEE 802.3ad and is an open standard protocol. LACP allows switches to automatically bundle switch ports into a single logical link to increase bandwidth. PAgP, or Port Aggregation Protocol, performs a similar function, but it is a Cisco proprietary protocol. DTP is Dynamic Trunking Protocol and is used to automatically and dynamically build trunks between switches. Multilink PPP is used to load-balance PPP traffic across multiple serial interfaces.",

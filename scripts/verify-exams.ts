@@ -17,12 +17,42 @@ import { exhibitList } from "../src/features/exams/lib/types.ts";
 // ---------------------------------------------------------------------------
 
 const ENTITIES: Record<string, string> = {
-  amp: "&", lt: "<", gt: ">", quot: '"', apos: "'", nbsp: " ", ndash: "-",
-  mdash: "-", hellip: "...", rsquo: "'", lsquo: "'", rdquo: '"', ldquo: '"',
-  deg: "°", times: "x", minus: "-", middot: "·", bull: "•", rarr: "->",
-  copy: "(c)", reg: "(r)", trade: "(tm)", eacute: "é", aacute: "á",
-  ecirc: "ê", icirc: "î", ocirc: "ô", ucirc: "û", uuml: "ü", ouml: "ö",
-  auml: "ä", szlig: "ß", ccedil: "ç", ensp: " ", emsp: " ", thinsp: " ",
+  amp: "&",
+  lt: "<",
+  gt: ">",
+  quot: '"',
+  apos: "'",
+  nbsp: " ",
+  ndash: "-",
+  mdash: "-",
+  hellip: "...",
+  rsquo: "'",
+  lsquo: "'",
+  rdquo: '"',
+  ldquo: '"',
+  deg: "°",
+  times: "x",
+  minus: "-",
+  middot: "·",
+  bull: "•",
+  rarr: "->",
+  copy: "(c)",
+  reg: "(r)",
+  trade: "(tm)",
+  eacute: "é",
+  aacute: "á",
+  ecirc: "ê",
+  icirc: "î",
+  ocirc: "ô",
+  ucirc: "û",
+  uuml: "ü",
+  ouml: "ö",
+  auml: "ä",
+  szlig: "ß",
+  ccedil: "ç",
+  ensp: " ",
+  emsp: " ",
+  thinsp: " ",
 };
 
 function decodeEntities(s: string): string {
@@ -38,7 +68,7 @@ function decodeEntities(s: string): string {
         return Number.isNaN(cp) ? m : String.fromCodePoint(cp);
       }
       return ENTITIES[name] ?? m;
-    }
+    },
   );
 }
 
@@ -54,7 +84,6 @@ function normLine(s: string): string {
     .trim()
     .toLowerCase();
 }
-
 
 /** Multiset of normalized words from a multi-line string. */
 function wordSet(s: string): string[] {
@@ -93,7 +122,7 @@ function stripTags(s: string): string {
  */
 function extractDivsByClass(
   html: string,
-  classSubstr: string
+  classSubstr: string,
 ): { cleaned: string; contents: string[] } {
   const contents: string[] = [];
   let result = "";
@@ -210,63 +239,83 @@ export function parseHtml(file: string): Map<number, ParsedQuestion> {
     block = block.replace(/<div class="cbc-code-bar">[\s\S]*?<\/div>/g, "");
 
     // Remove image caption text (site chrome).
-    block = block.replace(/<p[^>]*class="[^"]*wp-caption-text[^"]*"[^>]*>[\s\S]*?<\/p>/g, "");
+    block = block.replace(
+      /<p[^>]*class="[^"]*wp-caption-text[^"]*"[^>]*>[\s\S]*?<\/p>/g,
+      "",
+    );
     block = block.replace(/<figcaption[^>]*>[\s\S]*?<\/figcaption>/g, "");
 
     // Answer tables -> rows (theads separated from tbody rows).
     const tableRows: { cells: string[]; fromHead: boolean }[] = [];
-    block = block.replace(/<table[^>]*>([\s\S]*?)<\/table>/g, (_m0, inner: string) => {
-      // parse thead first (for header inference), then rows
-      const headMatch = inner.match(/<thead[^>]*>([\s\S]*?)<\/thead>/);
-      if (headMatch) {
+    block = block.replace(
+      /<table[^>]*>([\s\S]*?)<\/table>/g,
+      (_m0, inner: string) => {
+        // parse thead first (for header inference), then rows
+        const headMatch = inner.match(/<thead[^>]*>([\s\S]*?)<\/thead>/);
+        if (headMatch) {
+          const rowRe = /<tr[^>]*>([\s\S]*?)<\/tr>/g;
+          let r: RegExpExecArray | null;
+          while ((r = rowRe.exec(headMatch[1])) !== null) {
+            tableRows.push({ cells: extractCells(r[1]), fromHead: true });
+          }
+        }
+        const tbodyMatch = inner.match(/<tbody[^>]*>([\s\S]*?)<\/tbody>/) ?? [
+          "",
+          inner,
+        ];
         const rowRe = /<tr[^>]*>([\s\S]*?)<\/tr>/g;
         let r: RegExpExecArray | null;
-        while ((r = rowRe.exec(headMatch[1])) !== null) {
-          tableRows.push({ cells: extractCells(r[1]), fromHead: true });
+        while ((r = rowRe.exec(tbodyMatch[1])) !== null) {
+          tableRows.push({ cells: extractCells(r[1]), fromHead: false });
         }
-      }
-      const tbodyMatch = inner.match(/<tbody[^>]*>([\s\S]*?)<\/tbody>/) ?? ["", inner];
-      const rowRe = /<tr[^>]*>([\s\S]*?)<\/tr>/g;
-      let r: RegExpExecArray | null;
-      while ((r = rowRe.exec(tbodyMatch[1])) !== null) {
-        tableRows.push({ cells: extractCells(r[1]), fromHead: false });
-      }
-      return "";
-    });
+        return "";
+      },
+    );
 
     // Images in the question body.
     const images: string[] = [];
-    block = block.replace(/<img[^>]*src="([^"]*)"[^>]*>/g, (_m0, src: string) => {
-      images.push(src);
-      return "";
-    });
+    block = block.replace(
+      /<img[^>]*src="([^"]*)"[^>]*>/g,
+      (_m0, src: string) => {
+        images.push(src);
+        return "";
+      },
+    );
 
     // <pre> blocks -> code lines
     const preLines: string[] = [];
-    block = block.replace(/<pre[^>]*>([\s\S]*?)<\/pre>/g, (_m0, inner: string) => {
-      const clean = stripTags(inner).replace(/\r\n/g, "\n").replace(/\r/g, "\n");
-      for (const l of clean.split("\n")) preLines.push(l);
-      return "";
-    });
+    block = block.replace(
+      /<pre[^>]*>([\s\S]*?)<\/pre>/g,
+      (_m0, inner: string) => {
+        const clean = stripTags(inner)
+          .replace(/\r\n/g, "\n")
+          .replace(/\r/g, "\n");
+        for (const l of clean.split("\n")) preLines.push(l);
+        return "";
+      },
+    );
 
     // Option lists
-    block = block.replace(/<ul[^>]*>([\s\S]*?)<\/ul>/g, (_m0, inner: string) => {
-      const liRe = /<li([^>]*)>([\s\S]*?)<\/li>/g;
-      let li: RegExpExecArray | null;
-      while ((li = liRe.exec(inner)) !== null) {
-        const cls = li[1] ?? "";
-        const txt = stripTags(li[2].replace(/<br\s*\/?>/g, "\n"))
-          .replace(/\r/g, " ")
-          .trim();
-        if (txt.length > 0) {
-          options.push({
-            text: txt,
-            correct: /\bcorrect_answer\b/.test(cls),
-          });
+    block = block.replace(
+      /<ul[^>]*>([\s\S]*?)<\/ul>/g,
+      (_m0, inner: string) => {
+        const liRe = /<li([^>]*)>([\s\S]*?)<\/li>/g;
+        let li: RegExpExecArray | null;
+        while ((li = liRe.exec(inner)) !== null) {
+          const cls = li[1] ?? "";
+          const txt = stripTags(li[2].replace(/<br\s*\/?>/g, "\n"))
+            .replace(/\r/g, " ")
+            .trim();
+          if (txt.length > 0) {
+            options.push({
+              text: txt,
+              correct: /\bcorrect_answer\b/.test(cls),
+            });
+          }
         }
-      }
-      return "";
-    });
+        return "";
+      },
+    );
 
     // Remaining paragraphs -> stem lines, with paragraph-option handling when
     // the dump used <p> blocks instead of a <ul> (command-set options).
@@ -275,10 +324,14 @@ export function parseHtml(file: string): Map<number, ParsedQuestion> {
     let firstPara = true;
     block = block.replace(paraRe, (_m0, raw: string) => {
       const lines = raw.split(/<br\s*\/?>/);
-      const lineIsWrapped = lines.map((l) => /<strong|color:\s*#ff0000|style="[^"]*red/i.test(l));
-      const text = (s: string) => decodeEntities(stripTags(s.replace(/<br\s*\/?>/g, "\n")));
+      const lineIsWrapped = lines.map((l) =>
+        /<strong|color:\s*#ff0000|style="[^"]*red/i.test(l),
+      );
+      const text = (s: string) =>
+        decodeEntities(stripTags(s.replace(/<br\s*\/?>/g, "\n")));
       const fullyWrapped =
-        /^\s*<(?:strong|span)\b[^>]*>/.test(raw) && /<\/(?:span|strong)>\s*$/.test(raw);
+        /^\s*<(?:strong|span)\b[^>]*>/.test(raw) &&
+        /<\/(?:span|strong)>\s*$/.test(raw);
       if (firstPara) {
         // question stem paragraph
         for (const l of lines) stemLines.push(text(l));
@@ -391,7 +444,10 @@ interface Issue {
 
 function fmtList(arr: string[], max = 6): string {
   return (
-    arr.slice(0, max).map((l) => `    | ${l}`).join("\n") +
+    arr
+      .slice(0, max)
+      .map((l) => `    | ${l}`)
+      .join("\n") +
     (arr.length > max ? `\n    ... (+${arr.length - max} more)` : "")
   );
 }
@@ -405,7 +461,7 @@ function compareModule(
   _name: string,
   htmlFile: string,
   tsQuestions: Question[],
-  _moduleDir?: string
+  _moduleDir?: string,
 ): { issues: Issue[]; htmlNums: number[]; tsNums: number[] } {
   const html = parseHtml(htmlFile);
   const ts = loadTs(tsQuestions);
@@ -418,7 +474,8 @@ function compareModule(
     issues.push({
       q: 0,
       kind: "NUMBERING",
-      detail: `HTML has ${htmlNums.length} questions, TS has ${tsNums.length}. ` +
+      detail:
+        `HTML has ${htmlNums.length} questions, TS has ${tsNums.length}. ` +
         `Only in HTML: ${htmlNums.filter((n) => !ts.has(n)).join(",") || "none"} | ` +
         `Only in TS: ${tsNums.filter((n) => !html.has(n)).join(",") || "none"}`,
     });
@@ -429,7 +486,8 @@ function compareModule(
     const h = html.get(n);
     if (!h) continue; // already reported
 
-    const isPresented = h.stemLines.length > 0 && h.stemLines[0] === "question as presented:";
+    const isPresented =
+      h.stemLines.length > 0 && h.stemLines[0] === "question as presented:";
 
     // 1. body words (text + code) as a multiset
     const tsWords = wordSet(t.text + (t.code ? "\n" + t.code : ""));
@@ -444,24 +502,45 @@ function compareModule(
 
     // 2. type / options / correct answers
     const correctCount = h.options.filter((o) => o.correct).length;
-    const htmlType = correctCount === 0 ? "pair" : correctCount === 1 ? "single" : "multi";
+    const htmlType =
+      correctCount === 0 ? "pair" : correctCount === 1 ? "single" : "multi";
 
     if (isPresented) {
       // "Question as presented:" — dump deliberately gives no options/answers.
       // Per EXAM_BUILDER_PROMPT: TS must be single True/False with True correct.
       if (t.type !== "single") {
-        issues.push({ q: n, kind: "TYPE", detail: `"Question as presented" should be single; TS says "${t.type}"` });
+        issues.push({
+          q: n,
+          kind: "TYPE",
+          detail: `"Question as presented" should be single; TS says "${t.type}"`,
+        });
       }
       const tsOpts = (t.options ?? []).map(normLine);
       if (JSON.stringify(tsOpts) !== JSON.stringify(["true", "false"])) {
-        issues.push({ q: n, kind: "OPTIONS", detail: `"Question as presented" options should be [True, False]; TS has: ${tsOpts.join(" | ")}` });
+        issues.push({
+          q: n,
+          kind: "OPTIONS",
+          detail: `"Question as presented" options should be [True, False]; TS has: ${tsOpts.join(" | ")}`,
+        });
       }
-      const tsCorrect = (t.correct ?? []).map((i) => t.options?.[i]).filter((s): s is string => Boolean(s)).map(normLine);
+      const tsCorrect = (t.correct ?? [])
+        .map((i) => t.options?.[i])
+        .filter((s): s is string => Boolean(s))
+        .map(normLine);
       if (tsCorrect.join(",") !== "true") {
-        issues.push({ q: n, kind: "CORRECT", detail: `"Question as presented" should mark True correct; TS marks: ${tsCorrect.join(",")}` });
+        issues.push({
+          q: n,
+          kind: "CORRECT",
+          detail: `"Question as presented" should mark True correct; TS marks: ${tsCorrect.join(",")}`,
+        });
       }
       const stmt = h.stemLines.slice(1).join(" ");
-      const tsStmt = t.text.split("\n").map(normLine).filter(Boolean).slice(1).join(" ");
+      const tsStmt = t.text
+        .split("\n")
+        .map(normLine)
+        .filter(Boolean)
+        .slice(1)
+        .join(" ");
       if (stmt !== tsStmt) {
         issues.push({
           q: n,
@@ -487,8 +566,15 @@ function compareModule(
           detail: `Option lists differ.\n  Only in HTML:\n${fmtList(onlyA)}\n  Only in TS:\n${fmtList(onlyB)}`,
         });
       }
-      const tsCorrect = (t.correct ?? []).map((i) => t.options?.[i]).filter((opt): opt is string => Boolean(opt)).map(optKey).sort();
-      const htmlCorrect = h.options.filter((o) => o.correct).map((o) => optKey(o.text)).sort();
+      const tsCorrect = (t.correct ?? [])
+        .map((i) => t.options?.[i])
+        .filter((opt): opt is string => Boolean(opt))
+        .map(optKey)
+        .sort();
+      const htmlCorrect = h.options
+        .filter((o) => o.correct)
+        .map((o) => optKey(o.text))
+        .sort();
       const cd = diff(htmlCorrect, tsCorrect);
       if (cd.onlyA.length > 0 || cd.onlyB.length > 0) {
         issues.push({
@@ -497,7 +583,11 @@ function compareModule(
           detail: `Correct answers differ.\n  Only in HTML:\n${fmtList(cd.onlyA)}\n  Only in TS:\n${fmtList(cd.onlyB)}`,
         });
       }
-      if (t.type === "multi" && t.choose !== undefined && t.choose !== correctCount) {
+      if (
+        t.type === "multi" &&
+        t.choose !== undefined &&
+        t.choose !== correctCount
+      ) {
         issues.push({
           q: n,
           kind: "CHOOSE",
@@ -509,38 +599,64 @@ function compareModule(
       let htmlPairs: string[] | null = null;
       const rows = h.tableRows.filter((r) => !r.fromHead);
       if (rows.length > 0) {
-        const headers = h.tableRows.filter((r) => r.fromHead).flatMap((r) => r.cells).filter(Boolean);
+        const headers = h.tableRows
+          .filter((r) => r.fromHead)
+          .flatMap((r) => r.cells)
+          .filter(Boolean);
         htmlPairs = rows.flatMap((r) => {
           if (headers.length > 0) {
             // classification matrix: each cell maps to its column header
             return r.cells
-              .map((c, col) => (c.length > 0 ? JSON.stringify([c, headers[col] ?? headers[0]].sort()) : null))
+              .map((c, col) =>
+                c.length > 0
+                  ? JSON.stringify([c, headers[col] ?? headers[0]].sort())
+                  : null,
+              )
               .filter((p): p is string => p !== null);
           }
           const nonEmpty = r.cells.filter((c) => c.length > 0);
-          if (nonEmpty.length >= 2) return [JSON.stringify([nonEmpty[0], nonEmpty[1]].sort())];
+          if (nonEmpty.length >= 2)
+            return [JSON.stringify([nonEmpty[0], nonEmpty[1]].sort())];
           return [];
         });
       } else if (h.options.length > 0) {
-        htmlPairs = h.options.map((o) => {
-          const parts = o.text.split(" - ");
-          if (parts.length >= 2) return JSON.stringify([normLine(parts[0]), normLine(parts.slice(1).join(" - "))].sort());
-          return normLine(o.text);
-        }).sort();
+        htmlPairs = h.options
+          .map((o) => {
+            const parts = o.text.split(" - ");
+            if (parts.length >= 2)
+              return JSON.stringify(
+                [
+                  normLine(parts[0]),
+                  normLine(parts.slice(1).join(" - ")),
+                ].sort(),
+              );
+            return normLine(o.text);
+          })
+          .sort();
       } else if (h.explOptions.length > 0) {
         // answer list inside the explanation box
-        htmlPairs = h.explOptions.map((o) => {
-          const parts = o.split(" - ");
-          if (parts.length >= 2) return JSON.stringify([normLine(parts[0]), normLine(parts.slice(1).join(" - "))].sort());
-          return normLine(o);
-        }).sort();
+        htmlPairs = h.explOptions
+          .map((o) => {
+            const parts = o.split(" - ");
+            if (parts.length >= 2)
+              return JSON.stringify(
+                [
+                  normLine(parts[0]),
+                  normLine(parts.slice(1).join(" - ")),
+                ].sort(),
+              );
+            return normLine(o);
+          })
+          .sort();
       }
 
       if (htmlPairs) {
-        const tsPairs = (t.left ?? []).map((l, i) => {
-          const r = t.right?.[t.correctPairs?.[i] ?? -1] ?? "";
-          return JSON.stringify([normLine(l), normLine(r)].sort());
-        }).sort();
+        const tsPairs = (t.left ?? [])
+          .map((l, i) => {
+            const r = t.right?.[t.correctPairs?.[i] ?? -1] ?? "";
+            return JSON.stringify([normLine(l), normLine(r)].sort());
+          })
+          .sort();
         const pd = diff(htmlPairs, tsPairs);
         if (pd.onlyA.length > 0 || pd.onlyB.length > 0) {
           issues.push({
@@ -554,14 +670,17 @@ function compareModule(
         // or the explanation text. Check right targets against the dump text;
         // when the dump only offers an image, mark as unverifiable (info).
         const hay = normLine([h.explanation, ...h.stemLines].join(" \n "));
-        const missing = (t.right ?? []).filter((r) => !hay.includes(normLine(r)));
+        const missing = (t.right ?? []).filter(
+          (r) => !hay.includes(normLine(r)),
+        );
         if (missing.length > 0) {
           issues.push({
             q: n,
             kind: h.images.length > 0 ? "PAIR-IMG-ONLY" : "PAIR",
-            detail: h.images.length > 0
-              ? `Answer table missing in dump (pairing shown only in the exhibit image); TS targets not verifiable from text: ${missing.join(", ")}`
-              : `TS pairs reference content not found in the dump text: ${missing.join(", ")}`,
+            detail:
+              h.images.length > 0
+                ? `Answer table missing in dump (pairing shown only in the exhibit image); TS targets not verifiable from text: ${missing.join(", ")}`
+                : `TS pairs reference content not found in the dump text: ${missing.join(", ")}`,
           });
         }
       }
@@ -603,13 +722,18 @@ function compareModule(
       });
     }
     if (h.hasExplanation && !t.explanation) {
-      issues.push({ q: n, kind: "EXPL-MISSING", detail: "HTML has explanation, TS has none" });
+      issues.push({
+        q: n,
+        kind: "EXPL-MISSING",
+        detail: "HTML has explanation, TS has none",
+      });
     }
     if (!h.hasExplanation && t.explanation) {
       issues.push({
         q: n,
         kind: "EXPL-EXTRA",
-        detail: "HTML has no explanation box; TS explanation written from curriculum (informational)",
+        detail:
+          "HTML has no explanation box; TS explanation written from curriculum (informational)",
       });
     }
     if (t.explanation && !/^Explanation:\s*Topic/i.test(t.explanation.trim())) {
@@ -629,9 +753,21 @@ function compareModule(
 // ---------------------------------------------------------------------------
 
 const modules = [
-  { name: "Modules 7-9", html: "public/itexamanswers_modules7-9.html", ts: modules79.questions },
-  { name: "Modules 10-13", html: "public/itexamanswers_modules10-13.html", ts: modules1013.questions },
-  { name: "Modules 14-16", html: "public/itexamanswers_modules14-16.html", ts: modules1416.questions },
+  {
+    name: "Modules 7-9",
+    html: "public/itexamanswers_modules7-9.html",
+    ts: modules79.questions,
+  },
+  {
+    name: "Modules 10-13",
+    html: "public/itexamanswers_modules10-13.html",
+    ts: modules1013.questions,
+  },
+  {
+    name: "Modules 14-16",
+    html: "public/itexamanswers_modules14-16.html",
+    ts: modules1416.questions,
+  },
 ];
 
 let totalIssues = 0;
@@ -650,4 +786,8 @@ for (const mod of modules) {
   }
 }
 console.log(`\n${"=".repeat(70)}`);
-console.log(totalIssues === 0 ? "✅ No issues found in any module." : `❌ ${totalIssues} issue(s) found across all modules.`);
+console.log(
+  totalIssues === 0
+    ? "✅ No issues found in any module."
+    : `❌ ${totalIssues} issue(s) found across all modules.`,
+);

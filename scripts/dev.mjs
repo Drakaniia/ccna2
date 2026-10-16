@@ -42,7 +42,9 @@ const isWindows = process.platform === "win32";
  */
 function readPort(name, fallback) {
   const value = Number(process.env[name]);
-  return Number.isInteger(value) && value > 0 && value <= 65535 ? value : fallback;
+  return Number.isInteger(value) && value > 0 && value <= 65535
+    ? value
+    : fallback;
 }
 
 const SITE_PORT = readPort("SITE_PORT", 4321);
@@ -102,13 +104,16 @@ function shellFile({ file, shell }) {
 /* ------------------------------- .dev.vars -------------------------------- */
 
 function syncDevVars() {
-  const fromEnv = existsSync(ENV_FILE) ? parseEnvFile(readFileSync(ENV_FILE, "utf8")) : {};
+  const fromEnv = existsSync(ENV_FILE)
+    ? parseEnvFile(readFileSync(ENV_FILE, "utf8"))
+    : {};
   const previous = existsSync(DEV_VARS_FILE)
     ? parseEnvFile(readFileSync(DEV_VARS_FILE, "utf8"))
     : {};
 
   const clientId = fromEnv.GOOGLE_CLIENT_ID || previous.GOOGLE_CLIENT_ID;
-  const clientSecret = fromEnv.GOOGLE_CLIENT_SECRET || previous.GOOGLE_CLIENT_SECRET;
+  const clientSecret =
+    fromEnv.GOOGLE_CLIENT_SECRET || previous.GOOGLE_CLIENT_SECRET;
   const adminEmail = fromEnv.ADMIN_EMAIL || previous.ADMIN_EMAIL;
   // Reuse the existing secret so logging everyone out on every `dev` is avoided.
   const sessionSecret =
@@ -124,7 +129,7 @@ function syncDevVars() {
     console.error(
       `\n  Missing ${missing.join(" and ")}.\n\n` +
         `  Add them to ${ENV_FILE} (see the README's "Local development" section),\n` +
-        `  then run this command again.\n`
+        `  then run this command again.\n`,
     );
     process.exit(1);
   }
@@ -142,7 +147,9 @@ function syncDevVars() {
   lines.push("");
 
   writeFileSync(DEV_VARS_FILE, lines.join("\n"));
-  console.log(`[dev] wrote worker/.dev.vars${adminEmail ? " (including ADMIN_EMAIL)" : ""}`);
+  console.log(
+    `[dev] wrote worker/.dev.vars${adminEmail ? " (including ADMIN_EMAIL)" : ""}`,
+  );
 }
 
 /* --------------------------------- runner --------------------------------- */
@@ -154,7 +161,9 @@ function killTree(child) {
   if (!child || child.exitCode !== null || child.signalCode !== null) return;
   if (isWindows) {
     // wrangler dev spawns miniflare children; a plain kill would orphan them.
-    spawnSync("taskkill", ["/pid", String(child.pid), "/T", "/F"], { stdio: "ignore" });
+    spawnSync("taskkill", ["/pid", String(child.pid), "/T", "/F"], {
+      stdio: "ignore",
+    });
   } else {
     child.kill("SIGTERM");
   }
@@ -179,7 +188,9 @@ function start(label, name, args, cwd, env) {
   });
   child.on("exit", (code, signal) => {
     if (shuttingDown) return;
-    console.log(`[dev] ${label} exited (${signal ?? code}) — stopping everything`);
+    console.log(
+      `[dev] ${label} exited (${signal ?? code}) — stopping everything`,
+    );
     shutdown(code ?? 0);
   });
   children.push(child);
@@ -203,17 +214,21 @@ const wrangler = resolveBin("wrangler", WORKER_DIR);
 const schema = spawnSync(
   shellFile(wrangler),
   ["d1", "execute", "ccna-auth-db", "--local", "--file=./schema.sql"],
-  { cwd: WORKER_DIR, stdio: "inherit", shell: wrangler.shell }
+  { cwd: WORKER_DIR, stdio: "inherit", shell: wrangler.shell },
 );
 if (schema.status !== 0) {
-  console.error("[dev] could not apply the local D1 schema — continuing anyway");
+  console.error(
+    "[dev] could not apply the local D1 schema — continuing anyway",
+  );
 }
 
 process.on("SIGINT", () => shutdown(0));
 process.on("SIGTERM", () => shutdown(0));
 
 console.log(`\n[dev] site   http://localhost:${SITE_PORT}`);
-console.log(`[dev] worker http://localhost:${WORKER_PORT}   (Ctrl+C stops both)\n`);
+console.log(
+  `[dev] worker http://localhost:${WORKER_PORT}   (Ctrl+C stops both)\n`,
+);
 
 start("site", "astro", ["dev", "--port", String(SITE_PORT)], ROOT, {
   // Keep anything that reads PORT in agreement with the flag above.
@@ -222,6 +237,12 @@ start("site", "astro", ["dev", "--port", String(SITE_PORT)], ROOT, {
 start(
   "worker",
   "wrangler",
-  ["dev", "--port", String(WORKER_PORT), "--var", `SITE_ORIGIN:http://localhost:${SITE_PORT}`],
-  WORKER_DIR
+  [
+    "dev",
+    "--port",
+    String(WORKER_PORT),
+    "--var",
+    `SITE_ORIGIN:http://localhost:${SITE_PORT}`,
+  ],
+  WORKER_DIR,
 );

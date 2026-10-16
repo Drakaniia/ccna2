@@ -8,7 +8,10 @@ const abs = (p: string) => `${import.meta.env.BASE_URL.replace(/\/?$/, "/")}${p}
 <html lang="en">
   <head>
     <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <link rel="apple-touch-icon" href={abs("icons/apple-touch-icon.png")} />
+    <link rel="manifest" href={abs("manifest.webmanifest")} />
+    <meta name="theme-color" content="#4d9838" />
     <meta name="robots" content="noindex" />
     <script is:inline>
       (function () {
@@ -95,6 +98,14 @@ const abs = (p: string) => `${import.meta.env.BASE_URL.replace(/\/?$/, "/")}${p}
         </div>
       </main>
     </div>
+
+    <script>
+      import { registerServiceWorker } from "../features/pwa/pwa-client";
+
+      // The worker is registration-only here: the roster itself is server data
+      // and is never cached, but the shell still has to stay reachable.
+      registerServiceWorker();
+    </script>
 
     <script>
       import {

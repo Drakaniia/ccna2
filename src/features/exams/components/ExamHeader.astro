@@ -1,5 +1,6 @@
 ---
 import { availableModules, moduleRegistry } from "../data";
+import { exhibitList } from "../lib/types";
 import HeaderActions from "./HeaderActions.tsx";
 import AccountChip from "../../auth/AccountChip.tsx";
 import { MenuIcon, CloseIcon, ArrowRightIcon } from "./lucide-icons.tsx";
@@ -11,10 +12,28 @@ interface Props {
 }
 
 const { title, currentId } = Astro.props;
-const maxQuestions = currentId ? (availableModules[currentId]?.questions.length ?? undefined) : undefined;
+const currentModule = currentId ? availableModules[currentId] : undefined;
+const maxQuestions = currentModule?.questions.length ?? undefined;
 
 // Absolute-path helper that stays correct under a repo-name `base` (GitHub Pages).
 const abs = (p: string) => `${import.meta.env.BASE_URL.replace(/\/?$/, "/")}${p}`;
+
+/**
+ * Everything the settings modal downloads when an exam is saved for offline
+ * use. Built here rather than in the island: the module's question data is
+ * already in this component's hands at build time, and shipping the whole
+ * question bank into the header bundle just to read image paths would be absurd.
+ */
+const offlineFiles: string[] = (() => {
+  if (!currentId || !currentModule) return [];
+  const files = [abs(`exam/${currentId}/`), abs(""), abs("offline.html")];
+  for (const q of currentModule.questions) {
+    for (const image of exhibitList("exhibit" in q ? q.exhibit : undefined)) {
+      files.push(abs(image.src.replace(/^\/+/, "")));
+    }
+  }
+  return [...new Set(files)];
+})();
 
 // Group modules by their exam-group label so the drawer reads like an index.
 const groups: { label: string; items: typeof moduleRegistry }[] = [];
@@ -42,9 +61,17 @@ for (const m of moduleRegistry) {
     <MenuIcon size={21} strokeWidth={2.1} />
   </button>
   <div class="title">{title}</div>
+  <!-- Review mode's indicator. Shown by a `body[data-phase]` rule rather than
+       React state, so no island has to know about the phase. -->
+  <span class="review-badge">Reviewing</span>
   <div class="header-right">
     <AccountChip client:load showSignedOut={!!currentId} />
-    <HeaderActions client:load moduleId={currentId} maxQuestions={maxQuestions} />
+    <HeaderActions
+      client:load
+      moduleId={currentId}
+      maxQuestions={maxQuestions}
+      offlineFiles={offlineFiles}
+    />
   </div>
 </header>
 
@@ -212,14 +239,38 @@ for (const m of moduleRegistry) {
 </script>
 
 <style>
+  /* min-height rather than height: the bar has to be able to grow by the top
+     safe-area inset, which is 0 on every non-notched browser. */
   .topbar {
-    height: 62px;
+    min-height: calc(62px + env(safe-area-inset-top, 0px));
     background: #fafafa;
     border-bottom: 1px solid #d9d9d9;
     display: flex;
     align-items: center;
-    padding: 0 22px;
+    padding: env(safe-area-inset-top, 0px) 22px 0;
     gap: 14px;
+  }
+
+  /* "Reviewing" — visible text, hidden unless the body is in the review phase
+     (the same flag the footer swap keys off, so the two cannot disagree). */
+  .review-badge {
+    display: none;
+    flex: none;
+    align-items: center;
+    padding: 3px 9px;
+    border-radius: 999px;
+    background: rgba(240, 168, 48, 0.18);
+    border: 1px solid rgba(176, 111, 10, 0.35);
+    color: var(--orange-dark);
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 0.5px;
+    text-transform: uppercase;
+    white-space: nowrap;
+  }
+
+  :global(body[data-phase="review"]) .review-badge {
+    display: inline-flex;
   }
 
   .hamburger {
@@ -253,6 +304,10 @@ for (const m of moduleRegistry) {
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
+    /* Without this a flex item refuses to shrink below its content width and
+       the ellipsis never appears — the title pushes the header actions off the
+       edge at phone widths instead. */
+    min-width: 0;
   }
 
   .header-right {
