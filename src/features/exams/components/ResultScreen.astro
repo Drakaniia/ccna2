@@ -41,6 +41,10 @@
     justify-content: center;
     text-align: center;
     background: #fff;
+    /* Short viewports scroll rather than clipping the Reset button; the fixed
+       padding clears the notch and the home indicator. */
+    overflow-y: auto;
+    padding: env(safe-area-inset-top, 0px) 0 env(safe-area-inset-bottom, 0px);
   }
 
   body[data-phase="result"] .result-screen {
@@ -49,11 +53,16 @@
 
   .result-wrap {
     max-width: 560px;
-    padding: 0 24px;
+    padding: 24px;
+    margin: auto;
   }
 
+  /* The gauge is a fixed 240px wide, which still fits a 390px viewport with
+     the wrapper's padding — but it must never be the reason the page scrolls
+     sideways, so it is capped. */
   .gauge {
     width: 240px;
+    max-width: 100%;
     height: 120px;
     margin: 0 auto;
     position: relative;
@@ -112,5 +121,18 @@
     border: 0;
     font-size: 15px;
     cursor: pointer;
+    /* Underlined text is a control here, so it gets a control-sized target. */
+    min-height: 44px;
+    padding: 0 10px;
+  }
+
+  .result-wrap .reset {
+    min-height: 46px;
+  }
+
+  @media (max-width: 480px) {
+    .result-wrap .detail {
+      font-size: 15px;
+    }
   }
 </style>

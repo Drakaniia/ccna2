@@ -93,6 +93,9 @@ const signInHref = loginUrlFor("");
     line-height: 1.5;
     margin-bottom: 23px;
     max-width: 1000px;
+    /* Question text wraps and breaks long tokens (IPs, interface names) rather
+       than widening the page. */
+    overflow-wrap: anywhere;
   }
 
   .question-view .instruction {
@@ -116,6 +119,7 @@ const signInHref = loginUrlFor("");
     /* keep horizontal scrolling possible but hide the scrollbar entirely */
     scrollbar-width: none;
     -ms-overflow-style: none;
+    -webkit-overflow-scrolling: touch;
   }
 
   .question-view .code-block::-webkit-scrollbar {
@@ -334,6 +338,29 @@ const signInHref = loginUrlFor("");
 
   html[data-theme="dark"] .question-locked .locked-line {
     background: #434d58;
+  }
+
+  /* Question header + configuration blocks at phone widths: a 27px heading and
+     14px monospace eat a 390px line, so both step down rather than reflow
+     badly. Nothing here changes the tap targets. */
+  @media (max-width: 560px) {
+    .question-view h1 {
+      font-size: 21px;
+      margin-bottom: 20px;
+    }
+
+    .question-view .question {
+      font-size: 15.5px;
+    }
+
+    .question-view .code-block {
+      font-size: 12.5px;
+      padding: 12px 12px;
+    }
+
+    .question-locked {
+      padding: 22px 16px;
+    }
   }
 
   @media (prefers-reduced-motion: reduce) {
