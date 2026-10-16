@@ -1055,8 +1055,13 @@ html[data-theme="dark"] .site-credit-btn {
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .settings-scrim,
+  .settings-scrim {
+    opacity: 1;
+    animation: none;
+  }
   .settings-modal {
+    opacity: 1;
+    transform: none;
     animation: none;
   }
 }

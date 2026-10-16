@@ -44,7 +44,7 @@ interface StatePayload {
  * version in place the site can say which side is stale — and the Pages
  * workflow refuses to publish a site whose Worker is behind.
  */
-export const AUTH_API_VERSION = 2;
+const AUTH_API_VERSION = 2;
 
 export default {
   async fetch(
