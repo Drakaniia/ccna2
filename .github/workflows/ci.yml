@@ -7,7 +7,6 @@
 # The auth logic is the only thing standing between the exams and the public
 # internet, so it gets an explicit gate on every push rather than only on PRs.
 
-
 name: CI
 
 on:
