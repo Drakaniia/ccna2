@@ -128,7 +128,12 @@ export const questions32to64: Question[] = [
       width: 581,
       height: 520,
     },
-    left: ["Route source", "Destination network", "Metric", "Administrative distance"],
+    left: [
+      "Route source",
+      "Destination network",
+      "Metric",
+      "Administrative distance",
+    ],
     right: [
       "Identifies how a route was learned",
       "Identifies the address of a remote network",
@@ -138,7 +143,7 @@ export const questions32to64: Question[] = [
     ],
     correctPairs: { 0: 0, 1: 1, 2: 2, 3: 3 },
     explanation:
-      "Explanation: Topic 14.4.3\nThe correct pairings are:\n- Route source → Identifies how a route was learned\n- Destination network → Identifies the address of a remote network\n- Metric → Identifies the value assigned to reach a remote network\n- Administrative distance → Identifies the trustworthiness of a route source\nThe option \"Identifies the exit interface used to route a packet to a destination\" is not used.",
+      'Explanation: Topic 14.4.3\nThe correct pairings are:\n- Route source → Identifies how a route was learned\n- Destination network → Identifies the address of a remote network\n- Metric → Identifies the value assigned to reach a remote network\n- Administrative distance → Identifies the trustworthiness of a route source\nThe option "Identifies the exit interface used to route a packet to a destination" is not used.',
   },
   {
     number: 39,
@@ -192,9 +197,9 @@ export const questions32to64: Question[] = [
   {
     number: 42,
     type: "single",
-    text: "What characteristic completes the following statement?\nWhen an IPv6 static route is configured, as a backup route to a static route in the routing table, the \"distance\" command is used with ......",
+    text: 'What characteristic completes the following statement?\nWhen an IPv6 static route is configured, as a backup route to a static route in the routing table, the "distance" command is used with ......',
     options: [
-      "the \"show ipv6 route static\" command.",
+      'the "show ipv6 route static" command.',
       "an administrative distance of 2.",
       "a destination host route with a /128 prefix.",
       "the interface type and interface number.",
@@ -258,7 +263,7 @@ export const questions32to64: Question[] = [
     text: "What characteristic completes the following statement?\nWhen an IPv6 static route is configured, it is first necessary to configure ......",
     options: [
       "the next-hop address of two different adjacent routers.",
-      "the \"ipv6 unicast-routing\" command.",
+      'the "ipv6 unicast-routing" command.',
       "an IPv6 link-local address on the adjacent router.",
       "an administrative distance of 2.",
     ],
@@ -271,7 +276,12 @@ export const questions32to64: Question[] = [
     type: "single",
     text: "Refer to the exhibit. Which interface will be the exit interface to forward a data packet that has the destination IP address 172.18.109.152?",
     code: "Gateway of last resort is not set.\n172.18.109.0/26 is variously subnetted, 7 subnets, 3 masks\nO 172.18.109.0/26 [110/10] via 172.18.32.1, 00:00:24, Serial0/0/0\nO 172.18.109.64/26 [110/20] via 172.18.32.6, 00:00:56, Serial 0/0/1\nO 172.18.109.128/26 [110/10] via 172.18.32.1, 00:00:24, Serial 0/0/0\nC 172.18.109.192/27 is directly connected, GigabitEthernet0/0\nL 172.18.109.193/27 is directly connected, GigabitEthernet0/0\nC 172.18.109.224/27 is directly connected, GigabitEthernet0/1\nL 172.18.109.225/27 is directly connected, GigabitEthernet0/1\n172.18.32.0/24 is variably subnetted, 4 subnets, 2 masks\nC 172.18.32.0/30 is directly connected, Serial0/0/0\nL 172.18.32.2/32 is directly connected, Serial0/0/0\nC 172.18.32.4/30 is directly connected, Serial0/0/1\nL 172.18.32.5/32 is directly connected, Serial0/0/1\nS 172.18.33.0/26 [1/0] via 172.18.32.1, 00:00:24, Serial0/0/0\nR1#",
-    options: ["GigabitEthernet0/0", "GigabitEthernet0/1", "Serial0/0/0", "None, the packet will be dropped."],
+    options: [
+      "GigabitEthernet0/0",
+      "GigabitEthernet0/1",
+      "Serial0/0/0",
+      "None, the packet will be dropped.",
+    ],
     correct: [2],
     explanation:
       "Explanation: Topic 14.1.3\nThe destination address 172.18.109.152 falls within the 172.18.109.128/26 range (172.18.109.128 to 172.18.109.191), which is an OSPF route via 172.18.32.1. Because 172.18.32.1 is reachable through the directly connected 172.18.32.0/30 network, the packet exits Serial0/0/0.",
@@ -333,7 +343,7 @@ export const questions32to64: Question[] = [
     text: "What characteristic completes the following statement?\nWhen an IPv6 static route is configured, it is possible that the same IPv6 link-local address is used for ...",
     options: [
       "a destination host route with a /128 prefix.",
-      "the \"ipv6 unicast-routing\" command.",
+      'the "ipv6 unicast-routing" command.',
       "the next-hop address of two different adjacent routers.",
       "an administrative distance of 2.",
     ],
@@ -402,7 +412,12 @@ export const questions32to64: Question[] = [
     type: "single",
     text: "Refer to the exhibit. Which interface will be the exit interface to forward a data packet that has the destination IP address 192.168.139.244?",
     code: "Gateway of last resort is not set.\n192.168.139.0/26 is variously subnetted, 7 subnets, 3 masks\nO 192.168.139.0/26 [110/10] via 192.168.70.1, 00:00:24, Serial0/0/0\nO 192.168.139.64/26 [110/20] via 192.168.70.6, 00:00:56, Serial 0/0/1\nO 192.168.139.128/26 [110/10] via 192.168.70.1, 00:00:24, Serial 0/0/0\nC 192.168.139.192/27 is directly connected, GigabitEthernet0/0\nL 192.168.139.193/27 is directly connected, GigabitEthernet0/0\nC 192.168.139.224/27 is directly connected, GigabitEthernet0/1\nL 192.168.139.225/27 is directly connected, GigabitEthernet0/1\n192.168.70.0/24 is variably subnetted, 4 subnets, 2 masks\nC 192.168.70.0/30 is directly connected, Serial0/0/0\nL 192.168.70.2/32 is directly connected, Serial0/0/0\nC 192.168.70.4/30 is directly connected, Serial0/0/1\nL 192.168.70.5/32 is directly connected, Serial0/0/1\nS 192.168.71.0/26 [1/0] via 192.168.70.1, 00:00:24, Serial0/0/0\nR1#",
-    options: ["GigabitEthernet0/1", "None, the packet will be dropped.", "Serial0/0/1", "GigabitEthernet0/0"],
+    options: [
+      "GigabitEthernet0/1",
+      "None, the packet will be dropped.",
+      "Serial0/0/1",
+      "GigabitEthernet0/0",
+    ],
     correct: [0],
     explanation:
       "Explanation: Topic 14.1.3\nThe destination address 192.168.139.244 falls within the 192.168.139.224/27 range (192.168.139.224 to 192.168.139.255), which is directly connected through GigabitEthernet0/1, so that is the longest-prefix match and the exit interface.",
@@ -413,7 +428,7 @@ export const questions32to64: Question[] = [
     text: "What characteristic completes the following statement?\nWhen an IPv6 static route is configured, a fully-specified configuration should be used with ...",
     options: [
       "::/0.",
-      "the \"ipv6 unicast-routing\" command.",
+      'the "ipv6 unicast-routing" command.',
       "the next-hop address of two different adjacent routers.",
       "a directly connected multiaccess network.",
     ],
@@ -443,7 +458,7 @@ export const questions32to64: Question[] = [
     options: [
       "a destination host route with a /128 prefix.",
       "the interface type and interface number.",
-      "the \"show ipv6 route static\" command.",
+      'the "show ipv6 route static" command.',
       "an administrative distance of 2.",
     ],
     correct: [2],
@@ -455,7 +470,12 @@ export const questions32to64: Question[] = [
     type: "single",
     text: "Refer to the exhibit. Which interface will be the exit interface to forward a data packet that has the destination IP address 10.55.99.78?",
     code: "Gateway of last resort is not set.\n10.55.99.0/26 is variously subnetted, 7 subnets, 3 masks\nO 10.55.99.0/26 [110/10] via 10.55.18.1, 00:00:24, Serial0/0/0\nO 10.55.99.64/26 [110/20] via 10.55.18.6, 00:00:56, Serial 0/0/1\nO 10.55.99.128/26 [110/10] via 10.55.18.1, 00:00:24, Serial 0/0/0\nC 10.55.99.192/27 is directly connected, GigabitEthernet0/0\nL 10.55.99.193/27 is directly connected, GigabitEthernet0/0\nC 10.55.99.224/27 is directly connected, GigabitEthernet0/1\nL 10.55.99.225/27 is directly connected, GigabitEthernet0/1\n10.55.18.0/24 is variably subnetted, 4 subnets, 2 masks\nC 10.55.18.0/30 is directly connected, Serial0/0/0\nL 10.55.18.2/32 is directly connected, Serial0/0/0\nC 10.55.18.4/30 is directly connected, Serial0/0/1\nL 10.55.18.5/32 is directly connected, Serial0/0/1\nS 10.55.19.0/26 [1/0] via 10.55.18.1, 00:00:24, Serial0/0/0\nR1#",
-    options: ["None, the packet will be dropped.", "GigabitEthernet0/0", "GigabitEthernet0/1", "Serial0/0/1"],
+    options: [
+      "None, the packet will be dropped.",
+      "GigabitEthernet0/0",
+      "GigabitEthernet0/1",
+      "Serial0/0/1",
+    ],
     correct: [3],
     explanation:
       "Explanation: Topic 14.1.3\nThe destination address 10.55.99.78 falls within the 10.55.99.64/26 range (10.55.99.64 to 10.55.99.127), which is an OSPF route via 10.55.18.6. Because 10.55.18.6 is reachable through the directly connected 10.55.18.4/30 network, the packet exits Serial0/0/1.",
@@ -479,7 +499,12 @@ export const questions32to64: Question[] = [
     type: "single",
     text: "Refer to the exhibit. Which interface will be the exit interface to forward a data packet that has the destination IP address 10.3.86.2?",
     code: "Gateway of last resort is not set.\n10.3.86.0/26 is variously subnetted, 7 subnets, 3 masks\nO 10.3.86.0/26 [110/10] via 10.3.2.1, 00:00:24, Serial0/0/0\nO 10.3.86.64/26 [110/20] via 10.3.2.6, 00:00:56, Serial 0/0/1\nO 10.3.86.128/26 [110/10] via 10.3.2.1, 00:00:24, Serial 0/0/0\nC 10.3.86.192/27 is directly connected, GigabitEthernet0/0\nL 10.3.86.193/27 is directly connected, GigabitEthernet0/0\nC 10.3.86.224/27 is directly connected, GigabitEthernet0/1\nL 10.3.86.225/27 is directly connected, GigabitEthernet0/1\n10.3.2.0/24 is variably subnetted, 4 subnets, 2 masks\nC 10.3.2.0/30 is directly connected, Serial0/0/0\nL 10.3.2.2/32 is directly connected, Serial0/0/0\nC 10.3.2.4/30 is directly connected, Serial0/0/1\nL 10.3.2.5/32 is directly connected, Serial0/0/1\nS 10.3.3.0/26 [1/0] via 10.3.2.1, 00:00:24, Serial0/0/0\nR1#",
-    options: ["GigabitEthernet0/1", "Serial0/0/1", "GigabitEthernet0/0", "Serial0/0/0"],
+    options: [
+      "GigabitEthernet0/1",
+      "Serial0/0/1",
+      "GigabitEthernet0/0",
+      "Serial0/0/0",
+    ],
     correct: [3],
     explanation:
       "Explanation: Topic 14.1.3\nThe destination address 10.3.86.2 falls within the 10.3.86.0/26 range (10.3.86.0 to 10.3.86.63), which is an OSPF route via 10.3.2.1. Because 10.3.2.1 is reachable through the directly connected 10.3.2.0/30 network, the packet exits Serial0/0/0.",
@@ -512,7 +537,12 @@ export const questions32to64: Question[] = [
     type: "single",
     text: "Refer to the exhibit. Which interface will be the exit interface to forward a data packet that has the destination IP address 172.25.128.244?",
     code: "Gateway of last resort is not set.\n172.25.128.0/26 is variously subnetted, 7 subnets, 3 masks\nO 172.25.128.0/26 [110/10] via 172.25.56.1, 00:00:24, Serial0/0/0\nO 172.25.128.64/26 [110/20] via 172.25.56.6, 00:00:56, Serial 0/0/1\nO 172.25.128.128/26 [110/10] via 172.25.56.1, 00:00:24, Serial 0/0/0\nC 172.25.128.192/27 is directly connected, GigabitEthernet0/0\nL 172.25.128.193/27 is directly connected, GigabitEthernet0/0\nC 172.25.128.224/27 is directly connected, GigabitEthernet0/1\nL 172.25.128.225/27 is directly connected, GigabitEthernet0/1\n172.25.56.0/24 is variably subnetted, 4 subnets, 2 masks\nC 172.25.56.0/30 is directly connected, Serial0/0/0\nL 172.25.56.2/32 is directly connected, Serial0/0/0\nC 172.25.56.4/30 is directly connected, Serial0/0/1\nL 172.25.56.5/32 is directly connected, Serial0/0/1\nS 172.25.57.0/26 [1/0] via 172.25.56.1, 00:00:24, Serial0/0/0\nR1#",
-    options: ["GigabitEthernet0/0", "GigabitEthernet0/1", "None, the packet will be dropped.", "Serial0/0/1"],
+    options: [
+      "GigabitEthernet0/0",
+      "GigabitEthernet0/1",
+      "None, the packet will be dropped.",
+      "Serial0/0/1",
+    ],
     correct: [1],
     explanation:
       "Explanation: Topic 14.1.3\nThe destination address 172.25.128.244 falls within the 172.25.128.224/27 range (172.25.128.224 to 172.25.128.255), which is directly connected through GigabitEthernet0/1, so that is the longest-prefix match and the exit interface.",

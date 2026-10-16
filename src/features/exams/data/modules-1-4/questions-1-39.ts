@@ -15,29 +15,36 @@ export const questions1to39: Question[] = [
       "Save command lines in a log file for future reference.",
     ],
     correct: [2, 3],
-    explanation: "Explanation: Topic 1.5.7\nThe history command allows you to view and reuse previously entered commands stored in the buffer. It is also used to manage the of the buffer.",
+    explanation:
+      "Explanation: Topic 1.5.7\nThe history command allows you to view and reuse previously entered commands stored in the buffer. It is also used to manage the of the buffer.",
   },
   {
     number: 2,
     type: "single",
     text: "What is the first action in the boot sequence when a switch is powered on?",
     options: [
-      "load the default Cisco IOS software", "load boot loader software",
-      "low-level CPU initialization", "load a power-on self-test program",
+      "load the default Cisco IOS software",
+      "load boot loader software",
+      "low-level CPU initialization",
+      "load a power-on self-test program",
     ],
     correct: [3],
-    explanation: "Explanation: Topic 1.1.1\nThe first action to take place when a switch is powered on is the POST or power-on self-test. POST performs tests on the CPU, memory, and flash in preparation for loading the boot loader.",
+    explanation:
+      "Explanation: Topic 1.1.1\nThe first action to take place when a switch is powered on is the POST or power-on self-test. POST performs tests on the CPU, memory, and flash in preparation for loading the boot loader.",
   },
   {
     number: 3,
     type: "single",
     text: "What must an administrator have in order to reset a lost password on a router?",
     options: [
-      "a TFTP server", "a crossover cable", "access to another router",
+      "a TFTP server",
+      "a crossover cable",
+      "access to another router",
       "physical access to the router",
     ],
     correct: [3],
-    explanation: "Explanation: Topic 1.1.4\nConsole access to the device through a terminal or terminal emulator software on a PC is required for password recovery.",
+    explanation:
+      "Explanation: Topic 1.1.4\nConsole access to the device through a terminal or terminal emulator software on a PC is required for password recovery.",
   },
   {
     number: 4,
@@ -50,58 +57,69 @@ export const questions1to39: Question[] = [
       "login block-for seconds attempts number within*seconds*",
     ],
     correct: [2],
-    explanation: "Explanation: Topic 1.3.4\nThe login local command designates that the local username database is used to authenticate interfaces such as console or vty.",
+    explanation:
+      "Explanation: Topic 1.3.4\nThe login local command designates that the local username database is used to authenticate interfaces such as console or vty.",
   },
   {
     number: 5,
     type: "single",
     text: "Which command displays information about the auto-MDIX setting for a specific interface?",
     options: [
-      "show interfaces", "show controllers", "show processes", "show running-config",
+      "show interfaces",
+      "show controllers",
+      "show processes",
+      "show running-config",
     ],
     correct: [1],
-    explanation: "Explanation: Topic 1.2.3\nTo examine the auto-MDIX setting for a specific interface, the show controllers ethernet-controller command with the phy keyword should be used.",
+    explanation:
+      "Explanation: Topic 1.2.3\nTo examine the auto-MDIX setting for a specific interface, the show controllers ethernet-controller command with the phy keyword should be used.",
   },
   {
     number: 6,
     type: "single",
     text: "If one end of an Ethernet connection is configured for full duplex and the other end of the connection is configured for half duplex, where would late collisions be observed?",
     options: [
-      "on both ends of the connection", "on the full-duplex end of the connection",
-      "only on serial interfaces", "on the half-duplex end of the connection",
+      "on both ends of the connection",
+      "on the full-duplex end of the connection",
+      "only on serial interfaces",
+      "on the half-duplex end of the connection",
     ],
     correct: [3],
-    explanation: "Explanation: Topic 1.2.7\nFull-duplex communications do not produce collisions. However, collisions often occur in half-duplex operations. When a connection has two different duplex configurations, the half-duplex end will experience late collisions. Collisions are found on Ethernet networks. Serial interfaces use technologies other than Ethernet.",
+    explanation:
+      "Explanation: Topic 1.2.7\nFull-duplex communications do not produce collisions. However, collisions often occur in half-duplex operations. When a connection has two different duplex configurations, the half-duplex end will experience late collisions. Collisions are found on Ethernet networks. Serial interfaces use technologies other than Ethernet.",
   },
   {
     number: 7,
     type: "single",
     text: "Which command is used to set the BOOT environment variable that defines where to find the IOS image file on a switch?",
-    options: [
-      "config-register", "boot system", "boot loader", "confreg",
-    ],
+    options: ["config-register", "boot system", "boot loader", "confreg"],
     correct: [1],
-    explanation: "Explanation: Topic 1.1.2\nThe boot system command is used to set the BOOT environment variable. The config-register and confreg commands are used to set the configuration register. The boot loader command supports commands to format the flash file system, reinstall the operating system software, and recover from a lost or forgotten password.",
+    explanation:
+      "Explanation: Topic 1.1.2\nThe boot system command is used to set the BOOT environment variable. The config-register and confreg commands are used to set the configuration register. The boot loader command supports commands to format the flash file system, reinstall the operating system software, and recover from a lost or forgotten password.",
   },
   {
     number: 8,
     type: "single",
     text: "What does a switch use to locate and load the IOS image?",
     options: [
-      "BOOT environment variable", "IOS image file", "POST", "startup-config", "NVRAM",
+      "BOOT environment variable",
+      "IOS image file",
+      "POST",
+      "startup-config",
+      "NVRAM",
     ],
     correct: [0],
-    explanation: "Explanation: Topic 1.1.2\nThe BOOT environment variable contains the information about where to find the IOS image file.",
+    explanation:
+      "Explanation: Topic 1.1.2\nThe BOOT environment variable contains the information about where to find the IOS image file.",
   },
   {
     number: 9,
     type: "single",
     text: "Which protocol adds security to remote connections?",
-    options: [
-      "FTP", "HTTP", "NetBEUI", "POP", "SSH",
-    ],
+    options: ["FTP", "HTTP", "NetBEUI", "POP", "SSH"],
     correct: [4],
-    explanation: "Explanation: Topic 1.3.1\nSSH allows a technician to securely connect to a remote network device for monitoring and troubleshooting. HTTP establishes web page requests. FTP manages file transfer. NetBEUI is not routed on the Internet. POP downloads email messages from email servers.",
+    explanation:
+      "Explanation: Topic 1.3.1\nSSH allows a technician to securely connect to a remote network device for monitoring and troubleshooting. HTTP establishes web page requests. FTP manages file transfer. NetBEUI is not routed on the Internet. POP downloads email messages from email servers.",
   },
   {
     number: 10,
@@ -114,28 +132,31 @@ export const questions1to39: Question[] = [
       "It is assigned to a physical port and can be connected to other devices.",
     ],
     correct: [1],
-    explanation: "Explanation: Topic 1.4.6\nThe loopback interface is a logical interface internal to the router and is automatically placed in an UP state, as long as the router is functioning. It is not assigned to a physical port and can therefore never be connected to any other device. Multiple loopback interfaces can be enabled on a router.",
+    explanation:
+      "Explanation: Topic 1.4.6\nThe loopback interface is a logical interface internal to the router and is automatically placed in an UP state, as long as the router is functioning. It is not assigned to a physical port and can therefore never be connected to any other device. Multiple loopback interfaces can be enabled on a router.",
   },
   {
     number: 11,
     type: "single",
     text: "What is the minimum Ethernet frame size that will not be discarded by the receiver as a runt frame?",
-    options: [
-      "64 bytes", "512 bytes", "1024 bytes", "1500 bytes",
-    ],
+    options: ["64 bytes", "512 bytes", "1024 bytes", "1500 bytes"],
     correct: [0],
-    explanation: "Explanation: Topic 1.2.6\nThe minimum Ethernet frame size is 64 bytes. Frames smaller than 64 bytes are considered collision fragments or runt frames and are discarded.",
+    explanation:
+      "Explanation: Topic 1.2.6\nThe minimum Ethernet frame size is 64 bytes. Frames smaller than 64 bytes are considered collision fragments or runt frames and are discarded.",
   },
   {
     number: 12,
     type: "single",
     text: "After which step of the switch bootup sequence is the boot loader executed?",
     options: [
-      "after CPU initialization", "after IOS localization",
-      "after flash file system initialization", "after POST execution",
+      "after CPU initialization",
+      "after IOS localization",
+      "after flash file system initialization",
+      "after POST execution",
     ],
     correct: [3],
-    explanation: "Explanation: Topic 1.1.1\nThe correct bootup sequence order is as follows: 1.- The switch loads and executes the POST. 2.- The switch loads the boot loader software. 3.- The boot loader performs low-level CPU initialization. 4.- The boot loader initializes the flash memory. 5.- The boot loader locates and loads the default IOS image.",
+    explanation:
+      "Explanation: Topic 1.1.1\nThe correct bootup sequence order is as follows: 1.- The switch loads and executes the POST. 2.- The switch loads the boot loader software. 3.- The boot loader performs low-level CPU initialization. 4.- The boot loader initializes the flash memory. 5.- The boot loader locates and loads the default IOS image.",
   },
   {
     number: 13,
@@ -148,7 +169,8 @@ export const questions1to39: Question[] = [
       "an increase in the size of the collision domain",
     ],
     correct: [1],
-    explanation: "Explanation: Topic 2.2.2\nAdding a Layer 2 switch to a network increases the number of collision domains and increases the size of the broadcast domain. Layer 2 switches do not decrease the amount of broadcast traffic, do not increase the amount of network collisions and do not increase the number of dropped frames.",
+    explanation:
+      "Explanation: Topic 2.2.2\nAdding a Layer 2 switch to a network increases the number of collision domains and increases the size of the broadcast domain. Layer 2 switches do not decrease the amount of broadcast traffic, do not increase the amount of network collisions and do not increase the number of dropped frames.",
   },
   {
     number: 14,
@@ -161,7 +183,8 @@ export const questions1to39: Question[] = [
       "Buffering is used to support different Ethernet speeds.",
     ],
     correct: [1],
-    explanation: "Explanation: Topic 2.1.7\nCut-through switching reduces latency by forwarding frames as soon as the destination MAC address and the corresponding switch port are read from the MAC address table. This switching method does not perform any error checking and does not use buffers to support different Ethernet speeds. Error checking and buffers are characteristics of store-and-forward switching.",
+    explanation:
+      "Explanation: Topic 2.1.7\nCut-through switching reduces latency by forwarding frames as soon as the destination MAC address and the corresponding switch port are read from the MAC address table. This switching method does not perform any error checking and does not use buffers to support different Ethernet speeds. Error checking and buffers are characteristics of store-and-forward switching.",
   },
   {
     number: 15,
@@ -174,7 +197,8 @@ export const questions1to39: Question[] = [
       "A hub forwards frames, and a switch forwards only packets.",
     ],
     correct: [0],
-    explanation: "Explanation: Topic 2.2.1\nHubs operate only at the physical layer, forwarding bits as wire signals out all ports, and extend the collision domain of a network. Switches forward frames at the data link layer and each switch port is a separate collision domain which creates more, but smaller, collision domains. Switches do not manage broadcast domains because broadcast frames are always forwarded out all active ports.",
+    explanation:
+      "Explanation: Topic 2.2.1\nHubs operate only at the physical layer, forwarding bits as wire signals out all ports, and extend the collision domain of a network. Switches forward frames at the data link layer and each switch port is a separate collision domain which creates more, but smaller, collision domains. Switches do not manage broadcast domains because broadcast frames are always forwarded out all active ports.",
   },
   {
     number: 16,
@@ -187,7 +211,8 @@ export const questions1to39: Question[] = [
       "Unicast frames are always forwarded regardless of the destination MAC address.",
     ],
     correct: [0],
-    explanation: "Explanation: Topic 2.1.2\nCut-through frame forwarding reads up to only the first 22 bytes of a frame, which excludes the frame check sequence and thus invalid frames may be forwarded. In addition to broadcast frames, frames with a destination MAC address that is not in the CAM are also flooded out all active ports. Unicast frames are not always forwarded. Received frames with a destination MAC address that is associated with the switch port on which it is received are not forwarded because the destination exists on the network segment connected to that port.",
+    explanation:
+      "Explanation: Topic 2.1.2\nCut-through frame forwarding reads up to only the first 22 bytes of a frame, which excludes the frame check sequence and thus invalid frames may be forwarded. In addition to broadcast frames, frames with a destination MAC address that is not in the CAM are also flooded out all active ports. Unicast frames are not always forwarded. Received frames with a destination MAC address that is associated with the switch port on which it is received are not forwarded because the destination exists on the network segment connected to that port.",
   },
   {
     number: 17,
@@ -200,28 +225,36 @@ export const questions1to39: Question[] = [
       "They hold data temporarily when a collision occurs until normal data transmission resumes.",
     ],
     correct: [1],
-    explanation: "Explanation: Topic 2.2.3\nSwitches have large frame buffers that allow data waiting to be transmitted to be stored so the data will not be dropped. This feature is beneficial especially if the incoming traffic is from a faster port than the egress port used for transmitting.",
+    explanation:
+      "Explanation: Topic 2.2.3\nSwitches have large frame buffers that allow data waiting to be transmitted to be stored so the data will not be dropped. This feature is beneficial especially if the incoming traffic is from a faster port than the egress port used for transmitting.",
   },
   {
     number: 18,
     type: "single",
     text: "Which switch characteristic helps keep traffic local and alleviates network congestion?",
     options: [
-      "high port density", "fast port speed", "large frame buffers",
+      "high port density",
+      "fast port speed",
+      "large frame buffers",
       "fast internal switching",
     ],
     correct: [0],
-    explanation: "Explanation: Topic 2.2.3\nSwitches that have a lot of ports (high port density) reduce the number of switches required and keep some of the traffic locally on the switch, thus removing the need to send it between switches.",
+    explanation:
+      "Explanation: Topic 2.2.3\nSwitches that have a lot of ports (high port density) reduce the number of switches required and keep some of the traffic locally on the switch, thus removing the need to send it between switches.",
   },
   {
     number: 19,
     type: "single",
     text: "Which switch component reduces the amount of packet handling time inside the switch?",
     options: [
-      "ASIC", "dual processors", "large buffer size", "store-and-forward RAM",
+      "ASIC",
+      "dual processors",
+      "large buffer size",
+      "store-and-forward RAM",
     ],
     correct: [0],
-    explanation: "Explanation: Topic 2.1.5\nApplication-specific integrated circuits (ASICs) are used in Cisco switches to speed up switch operations so that the switch can have an increased number of ports without degrading switch performance.",
+    explanation:
+      "Explanation: Topic 2.1.5\nApplication-specific integrated circuits (ASICs) are used in Cisco switches to speed up switch operations so that the switch can have an increased number of ports without degrading switch performance.",
   },
   {
     number: 20,
@@ -241,9 +274,7 @@ export const questions1to39: Question[] = [
         height: 574,
       },
     ],
-    left: [
-      "occurs first", "occurs second",
-    ],
+    left: ["occurs first", "occurs second"],
     right: [
       "The switch drops the frame.",
       "The switch adds the source MAC address to the MAC address table.",
@@ -252,7 +283,8 @@ export const questions1to39: Question[] = [
       "Because the source MAC address is not known, the switch broadcasts the frame out all ports except the port through which the frame arrived.",
     ],
     correctPairs: { 0: 1, 1: 3 },
-    explanation: "Explanation: Topic 2.1.3\nThe first step a switch does when processing a frame is to see if the source MAC address is in the MAC address table. If the address is not there, the switch adds it. The switch then examines the destination MAC address and compares it to the MAC address table. If the address is in the table, the switch forwards the frame out the corresponding port. If the address is missing from the table, the switch will forward the frame to all ports except the port through which the frame arrived.",
+    explanation:
+      "Explanation: Topic 2.1.3\nThe first step a switch does when processing a frame is to see if the source MAC address is in the MAC address table. If the address is not there, the switch adds it. The switch then examines the destination MAC address and compares it to the MAC address table. If the address is in the table, the switch forwards the frame out the corresponding port. If the address is missing from the table, the switch will forward the frame to all ports except the port through which the frame arrived.",
   },
   {
     number: 21,
@@ -265,17 +297,17 @@ export const questions1to39: Question[] = [
       "destination IP address and incoming port number",
     ],
     correct: [0],
-    explanation: "Explanation: Topic 2.1.3\nA switch \"learns\" or builds the MAC address table based on the source MAC address as a frame comes into the switch. A switch forwards the frame onward based on the destination MAC address.",
+    explanation:
+      'Explanation: Topic 2.1.3\nA switch "learns" or builds the MAC address table based on the source MAC address as a frame comes into the switch. A switch forwards the frame onward based on the destination MAC address.',
   },
   {
     number: 22,
     type: "single",
     text: "Which switching method ensures that the incoming frame is error-free before forwarding?",
-    options: [
-      "cut-through", "FCS", "fragment free", "store-and-forward",
-    ],
+    options: ["cut-through", "FCS", "fragment free", "store-and-forward"],
     correct: [3],
-    explanation: "Explanation: Topic 2.1.6\nTwo methods used by switches to transmit frames are store-and-forward and cut-through switching. The store-and-forward method performs error checking on the frame using the frame check sequence (FCS) value before sending the frame. In contrast, cut-through switching sends the frame as soon as the destination MAC address part of the header has been read and processed.",
+    explanation:
+      "Explanation: Topic 2.1.6\nTwo methods used by switches to transmit frames are store-and-forward and cut-through switching. The store-and-forward method performs error checking on the frame using the frame check sequence (FCS) value before sending the frame. In contrast, cut-through switching sends the frame as soon as the destination MAC address part of the header has been read and processed.",
   },
   {
     number: 23,
@@ -287,11 +319,10 @@ export const questions1to39: Question[] = [
       width: 592,
       height: 425,
     },
-    options: [
-      "1", "4", "8", "16", "55",
-    ],
+    options: ["1", "4", "8", "16", "55"],
     correct: [2],
-    explanation: "Explanation: Topic 2.2.2\nA router defines a broadcast boundary, so every link between two routers is a broadcast domain. In the exhibit, 4 links between routers make 4 broadcast domains. Also, each LAN that is connected to a router is a broadcast domain. The 4 LANs in the exhibit result in 4 more broadcast domains, so there are 8 broadcast domains in all.",
+    explanation:
+      "Explanation: Topic 2.2.2\nA router defines a broadcast boundary, so every link between two routers is a broadcast domain. In the exhibit, 4 links between routers make 4 broadcast domains. Also, each LAN that is connected to a router is a broadcast domain. The 4 LANs in the exhibit result in 4 more broadcast domains, so there are 8 broadcast domains in all.",
   },
   {
     number: 24,
@@ -306,7 +337,8 @@ export const questions1to39: Question[] = [
       "on links that should dynamically attempt trunking",
     ],
     correct: [0, 3],
-    explanation: "Explanation: Topic 3.5.1\nCisco best practice recommends disabling DTP on links where trunking is not intended and when a Cisco switch is connected to a non-Cisco switch. DTP is required for dynamic trunk negotiation.",
+    explanation:
+      "Explanation: Topic 3.5.1\nCisco best practice recommends disabling DTP on links where trunking is not intended and when a Cisco switch is connected to a non-Cisco switch. DTP is required for dynamic trunk negotiation.",
   },
   {
     number: 25,
@@ -321,7 +353,8 @@ export const questions1to39: Question[] = [
       "The native VLAN provides a common identifier to both ends of a trunk.",
     ],
     correct: [1, 4],
-    explanation: "Explanation: Topic 3.2.5\nThe native VLAN is assigned to 802.1Q trunks to provide a common identifier to both ends of the trunk link. Whatever VLAN native number is assigned to a port, or if the port is the default VLAN of 1, the port does not tag any frame in that VLAN as the traffic travels across the trunk. At the other end of the link, the receiving device that sees no tag knows the specific VLAN number because the receiving device must have the exact native VLAN number. The native VLAN should be an unused VLAN that is distinct from VLAN1, the default VLAN, as well as other VLANs. Data VLANs, also known as user VLANs, are configured to carry user-generated traffic, with the exception of high priority traffic, such as VoIP. Voice VLANs are configured for VoIP traffic. The management VLAN is configured to provide access to the management capabilities of a switch.",
+    explanation:
+      "Explanation: Topic 3.2.5\nThe native VLAN is assigned to 802.1Q trunks to provide a common identifier to both ends of the trunk link. Whatever VLAN native number is assigned to a port, or if the port is the default VLAN of 1, the port does not tag any frame in that VLAN as the traffic travels across the trunk. At the other end of the link, the receiving device that sees no tag knows the specific VLAN number because the receiving device must have the exact native VLAN number. The native VLAN should be an unused VLAN that is distinct from VLAN1, the default VLAN, as well as other VLANs. Data VLANs, also known as user VLANs, are configured to carry user-generated traffic, with the exception of high priority traffic, such as VoIP. Voice VLANs are configured for VoIP traffic. The management VLAN is configured to provide access to the management capabilities of a switch.",
   },
   {
     number: 26,
@@ -334,7 +367,8 @@ export const questions1to39: Question[] = [
       "Switch(config)# no vlan 100",
     ],
     correct: [3],
-    explanation: "Explanation: Topic 3.3.10\nTo remove all VLANs from a switch, the delete flash:vlan.dat command would be used. To change the assigned VLAN for an interface, the no switchport access vlan 100 interface configuration command would be used. To remove VLAN 100 as an allowed VLAN on a trunk, the no switchport trunk allowed vlan 100 would be used, but this would not remove the VLAN from the switch. To delete a single VLAN, such as VLAN 100, the no vlan 100 global configuration command would be used.",
+    explanation:
+      "Explanation: Topic 3.3.10\nTo remove all VLANs from a switch, the delete flash:vlan.dat command would be used. To change the assigned VLAN for an interface, the no switchport access vlan 100 interface configuration command would be used. To remove VLAN 100 as an allowed VLAN on a trunk, the no switchport trunk allowed vlan 100 would be used, but this would not remove the VLAN from the switch. To delete a single VLAN, such as VLAN 100, the no vlan 100 global configuration command would be used.",
   },
   {
     number: 27,
@@ -353,7 +387,8 @@ export const questions1to39: Question[] = [
       "They are configured as trunk interfaces.",
     ],
     correct: [3],
-    explanation: "Explanation: Topic 3.3.8\nInterfaces that are configured as trunks do not belong to a VLAN and therefore will not show in the output of the show vlan brief commands.",
+    explanation:
+      "Explanation: Topic 3.3.8\nInterfaces that are configured as trunks do not belong to a VLAN and therefore will not show in the output of the show vlan brief commands.",
   },
   {
     number: 28,
@@ -366,7 +401,8 @@ export const questions1to39: Question[] = [
       "Only devices that are connected to the local switch see the frame.",
     ],
     correct: [2],
-    explanation: "Explanation: Topic 3.1.1\nVLANs create logical broadcast domains that can span multiple VLAN segments. Ethernet frames that are sent by a device on a specific VLAN can only be seen by other devices in the same VLAN.",
+    explanation:
+      "Explanation: Topic 3.1.1\nVLANs create logical broadcast domains that can span multiple VLAN segments. Ethernet frames that are sent by a device on a specific VLAN can only be seen by other devices in the same VLAN.",
   },
   {
     number: 29,
@@ -385,7 +421,8 @@ export const questions1to39: Question[] = [
       "Configure all workstations on SW2 to be part of the native VLAN.",
     ],
     correct: [0],
-    explanation: "Explanation: Topic 3.4.1\nEnabling DTP on both switches simply allows negotiation of trunking. The \"Negotiation of Trunking\" line in the graphic shows that DTP is already enabled. The graphic also shows how the native VLAN is 1, and the default VLAN for any Cisco switch is 1. The graphic shows the PCs are to be in VLAN 20.",
+    explanation:
+      'Explanation: Topic 3.4.1\nEnabling DTP on both switches simply allows negotiation of trunking. The "Negotiation of Trunking" line in the graphic shows that DTP is already enabled. The graphic also shows how the native VLAN is 1, and the default VLAN for any Cisco switch is 1. The graphic shows the PCs are to be in VLAN 20.',
   },
   {
     number: 30,
@@ -398,7 +435,8 @@ export const questions1to39: Question[] = [
       "The ports stop communicating with the attached devices.",
     ],
     correct: [3],
-    explanation: "Explanation: Topic 3.3.10\nAny ports that are not moved to an active VLAN cannot communicate with other hosts after the VLAN is deleted. They must be assigned to an active VLAN or their VLAN must be created.",
+    explanation:
+      "Explanation: Topic 3.3.10\nAny ports that are not moved to an active VLAN cannot communicate with other hosts after the VLAN is deleted. They must be assigned to an active VLAN or their VLAN must be created.",
   },
   {
     number: 31,
@@ -410,9 +448,7 @@ export const questions1to39: Question[] = [
       width: 1536,
       height: 1045,
     },
-    left: [
-      "Type", "VLAN ID", "User Priority", "Canonical Format Identifier",
-    ],
+    left: ["Type", "VLAN ID", "User Priority", "Canonical Format Identifier"],
     right: [
       "a value for the tag protocol ID value",
       "a VLAN number",
@@ -421,7 +457,8 @@ export const questions1to39: Question[] = [
       "a value for the application protocol of the user data in the frame",
     ],
     correctPairs: { 0: 0, 1: 1, 2: 2, 3: 3 },
-    explanation: "Explanation: Topic 3.2.4\nThe IEEE 802.1Q standard header includes a 4-byte VLAN tag: Type - A 2-byte value called the tag protocol ID (TPID) value. User priority - A 3-bit value that supports level or service implementation. Canonical Format Identifier (CFI) - A 1-bit identifier that enables Token Ring frames to be carried across Ethernet links. VLAN ID (VID) - A 12-bit VLAN identification number that supports up to 4096 VLAN IDs.",
+    explanation:
+      "Explanation: Topic 3.2.4\nThe IEEE 802.1Q standard header includes a 4-byte VLAN tag: Type - A 2-byte value called the tag protocol ID (TPID) value. User priority - A 3-bit value that supports level or service implementation. Canonical Format Identifier (CFI) - A 1-bit identifier that enables Token Ring frames to be carried across Ethernet links. VLAN ID (VID) - A 12-bit VLAN identification number that supports up to 4096 VLAN IDs.",
   },
   {
     number: 32,
@@ -433,11 +470,10 @@ export const questions1to39: Question[] = [
       width: 256,
       height: 252,
     },
-    options: [
-      "access", "trunk", "native", "auto",
-    ],
+    options: ["access", "trunk", "native", "auto"],
     correct: [1],
-    explanation: "Explanation: Topic 3.4.1\nThe router is used to route between the two VLANs, thus switch port G0/1 needs to be configured in trunk mode.",
+    explanation:
+      "Explanation: Topic 3.4.1\nThe router is used to route between the two VLANs, thus switch port G0/1 needs to be configured in trunk mode.",
   },
   {
     number: 33,
@@ -449,9 +485,7 @@ export const questions1to39: Question[] = [
       width: 1453,
       height: 477,
     },
-    left: [
-      "dynamic desirable", "dynamic auto", "nonegotiate", "trunk",
-    ],
+    left: ["dynamic desirable", "dynamic auto", "nonegotiate", "trunk"],
     right: [
       "actively attempts to convert the link to a trunk",
       "passively waits for the neighbor to initiate trunking",
@@ -460,29 +494,36 @@ export const questions1to39: Question[] = [
       "permanent nontrunking mode",
     ],
     correctPairs: { 0: 0, 1: 1, 2: 2, 3: 3 },
-    explanation: "Explanation: Topic 3.5.2\nThe dynamic auto mode makes the interface become a trunk interface if the neighboring interface is set to trunk or desirable mode. The dynamic desirable mode makes the interface actively attempt to convert the link to a trunk link. The trunk mode puts the interface into permanent trunking mode and negotiates to convert the neighboring link into a trunk link. The nonegotiate mode prevents the interface from generating DTP frames.",
+    explanation:
+      "Explanation: Topic 3.5.2\nThe dynamic auto mode makes the interface become a trunk interface if the neighboring interface is set to trunk or desirable mode. The dynamic desirable mode makes the interface actively attempt to convert the link to a trunk link. The trunk mode puts the interface into permanent trunking mode and negotiates to convert the neighboring link into a trunk link. The nonegotiate mode prevents the interface from generating DTP frames.",
   },
   {
     number: 34,
     type: "single",
     text: "Port Fa0/11 on a switch is assigned to VLAN 30. If the command no switchport access vlan 30 is entered on the Fa0/11 interface, what will happen?",
     options: [
-      "Port Fa0/11 will be shutdown.", "An error message would be displayed.",
-      "Port Fa0/11 will be returned to VLAN 1.", "VLAN 30 will be deleted.",
+      "Port Fa0/11 will be shutdown.",
+      "An error message would be displayed.",
+      "Port Fa0/11 will be returned to VLAN 1.",
+      "VLAN 30 will be deleted.",
     ],
     correct: [2],
-    explanation: "Explanation: Topic 3.3.9\nWhen the no switchport access vlan command is entered, the port is returned to the default VLAN 1. The port will remain active as a member of VLAN 1, and VLAN 30 will still be intact, even if no other ports are associated with it.",
+    explanation:
+      "Explanation: Topic 3.3.9\nWhen the no switchport access vlan command is entered, the port is returned to the default VLAN 1. The port will remain active as a member of VLAN 1, and VLAN 30 will still be intact, even if no other ports are associated with it.",
   },
   {
     number: 35,
     type: "single",
     text: "Which command displays the encapsulation type, the voice VLAN ID, and the access mode VLAN for the Fa0/1 interface?",
     options: [
-      "show vlan brief", "show interfaces Fa0/1 switchport",
-      "show mac address-table interface Fa0/1", "show interfaces trunk",
+      "show vlan brief",
+      "show interfaces Fa0/1 switchport",
+      "show mac address-table interface Fa0/1",
+      "show interfaces trunk",
     ],
     correct: [1],
-    explanation: "Explanation: Topic 3.3.8\nThe show interfaces switchport command displays the following information for a given port: Switchport Administrative Mode Operational Mode Administrative Trunking Encapsulation Operational Trunking Encapsulation Negotiation of Trunking Access Mode VLAN Trunking Native Mode VLAN Administrative Native VLAN tagging Voice VLAN",
+    explanation:
+      "Explanation: Topic 3.3.8\nThe show interfaces switchport command displays the following information for a given port: Switchport Administrative Mode Operational Mode Administrative Trunking Encapsulation Operational Trunking Encapsulation Negotiation of Trunking Access Mode VLAN Trunking Native Mode VLAN Administrative Native VLAN tagging Voice VLAN",
   },
   {
     number: 36,
@@ -501,7 +542,8 @@ export const questions1to39: Question[] = [
       "The command used to assign the voice VLAN to the switch port is incorrect.",
     ],
     correct: [3],
-    explanation: "Explanation: Topic 3.3.6\nThe voice VLAN should be configured with the switchport voice vlan 150 command. A switch interface can be configured to support one data VLAN and one voice VLAN. The mls qos trust cos associates with the interface. Voice traffic must be trusted so that fields within the voice packet can be used to classify it for QoS.",
+    explanation:
+      "Explanation: Topic 3.3.6\nThe voice VLAN should be configured with the switchport voice vlan 150 command. A switch interface can be configured to support one data VLAN and one voice VLAN. The mls qos trust cos associates with the interface. Voice traffic must be trusted so that fields within the voice packet can be used to classify it for QoS.",
   },
   {
     number: 37,
@@ -519,7 +561,8 @@ export const questions1to39: Question[] = [
       "Configure the switch port in access mode.",
     ],
     correct: [1, 3, 4, 7],
-    explanation: "Explanation: Topic 3.3.11\nTo add an IP phone, the following commands should be added to the switch port: SW3(config-vlan)# vlan 150 SW3(config-vlan)# name voice SW3(config-vlan)# int fa0/20 SW3(config-if)# switchport mode access SW3(config-if)# mls qos trust cos SW3(config-if)# switchport access vlan 150",
+    explanation:
+      "Explanation: Topic 3.3.11\nTo add an IP phone, the following commands should be added to the switch port: SW3(config-vlan)# vlan 150 SW3(config-vlan)# name voice SW3(config-vlan)# int fa0/20 SW3(config-if)# switchport mode access SW3(config-if)# mls qos trust cos SW3(config-if)# switchport access vlan 150",
   },
   {
     number: 38,
@@ -538,7 +581,8 @@ export const questions1to39: Question[] = [
       "The DTP mode is incorrectly set to dynamic auto on interface G0/1.",
     ],
     correct: [0],
-    explanation: "Explanation: Topic 4.4.4\nIn the show interfaces trunk output, the G0/2 interface of DLS1 is not listed. This indicates the interface has probably not been configured as a trunk link. In the show interfaces trunk output, the G0/2 interface of DLS1 is not listed. This indicates the interface has probably not been configured as a trunk link.",
+    explanation:
+      "Explanation: Topic 4.4.4\nIn the show interfaces trunk output, the G0/2 interface of DLS1 is not listed. This indicates the interface has probably not been configured as a trunk link. In the show interfaces trunk output, the G0/2 interface of DLS1 is not listed. This indicates the interface has probably not been configured as a trunk link.",
   },
   {
     number: 39,
@@ -557,6 +601,7 @@ export const questions1to39: Question[] = [
       "The encapsulation dot1Q 20 command has not been configured.",
     ],
     correct: [3],
-    explanation: "Explanation: Topic 4.2.4\nThe subinterface is being configured for a VLAN that does not match the encapsulation command. When the subinterface belongs to VLAN 20, the command encapsulation dot1Q 20 must be issued; without it the router cannot route traffic for that VLAN.",
+    explanation:
+      "Explanation: Topic 4.2.4\nThe subinterface is being configured for a VLAN that does not match the encapsulation command. When the subinterface belongs to VLAN 20, the command encapsulation dot1Q 20 must be issued; without it the router cannot route traffic for that VLAN.",
   },
 ];

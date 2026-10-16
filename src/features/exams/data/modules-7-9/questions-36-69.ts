@@ -71,7 +71,12 @@ export const questions36to69: Question[] = [
       height: 377,
     },
     left: ["Step 1", "Step 2", "Step 3", "Step 4"],
-    right: ["DHCPv6 SOLICIT", "DHCPv6 ADVERTISE", "DHCPv6 REQUEST", "DHCPv6 REPLY"],
+    right: [
+      "DHCPv6 SOLICIT",
+      "DHCPv6 ADVERTISE",
+      "DHCPv6 REQUEST",
+      "DHCPv6 REPLY",
+    ],
     correctPairs: { 0: 0, 1: 1, 2: 2, 3: 3 },
     explanation:
       "Explanation: Topic 8.3.1\nThe stateful DHCPv6 process when a client first connects to an IPv6 network:\nStep 1: DHCPv6 SOLICIT\nStep 2: DHCPv6 ADVERTISE\nStep 3: DHCPv6 REQUEST\nStep 4: DHCPv6 REPLY",
@@ -246,7 +251,12 @@ export const questions36to69: Question[] = [
       width: 363,
       height: 266,
     },
-    options: ["stateless DHCPv6", "SLAAC", "static link-local", "stateful DHCPv6"],
+    options: [
+      "stateless DHCPv6",
+      "SLAAC",
+      "static link-local",
+      "stateful DHCPv6",
+    ],
     correct: [0],
     explanation:
       "Explanation: Topic 8.4.2\nStateful DHCPv6 pools are configured with address prefixes for hosts via the address command, whereas stateless DHCPv6 pools typically only contain information such as DNS server addresses and the domain name. RA messages that are sent from routers that are configured as stateful DHCPv6 servers have the M flag set to 1 with the command ipv6 nd managed-config-flag, whereas stateless DHCPv6 servers are indicated by setting the O flag to 1 with the ipv6 nd other-config-flag command.",

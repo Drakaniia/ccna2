@@ -19,7 +19,8 @@ export const questions1to86: Question[] = [
       "forward the packet out Serial0/0/0",
     ],
     correct: [3],
-    explanation: "Explanation: Topic 14.4.9\nThe route ::/0 is the compressed form of the 0000:0000:0000:0000:0000:0000:0000:0000/0 default route. The default route is used if a more specific route is not found in the routing table.",
+    explanation:
+      "Explanation: Topic 14.4.9\nThe route ::/0 is the compressed form of the 0000:0000:0000:0000:0000:0000:0000:0000/0 default route. The default route is used if a more specific route is not found in the routing table.",
   },
   {
     number: 2,
@@ -38,7 +39,8 @@ export const questions1to86: Question[] = [
       "ip route 10.10.0.0 255.255.0.0 209.165.200.225 50",
     ],
     correct: [2],
-    explanation: "Explanation: Topic 15.4.1\nA floating static route needs to have an administrative distance that is greater than the administrative distance of the active route in the routing table. Router R1 is using an EIGRP route which has an administrative distance of 90 to reach the 10.10.0.0/16 network. To be a backup route the floating static route must have an administrative distance greater than 90 and have a next hop address corresponding to the serial interface IP address of Branch1.",
+    explanation:
+      "Explanation: Topic 15.4.1\nA floating static route needs to have an administrative distance that is greater than the administrative distance of the active route in the routing table. Router R1 is using an EIGRP route which has an administrative distance of 90 to reach the 10.10.0.0/16 network. To be a backup route the floating static route must have an administrative distance greater than 90 and have a next hop address corresponding to the serial interface IP address of Branch1.",
   },
   {
     number: 3,
@@ -57,7 +59,8 @@ export const questions1to86: Question[] = [
       "Add the next-hop neighbor address of 209.165.200.226.",
     ],
     correct: [1],
-    explanation: "Explanation: Topic 15.3.1\nThe static route on R1 has been incorrectly configured with the wrong destination network and mask. The correct destination network and mask is 0.0.0.0 0.0.0.0.",
+    explanation:
+      "Explanation: Topic 15.3.1\nThe static route on R1 has been incorrectly configured with the wrong destination network and mask. The correct destination network and mask is 0.0.0.0 0.0.0.0.",
   },
   {
     number: 4,
@@ -70,7 +73,8 @@ export const questions1to86: Question[] = [
       "ip route 0.0.0.0 255.0.0.0 S0/0/0",
     ],
     correct: [1],
-    explanation: "Explanation: Topic 15.3.1\nThe static route ip route 0.0.0.0 0.0.0.0 S0/0/0 is considered a default static route and will match all destination networks.",
+    explanation:
+      "Explanation: Topic 15.3.1\nThe static route ip route 0.0.0.0 0.0.0.0 S0/0/0 is considered a default static route and will match all destination networks.",
   },
   {
     number: 5,
@@ -89,7 +93,8 @@ export const questions1to86: Question[] = [
       "ipv6 route 2001:db8:12:10::/64 S0/0/1 2001:db8:12:10::1",
     ],
     correct: [1],
-    explanation: "Explanation: Topic 15.2.6\nA fully specified static route must be used when the next hop is an IPv6 link-local address because link-local addresses are not contained in the IPv6 routing table and are only unique to a specific link, requiring the exit interface to be explicitly identified so the router knows which network segment the address belongs to.",
+    explanation:
+      "Explanation: Topic 15.2.6\nA fully specified static route must be used when the next hop is an IPv6 link-local address because link-local addresses are not contained in the IPv6 routing table and are only unique to a specific link, requiring the exit interface to be explicitly identified so the router knows which network segment the address belongs to.",
   },
   {
     number: 6,
@@ -102,7 +107,8 @@ export const questions1to86: Question[] = [
       "flooding the switch with MAC addresses",
     ],
     correct: [0],
-    explanation: "Explanation: Topic 10.5.2\nA VLAN hopping attack enables traffic from one VLAN to be seen by another without the aid of a router by configuring a host or rogue switch to spoof Dynamic Trunking Protocol (DTP) signaling, which exploits switch ports that have the automatic trunking feature enabled by default to establish an unauthorized trunk link and grant the attacker access to all VLANs on the switch.",
+    explanation:
+      "Explanation: Topic 10.5.2\nA VLAN hopping attack enables traffic from one VLAN to be seen by another without the aid of a router by configuring a host or rogue switch to spoof Dynamic Trunking Protocol (DTP) signaling, which exploits switch ports that have the automatic trunking feature enabled by default to establish an unauthorized trunk link and grant the attacker access to all VLANs on the switch.",
   },
   {
     number: 7,
@@ -115,7 +121,8 @@ export const questions1to86: Question[] = [
       "VLAN double-tagging",
     ],
     correct: [2],
-    explanation: "Explanation: Topic 10.4.2\nMacof is a network attack tool and is mainly used to flood LAN switches with MAC addresses.",
+    explanation:
+      "Explanation: Topic 10.4.2\nMacof is a network attack tool and is mainly used to flood LAN switches with MAC addresses.",
   },
   {
     number: 8,
@@ -134,7 +141,8 @@ export const questions1to86: Question[] = [
       "The state is not maintained by the DHCPv6 server under stateless DHCPv6 operation.",
     ],
     correct: [3],
-    explanation: "Explanation: Topic 8.3.2\nUnder the stateless DHCPv6 configuration, indicated by the command ipv6 nd other-config-flag, the DHCPv6 server does not maintain the state information, because client IPv6 addresses are not managed by the DHCP server. Because the clients will configure their IPv6 addresses by combining the prefix/prefix-length and a self-generated interface ID, the ipv6 dhcp pool configuration does not need to specify the valid IPv6 address range. And because clients will use the link-local address of the router interface as the default gateway address, the default gateway address is not necessary.",
+    explanation:
+      "Explanation: Topic 8.3.2\nUnder the stateless DHCPv6 configuration, indicated by the command ipv6 nd other-config-flag, the DHCPv6 server does not maintain the state information, because client IPv6 addresses are not managed by the DHCP server. Because the clients will configure their IPv6 addresses by combining the prefix/prefix-length and a self-generated interface ID, the ipv6 dhcp pool configuration does not need to specify the valid IPv6 address range. And because clients will use the link-local address of the router interface as the default gateway address, the default gateway address is not necessary.",
   },
   {
     number: 9,
@@ -153,7 +161,8 @@ export const questions1to86: Question[] = [
       "the IP address and the MAC address of R1",
     ],
     correct: [0],
-    explanation: "Explanation: Topic 9.1.2\nHosts will send an ARP request to the default gateway which is the virtual IP address. ARP replies from the HSRP routers contain the virtual MAC address. The host ARP tables will contain a mapping of the virtual IP to the virtual MAC.",
+    explanation:
+      "Explanation: Topic 9.1.2\nHosts will send an ARP request to the default gateway which is the virtual IP address. ARP replies from the HSRP routers contain the virtual MAC address. The host ARP tables will contain a mapping of the virtual IP to the virtual MAC.",
   },
   {
     number: 10,
@@ -173,13 +182,11 @@ export const questions1to86: Question[] = [
       "may forward invalid frames",
       "only forwards valid frames",
     ],
-    right: [
-      "cut-through",
-      "store-and-forward",
-    ],
+    right: ["cut-through", "store-and-forward"],
     correctPairs: { 0: 0, 1: 1, 2: 0, 3: 1, 4: 0, 5: 1 },
     allowMultiMatch: true,
-    explanation: "Explanation: Topic 2.1.5\nCut-through switching begins the forwarding process as soon as the destination MAC address is received, so it can forward invalid frames and is appropriate for high performance computing applications because the frame is forwarded with very low latency. Store-and-forward switching receives the entire frame and performs error checking before forwarding, so it only forwards valid frames.",
+    explanation:
+      "Explanation: Topic 2.1.5\nCut-through switching begins the forwarding process as soon as the destination MAC address is received, so it can forward invalid frames and is appropriate for high performance computing applications because the frame is forwarded with very low latency. Store-and-forward switching receives the entire frame and performs error checking before forwarding, so it only forwards valid frames.",
   },
   {
     number: 11,
@@ -192,7 +199,8 @@ export const questions1to86: Question[] = [
       "Cut-through frame forwarding ensures that invalid frames are always dropped.",
     ],
     correct: [0],
-    explanation: "Explanation: Topic 2.1.2\nCut-through frame forwarding reads up to only the first 22 bytes of a frame, which excludes the frame check sequence and thus invalid frames may be forwarded. In addition to broadcast frames, frames with a destination MAC address that is not in the CAM are also flooded out all active ports. Unicast frames are not always forwarded. Received frames with a destination MAC address that is associated with the switch port on which it is received are not forwarded because the destination exists on the network segment connected to that port.",
+    explanation:
+      "Explanation: Topic 2.1.2\nCut-through frame forwarding reads up to only the first 22 bytes of a frame, which excludes the frame check sequence and thus invalid frames may be forwarded. In addition to broadcast frames, frames with a destination MAC address that is not in the CAM are also flooded out all active ports. Unicast frames are not always forwarded. Received frames with a destination MAC address that is associated with the switch port on which it is received are not forwarded because the destination exists on the network segment connected to that port.",
   },
   {
     number: 12,
@@ -206,7 +214,8 @@ export const questions1to86: Question[] = [
       "Unicast frames are always forwarded regardless of the destination MAC address.",
     ],
     correct: [0],
-    explanation: "Explanation: Topic 2.2.2\nIn Cisco LAN switches, the microsegmentation makes it possible for each port to represent a separate segment and thus each switch port represents a separate collision domain. This fact will not change when multiple switches are interconnected. However, LAN switches do not filter broadcast frames. A broadcast frame is flooded to all ports. Interconnected switches form one big broadcast domain.",
+    explanation:
+      "Explanation: Topic 2.2.2\nIn Cisco LAN switches, the microsegmentation makes it possible for each port to represent a separate segment and thus each switch port represents a separate collision domain. This fact will not change when multiple switches are interconnected. However, LAN switches do not filter broadcast frames. A broadcast frame is flooded to all ports. Interconnected switches form one big broadcast domain.",
   },
   {
     number: 13,
@@ -218,12 +227,7 @@ export const questions1to86: Question[] = [
       width: 734,
       height: 569,
     },
-    left: [
-      "Disabled",
-      "Layer 1 problem",
-      "Layer 2 problem",
-      "Operational",
-    ],
+    left: ["Disabled", "Layer 1 problem", "Layer 2 problem", "Operational"],
     right: [
       "administratively down",
       "down/down",
@@ -232,7 +236,8 @@ export const questions1to86: Question[] = [
       "up/up",
     ],
     correctPairs: { 0: 0, 1: 1, 2: 3, 3: 4 },
-    explanation: "Explanation: Topic 1.2.6\nThe correct pairings are:\n- Disabled → administratively down\n- Layer 1 problem → down/down\n- Layer 2 problem → up/down\n- Operational → up/up\nThe up/disabled status combination is not used.",
+    explanation:
+      "Explanation: Topic 1.2.6\nThe correct pairings are:\n- Disabled → administratively down\n- Layer 1 problem → down/down\n- Layer 2 problem → up/down\n- Operational → up/up\nThe up/disabled status combination is not used.",
   },
   {
     number: 14,
@@ -251,7 +256,8 @@ export const questions1to86: Question[] = [
       "SW1 drops the frame because it does not know the destination MAC address.",
     ],
     correct: [2],
-    explanation: "Explanation: Topic 2.1.3\nWhen a switch powers on, the MAC address table is empty. The switch builds the MAC address table by examining the source MAC address of incoming frames. The switch forwards based on the destination MAC address found in the frame header. If a switch has no entries in the MAC address table or if the destination MAC address is not in the switch table, the switch will forward the frame out all ports except the port that brought the frame into the switch.",
+    explanation:
+      "Explanation: Topic 2.1.3\nWhen a switch powers on, the MAC address table is empty. The switch builds the MAC address table by examining the source MAC address of incoming frames. The switch forwards based on the destination MAC address found in the frame header. If a switch has no entries in the MAC address table or if the destination MAC address is not in the switch table, the switch will forward the frame out all ports except the port that brought the frame into the switch.",
   },
   {
     number: 15,
@@ -264,7 +270,8 @@ export const questions1to86: Question[] = [
       "These VLANs can only be removed from the switch by using the no vlan 10 and no vlan 100 commands.",
     ],
     correct: [0],
-    explanation: "Explanation: Topic 3.3.10\nStandard range VLANs (1-1005) are stored in a file that is called vlan.dat that is located in flash memory. Erasing the startup configuration and reloading a switch does not automatically remove these VLANs. The vlan.dat file must be manually deleted from flash memory and then the switch must be reloaded.",
+    explanation:
+      "Explanation: Topic 3.3.10\nStandard range VLANs (1-1005) are stored in a file that is called vlan.dat that is located in flash memory. Erasing the startup configuration and reloading a switch does not automatically remove these VLANs. The vlan.dat file must be manually deleted from flash memory and then the switch must be reloaded.",
   },
   {
     number: 16,
@@ -276,12 +283,7 @@ export const questions1to86: Question[] = [
       width: 730,
       height: 692,
     },
-    left: [
-      "Default VLAN",
-      "Management VLAN",
-      "Data VLANs",
-      "Native VLAN",
-    ],
+    left: ["Default VLAN", "Management VLAN", "Data VLANs", "Native VLAN"],
     right: [
       "configured to carry user generated traffic",
       "all switch ports are assigned to this VLAN after initial bootup of the switch",
@@ -290,7 +292,8 @@ export const questions1to86: Question[] = [
       "only accessible by the network administrator",
     ],
     correctPairs: { 0: 1, 1: 3, 2: 0, 3: 2 },
-    explanation: "Explanation: Topic 3.1.3\nA data VLAN is configured to carry user-generated traffic. A default VLAN is the VLAN where all switch ports belong after the initial boot up of a switch loading the default configuration. A native VLAN is assigned to an 802.1Q trunk port, and untagged traffic is placed on it. A management VLAN is any VLAN that is configured to access the management capabilities of a switch. An IP address and subnet mask are assigned to it, allowing the switch to be managed via HTTP, Telnet, SSH, or SNMP.",
+    explanation:
+      "Explanation: Topic 3.1.3\nA data VLAN is configured to carry user-generated traffic. A default VLAN is the VLAN where all switch ports belong after the initial boot up of a switch loading the default configuration. A native VLAN is assigned to an 802.1Q trunk port, and untagged traffic is placed on it. A management VLAN is any VLAN that is configured to access the management capabilities of a switch. An IP address and subnet mask are assigned to it, allowing the switch to be managed via HTTP, Telnet, SSH, or SNMP.",
   },
   {
     number: 17,
@@ -309,7 +312,8 @@ export const questions1to86: Question[] = [
       "Both port channels will shutdown.",
     ],
     correct: [0],
-    explanation: "Explanation: Topic 6.1.3\nCisco switches support two protocols for negotiating a channel between two switches: LACP and PAgP. PAgP is Cisco-proprietary. In the topology shown, the switches are connected to each other using redundant links. By default, STP is enabled on switch devices. STP will block redundant links to prevent loops.",
+    explanation:
+      "Explanation: Topic 6.1.3\nCisco switches support two protocols for negotiating a channel between two switches: LACP and PAgP. PAgP is Cisco-proprietary. In the topology shown, the switches are connected to each other using redundant links. By default, STP is enabled on switch devices. STP will block redundant links to prevent loops.",
   },
   {
     number: 18,
@@ -322,20 +326,17 @@ export const questions1to86: Question[] = [
       "Configure Telnet.",
     ],
     correct: [2],
-    explanation: "Explanation: Topic 1.3.2\nSecure Shell (SSH) is a secure protocol that provides an encrypted management connection to a remote device by using strong encryption for both the authentication process and the data transmitted between devices, making it the secure replacement for Telnet which transmits information in insecure plaintext.",
+    explanation:
+      "Explanation: Topic 1.3.2\nSecure Shell (SSH) is a secure protocol that provides an encrypted management connection to a remote device by using strong encryption for both the authentication process and the data transmitted between devices, making it the secure replacement for Telnet which transmits information in insecure plaintext.",
   },
   {
     number: 19,
     type: "single",
     text: "Which wireless encryption method is the most secure?",
-    options: [
-      "WPA2 with AES",
-      "WPA2 with TKIP",
-      "WEP",
-      "WPA",
-    ],
+    options: ["WPA2 with AES", "WPA2 with TKIP", "WEP", "WPA"],
     correct: [0],
-    explanation: "Explanation: Topic 12.7.4\nIEEE 802.11i and WPA2 both use the Advanced Encryption Standard (AES) for encryption. AES is currently considered the strongest encryption protocol. WPA2 does not use TKIP (Temporal Key Integrity Protocol). It is WPA that uses TKIP. Although WPA provides stronger encryption than WEP, it is is not as strong as WPA2 (AES).",
+    explanation:
+      "Explanation: Topic 12.7.4\nIEEE 802.11i and WPA2 both use the Advanced Encryption Standard (AES) for encryption. AES is currently considered the strongest encryption protocol. WPA2 does not use TKIP (Temporal Key Integrity Protocol). It is WPA that uses TKIP. Although WPA provides stronger encryption than WEP, it is is not as strong as WPA2 (AES).",
   },
   {
     number: 20,
@@ -348,7 +349,8 @@ export const questions1to86: Question[] = [
       "standalone wireless access point",
     ],
     correct: [1],
-    explanation: "Explanation: Topic 12.2.3\nA wireless router is an integrated device that combines the functionality of a switch to interconnect wired PCs, an access point to provide wireless connectivity via a configured SSID, and a router to serve as a default gateway for internet access while also providing built-in firewall and security features to protect the local network.",
+    explanation:
+      "Explanation: Topic 12.2.3\nA wireless router is an integrated device that combines the functionality of a switch to interconnect wired PCs, an access point to provide wireless connectivity via a configured SSID, and a router to serve as a default gateway for internet access while also providing built-in firewall and security features to protect the local network.",
   },
   {
     number: 21,
@@ -368,7 +370,8 @@ export const questions1to86: Question[] = [
       "Source MAC: 00E0.FE91.7799\nSource IP: 192.168.1.1",
     ],
     correct: [0],
-    explanation: "Explanation: Topic 14.2.2\nAs a packet traverses the network, the Layer 2 addresses will change at every hop as the packet is de-encapsulated and re-encapsulated, but the Layer 3 addresses will remain the same.",
+    explanation:
+      "Explanation: Topic 14.2.2\nAs a packet traverses the network, the Layer 2 addresses will change at every hop as the packet is de-encapsulated and re-encapsulated, but the Layer 3 addresses will remain the same.",
   },
   {
     number: 23,
@@ -388,20 +391,17 @@ export const questions1to86: Question[] = [
       "Packets that are destined for networks that are not in the routing table of HQ will be dropped.",
     ],
     correct: [1],
-    explanation: "Explanation: Topic 15.3.1\nThe command ip route 0.0.0.0 0.0.0.0 serial 0/1/1 configures a default static route, also known as a quad-zero route, which serves as a gateway of last resort by matching all packets that do not have a more specific entry in the routing table, ensuring that traffic destined for unknown remote networks like the Internet is forwarded out the specified serial interface instead of being dropped.",
+    explanation:
+      "Explanation: Topic 15.3.1\nThe command ip route 0.0.0.0 0.0.0.0 serial 0/1/1 configures a default static route, also known as a quad-zero route, which serves as a gateway of last resort by matching all packets that do not have a more specific entry in the routing table, ensuring that traffic destined for unknown remote networks like the Internet is forwarded out the specified serial interface instead of being dropped.",
   },
   {
     number: 24,
     type: "single",
     text: "What protocol or technology disables redundant paths to eliminate Layer 2 loops?",
-    options: [
-      "VTP",
-      "STP",
-      "EtherChannel",
-      "DTP",
-    ],
+    options: ["VTP", "STP", "EtherChannel", "DTP"],
     correct: [1],
-    explanation: "Explanation: Topic 5.1.2\nSpanning Tree Protocol (STP) is a loop-prevention network protocol specifically designed to eliminate Layer 2 loops in redundant switched networks by intentionally identifying and blocking redundant physical paths to ensure that only one logical path exists between any two devices at a time, while still maintaining the ability to automatically unblock those paths if an active link fails.",
+    explanation:
+      "Explanation: Topic 5.1.2\nSpanning Tree Protocol (STP) is a loop-prevention network protocol specifically designed to eliminate Layer 2 loops in redundant switched networks by intentionally identifying and blocking redundant physical paths to ensure that only one logical path exists between any two devices at a time, while still maintaining the ability to automatically unblock those paths if an active link fails.",
   },
   {
     number: 25,
@@ -420,7 +420,8 @@ export const questions1to86: Question[] = [
       "because VLAN 99 has not yet been created",
     ],
     correct: [3],
-    explanation: "Explanation: Topic 4.4.3\nVLAN 99 is the management VLAN and must be added to the VLAN database before it will appear in the show vlan output. To do so, enter the following commands:\nSw1(config)# vlan 99\nSw1(config-vlan)# name Management\nSW1(config-vlan)# exit",
+    explanation:
+      "Explanation: Topic 4.4.3\nVLAN 99 is the management VLAN and must be added to the VLAN database before it will appear in the show vlan output. To do so, enter the following commands:\nSw1(config)# vlan 99\nSw1(config-vlan)# name Management\nSW1(config-vlan)# exit",
   },
   {
     number: 26,
@@ -436,7 +437,8 @@ export const questions1to86: Question[] = [
       "transparent",
     ],
     correct: [4, 5],
-    explanation: "Explanation: Topic 3.3.1\nThe three VTP modes are server, client, and transparent. In server VTP mode, the switch can create, modify, and delete VLANs and send this information on to other switches that are in the same VTP domain. Switches in transparent VTP mode can do the same except that information is not transmitted to other switches.",
+    explanation:
+      "Explanation: Topic 3.3.1\nThe three VTP modes are server, client, and transparent. In server VTP mode, the switch can create, modify, and delete VLANs and send this information on to other switches that are in the same VTP domain. Switches in transparent VTP mode can do the same except that information is not transmitted to other switches.",
   },
   {
     number: 27,
@@ -452,7 +454,8 @@ export const questions1to86: Question[] = [
       "Reboot the switch.",
     ],
     correct: [0, 4, 5],
-    explanation: "Explanation: Topic 3.3.1\nWhen adding a new switch to a VTP domain, it is critical to configure the switch with a new domain name, the correct VTP mode, VTP version number, and password. A switch with a higher revision number can propagate invalid VLANs and erase valid VLANs thus preventing connectivity for multiple devices on the valid VLANs.",
+    explanation:
+      "Explanation: Topic 3.3.1\nWhen adding a new switch to a VTP domain, it is critical to configure the switch with a new domain name, the correct VTP mode, VTP version number, and password. A switch with a higher revision number can propagate invalid VLANs and erase valid VLANs thus preventing connectivity for multiple devices on the valid VLANs.",
   },
   {
     number: 28,
@@ -465,7 +468,8 @@ export const questions1to86: Question[] = [
       "Link types must be configured with specific port configuration commands.",
     ],
     correct: [2],
-    explanation: "Explanation: Topic 5.3.2\nWhen Rapid PVST+ is being implemented, link types are automatically determined but can be specified manually. Link types can be either point-to-point, shared, or edge.",
+    explanation:
+      "Explanation: Topic 5.3.2\nWhen Rapid PVST+ is being implemented, link types are automatically determined but can be specified manually. Link types can be either point-to-point, shared, or edge.",
   },
   {
     number: 29,
@@ -478,16 +482,10 @@ export const questions1to86: Question[] = [
       height: 337,
     },
     choose: 3,
-    options: [
-      "fa0/9",
-      "fa0/13",
-      "fa0/10",
-      "fa0/20",
-      "fa0/21",
-      "fa0/11",
-    ],
+    options: ["fa0/9", "fa0/13", "fa0/10", "fa0/20", "fa0/21", "fa0/11"],
     correct: [1, 2, 4],
-    explanation: "Explanation: Topic 5.2.6\nGiven that all the switches have the same default priority and are operating at the same bandwidth, the switch with the lowest MAC address will become the root bridge. This would be SW3 and all its ports would be designated ports. SW1 has a lower MAC address than SW2 has and therefore port fa0/10 will become the designated port on that link.",
+    explanation:
+      "Explanation: Topic 5.2.6\nGiven that all the switches have the same default priority and are operating at the same bandwidth, the switch with the lowest MAC address will become the root bridge. This would be SW3 and all its ports would be designated ports. SW1 has a lower MAC address than SW2 has and therefore port fa0/10 will become the designated port on that link.",
   },
   {
     number: 30,
@@ -500,7 +498,8 @@ export const questions1to86: Question[] = [
       "Serial point-to-point interfaces will require fully specified static routes to avoid routing inconsistencies.",
     ],
     correct: [1],
-    explanation: "Explanation: Topic 15.2.5\nIn most platforms running IOS 12.0 or later, Cisco Express Forwarding is enabled by default. Cisco Express Forwarding eliminates the need for the recursive lookup. If Cisco Express Forwarding is disabled, multiaccess network interfaces require fully specified static routes in order to avoid inconsistencies in their routing tables. Point-to-point interfaces do not have this problem, because multiple end points are not present. With or without Cisco Express Forwarding enabled, using an exit interface when configuring a static route is a viable option.",
+    explanation:
+      "Explanation: Topic 15.2.5\nIn most platforms running IOS 12.0 or later, Cisco Express Forwarding is enabled by default. Cisco Express Forwarding eliminates the need for the recursive lookup. If Cisco Express Forwarding is disabled, multiaccess network interfaces require fully specified static routes in order to avoid inconsistencies in their routing tables. Point-to-point interfaces do not have this problem, because multiple end points are not present. With or without Cisco Express Forwarding enabled, using an exit interface when configuring a static route is a viable option.",
   },
   {
     number: 31,
@@ -514,7 +513,8 @@ export const questions1to86: Question[] = [
       "They use fewer router resources.",
     ],
     correct: [0, 3],
-    explanation: "Explanation: Topic 14.5.1\nStatic routes are manually configured on a router. Static routes are not automatically updated and must be manually reconfigured if the network topology changes. Thus static routing improves network security because it does not make route updates among neighboring routers. Static routes also improve resource efficiency by using less bandwidth, and no CPU cycles are used to calculate and communicate routes.",
+    explanation:
+      "Explanation: Topic 14.5.1\nStatic routes are manually configured on a router. Static routes are not automatically updated and must be manually reconfigured if the network topology changes. Thus static routing improves network security because it does not make route updates among neighboring routers. Static routes also improve resource efficiency by using less bandwidth, and no CPU cycles are used to calculate and communicate routes.",
   },
   {
     number: 32,
@@ -533,7 +533,8 @@ export const questions1to86: Question[] = [
       "C 10.16.2.0/24 is directly connected, Serial0/0/0",
     ],
     correct: [0],
-    explanation: "Explanation: Topic 15.2.1\nThe C in a routing table indicates an interface that is up and has an IP address assigned. The S in a routing table signifies that a route was installed using the ip route command. Two of the routing table entries shown are static routes to a specific destination (the 192.168.2.0 network). The entry that has the S denoting a static route and [1/0] was configured using the next-hop address. The other entry (S 192.168.2.0/24 is directly connected, Serial 0/0/0) is a static route configured using the exit interface. The entry with the 0.0.0.0 route is a default static route which is used to send packets to any destination network that is not specifically listed in the routing table.",
+    explanation:
+      "Explanation: Topic 15.2.1\nThe C in a routing table indicates an interface that is up and has an IP address assigned. The S in a routing table signifies that a route was installed using the ip route command. Two of the routing table entries shown are static routes to a specific destination (the 192.168.2.0 network). The entry that has the S denoting a static route and [1/0] was configured using the next-hop address. The other entry (S 192.168.2.0/24 is directly connected, Serial 0/0/0) is a static route configured using the exit interface. The entry with the 0.0.0.0 route is a default static route which is used to send packets to any destination network that is not specifically listed in the routing table.",
   },
   {
     number: 33,
@@ -546,20 +547,17 @@ export const questions1to86: Question[] = [
       "It checks the source L2 address in the Ethernet header against the sender L2 address in the ARP body.",
     ],
     correct: [2],
-    explanation: "Explanation: Topic 11.5.2\nThe spanning-tree portfast interface configuration command is used to enable PortFast on a specific switch port, which allows the interface to bypass the standard Spanning Tree Protocol (STP) listening and learning states to transition immediately from a blocking state to a forwarding state. This feature is specifically designed for ports connected to end devices to minimize the time they must wait for STP to converge, thereby preventing issues such as DHCP timeouts during the initial connection process.",
+    explanation:
+      "Explanation: Topic 11.5.2\nThe spanning-tree portfast interface configuration command is used to enable PortFast on a specific switch port, which allows the interface to bypass the standard Spanning Tree Protocol (STP) listening and learning states to transition immediately from a blocking state to a forwarding state. This feature is specifically designed for ports connected to end devices to minimize the time they must wait for STP to converge, thereby preventing issues such as DHCP timeouts during the initial connection process.",
   },
   {
     number: 34,
     type: "single",
     text: "What is the IPv6 prefix that is used for link-local addresses?",
-    options: [
-      "FF01::/8",
-      "2001::/3",
-      "FC00::/7",
-      "FE80::/10",
-    ],
+    options: ["FF01::/8", "2001::/3", "FC00::/7", "FE80::/10"],
     correct: [3],
-    explanation: "Explanation: Topic 1.5.3\nThe IPv6 link-local prefix is FE80::/10 and is used to create a link-local IPv6 address on an interface.",
+    explanation:
+      "Explanation: Topic 1.5.3\nThe IPv6 link-local prefix is FE80::/10 and is used to create a link-local IPv6 address on an interface.",
   },
   {
     number: 35,
@@ -574,7 +572,8 @@ export const questions1to86: Question[] = [
       "They are not associated with a particular VLAN.",
     ],
     correct: [0, 4],
-    explanation: "Explanation: Topic 4.3.1\nRouted ports are physical ports that act similarly to a router interface. They are not associated with a particular VLAN, they do not support subinterfaces, and they are used for point-to-point links. In a switched network, they are mostly configured between switches at the core and distribution layers. To configure routed ports, the no switchport interface command has to be used on the appropriate ports.",
+    explanation:
+      "Explanation: Topic 4.3.1\nRouted ports are physical ports that act similarly to a router interface. They are not associated with a particular VLAN, they do not support subinterfaces, and they are used for point-to-point links. In a switched network, they are mostly configured between switches at the core and distribution layers. To configure routed ports, the no switchport interface command has to be used on the appropriate ports.",
   },
   {
     number: 36,
@@ -587,7 +586,8 @@ export const questions1to86: Question[] = [
       "Inter-VLAN routing also failed when the trunk link failed.",
     ],
     correct: [1],
-    explanation: "Explanation: Topic 4.4.1\nWhen a backup trunk link is activated by STP and only specific VLANs experience connectivity issues while others remain functional, the most likely cause is that the backup interface's allowed VLAN list was not configured to include all the necessary VLAN IDs. Because trunks only propagate traffic for VLANs explicitly permitted in their configuration, an incomplete allowed list on the backup link will block traffic for the missing VLANs once the primary link fails, even if inter-VLAN routing is otherwise operational.",
+    explanation:
+      "Explanation: Topic 4.4.1\nWhen a backup trunk link is activated by STP and only specific VLANs experience connectivity issues while others remain functional, the most likely cause is that the backup interface's allowed VLAN list was not configured to include all the necessary VLAN IDs. Because trunks only propagate traffic for VLANs explicitly permitted in their configuration, an incomplete allowed list on the backup link will block traffic for the missing VLANs once the primary link fails, even if inter-VLAN routing is otherwise operational.",
   },
   {
     number: 37,
@@ -600,7 +600,8 @@ export const questions1to86: Question[] = [
       "channel-group 2 mode auto",
     ],
     correct: [2],
-    explanation: "Explanation: Topic 6.2.2\nTo specify the interfaces in an EtherChannel group, use the interface range interface global configuration command for the range of interfaces used. The interface range GigabitEthernet 0/4 – 5 command is the correct option because it specifies two interfaces for the EtherChannel group.",
+    explanation:
+      "Explanation: Topic 6.2.2\nTo specify the interfaces in an EtherChannel group, use the interface range interface global configuration command for the range of interfaces used. The interface range GigabitEthernet 0/4 – 5 command is the correct option because it specifies two interfaces for the EtherChannel group.",
   },
   {
     number: 38,
@@ -613,7 +614,8 @@ export const questions1to86: Question[] = [
       "The switch replaces the old entry and uses the more current port.",
     ],
     correct: [0],
-    explanation: "Explanation: Topic 2.1.3\nIf the destination MAC address is a broadcast or a multicast, the frame is also flooded out all ports except the incoming port.",
+    explanation:
+      "Explanation: Topic 2.1.3\nIf the destination MAC address is a broadcast or a multicast, the frame is also flooded out all ports except the incoming port.",
   },
   {
     number: 39,
@@ -626,23 +628,18 @@ export const questions1to86: Question[] = [
       "Check the configuration of the exit interface on the new static route.",
     ],
     correct: [3],
-    explanation: "Explanation: Topic 15.2.3\nWhen a traceroute reveals a wrong path or unreachable status immediately after adding a static route, it typically indicates that the route was configured with an incorrect egress point; therefore, checking the exit interface is essential to ensure the router is forwarding packets toward the intended network segment rather than misdirecting them out a different physical or logical interface.",
+    explanation:
+      "Explanation: Topic 15.2.3\nWhen a traceroute reveals a wrong path or unreachable status immediately after adding a static route, it typically indicates that the route was configured with an incorrect egress point; therefore, checking the exit interface is essential to ensure the router is forwarding packets toward the intended network segment rather than misdirecting them out a different physical or logical interface.",
   },
   {
     number: 40,
     type: "multi",
     text: "Select the three PAgP channel establishment modes. (Choose three.)",
     choose: 3,
-    options: [
-      "auto",
-      "default",
-      "passive",
-      "desirable",
-      "extended",
-      "on",
-    ],
+    options: ["auto", "default", "passive", "desirable", "extended", "on"],
     correct: [0, 3, 5],
-    explanation: "Explanation: Topic 6.1.6\nPort Aggregation Protocol (PAgP) supports three channel establishment modes: on, which forces the interface to channel without exchanging PAgP packets; desirable, which places the interface in an active negotiating state to initiate negotiations with other interfaces; and auto, which puts the interface in a passive negotiating state where it responds to received PAgP packets but does not initiate negotiation.",
+    explanation:
+      "Explanation: Topic 6.1.6\nPort Aggregation Protocol (PAgP) supports three channel establishment modes: on, which forces the interface to channel without exchanging PAgP packets; desirable, which places the interface in an active negotiating state to initiate negotiations with other interfaces; and auto, which puts the interface in a passive negotiating state where it responds to received PAgP packets but does not initiate negotiation.",
   },
   {
     number: 41,
@@ -655,7 +652,8 @@ export const questions1to86: Question[] = [
       "Nothing. The static route will go away on its own.",
     ],
     correct: [0],
-    explanation: "Explanation: Topic 15.2\nWhen the destination network specified in a static route does not exist anymore, the static route stays in the routing table until it is manually removed by using the no ip route command.",
+    explanation:
+      "Explanation: Topic 15.2\nWhen the destination network specified in a static route does not exist anymore, the static route stays in the routing table until it is manually removed by using the no ip route command.",
   },
   {
     number: 42,
@@ -674,7 +672,8 @@ export const questions1to86: Question[] = [
       "R1 will send a message to a local DHCPv4 client to contact a DHCPv4 server at 10.10.10.8.",
     ],
     correct: [0],
-    explanation: "Explanation: Topic 7.2.8\nThe presence of the ip helper-address 10.10.10.8 command on the GigabitEthernet0/0 interface indicates that R1 is acting as a DHCPv4 relay agent, which allows the router to intercept local broadcast DHCPv4 discovery messages and forward them as unicast packets to a DHCPv4 server located on a different subnet.",
+    explanation:
+      "Explanation: Topic 7.2.8\nThe presence of the ip helper-address 10.10.10.8 command on the GigabitEthernet0/0 interface indicates that R1 is acting as a DHCPv4 relay agent, which allows the router to intercept local broadcast DHCPv4 discovery messages and forward them as unicast packets to a DHCPv4 server located on a different subnet.",
   },
   {
     number: 43,
@@ -686,14 +685,7 @@ export const questions1to86: Question[] = [
       width: 725,
       height: 892,
     },
-    left: [
-      "Step 1",
-      "Step 2",
-      "Step 3",
-      "Step 4",
-      "Step 5",
-      "Step 6",
-    ],
+    left: ["Step 1", "Step 2", "Step 3", "Step 4", "Step 5", "Step 6"],
     right: [
       "perform low-level CPU initialization",
       "enter global configuration mode",
@@ -704,7 +696,8 @@ export const questions1to86: Question[] = [
       "transfer switch control to the IOS",
     ],
     correctPairs: { 0: 2, 1: 4, 2: 0, 3: 3, 4: 5, 5: 6 },
-    explanation: "Explanation: Topic 1.1.1\nThe steps of the switch boot sequence are:\n1. execute POST\n2. load the boot loader from ROM\n3. perform low-level CPU initialization\n4. flash file system initialization\n5. load the IOS\n6. transfer switch control to the IOS\nEntering global configuration mode is not part of the boot sequence, so it is not used.",
+    explanation:
+      "Explanation: Topic 1.1.1\nThe steps of the switch boot sequence are:\n1. execute POST\n2. load the boot loader from ROM\n3. perform low-level CPU initialization\n4. flash file system initialization\n5. load the IOS\n6. transfer switch control to the IOS\nEntering global configuration mode is not part of the boot sequence, so it is not used.",
   },
   {
     number: 44,
@@ -723,7 +716,8 @@ export const questions1to86: Question[] = [
       "The ip address dhcp command was not issued on the interface Gi0/1.",
     ],
     correct: [0],
-    explanation: "Explanation: Topic 7.2.8\nThe ip helper-address command has to be applied on interface Gi0/0. This command must be present on the interface of the LAN that contains the DHCPv4 client PC1 and must be directed to the correct DHCPv4 server.",
+    explanation:
+      "Explanation: Topic 7.2.8\nThe ip helper-address command has to be applied on interface Gi0/0. This command must be present on the interface of the LAN that contains the DHCPv4 client PC1 and must be directed to the correct DHCPv4 server.",
   },
   {
     number: 45,
@@ -744,33 +738,26 @@ export const questions1to86: Question[] = [
       "A well-known administrator password is set.",
     ],
     correct: [0, 4],
-    explanation: "Explanation: Topic 13.1.3\nDefault settings on wireless routers often include broadcasting the SSID and using a well-known administrative password. Both of these pose a security risk to wireless networks. WEP encryption and MAC address filtering are not set by default. The automatic selection of the wireless channel poses no security risks.",
+    explanation:
+      "Explanation: Topic 13.1.3\nDefault settings on wireless routers often include broadcasting the SSID and using a well-known administrative password. Both of these pose a security risk to wireless networks. WEP encryption and MAC address filtering are not set by default. The automatic selection of the wireless channel poses no security risks.",
   },
   {
     number: 46,
     type: "single",
     text: "What is the common term given to SNMP log messages that are generated by network devices and sent to the SNMP server?",
-    options: [
-      "traps",
-      "acknowledgments",
-      "auditing",
-      "warnings",
-    ],
+    options: ["traps", "acknowledgments", "auditing", "warnings"],
     correct: [0],
-    explanation: "Explanation: Topic 13.3.2\nNetwork devices being monitored by the SNMP protocol can be configured to generate log messages that are sent to an SNMP server. The log messages, also called traps, contain all type of information from simple status reports to complex urgent conditions that require immediate attention.",
+    explanation:
+      "Explanation: Topic 13.3.2\nNetwork devices being monitored by the SNMP protocol can be configured to generate log messages that are sent to an SNMP server. The log messages, also called traps, contain all type of information from simple status reports to complex urgent conditions that require immediate attention.",
   },
   {
     number: 47,
     type: "single",
     text: "A network administrator is adding a new WLAN on a Cisco 3500 series WLC. Which tab should the administrator use to create a new VLAN interface to be used for the new WLAN?",
-    options: [
-      "WIRELESS",
-      "MANAGEMENT",
-      "CONTROLLER",
-      "WLANs",
-    ],
+    options: ["WIRELESS", "MANAGEMENT", "CONTROLLER", "WLANs"],
     correct: [2],
-    explanation: "Explanation: Topic 13.3.7\nTo create a new VLAN interface on a Cisco Wireless LAN Controller, the administrator must navigate to the CONTROLLER tab and select the Interfaces menu, as this is where software-based virtual interfaces are defined with specific VLAN IDs and IP addresses before they can be mapped to a WLAN profile.",
+    explanation:
+      "Explanation: Topic 13.3.7\nTo create a new VLAN interface on a Cisco Wireless LAN Controller, the administrator must navigate to the CONTROLLER tab and select the Interfaces menu, as this is where software-based virtual interfaces are defined with specific VLAN IDs and IP addresses before they can be mapped to a WLAN profile.",
   },
   {
     number: 48,
@@ -783,7 +770,8 @@ export const questions1to86: Question[] = [
       "to reduce the risk of interference by external devices such as microwave ovens",
     ],
     correct: [2],
-    explanation: "Explanation: Topic 13.1.3\nChanging default DHCP IPv4 addresses is a fundamental security best practice because default IP ranges and management addresses for wireless routers are well-known and easily found on the internet, meaning that using a non-default range makes it more difficult for unauthorized outsiders to identify the network's structure or gain access to the device's management interface.",
+    explanation:
+      "Explanation: Topic 13.1.3\nChanging default DHCP IPv4 addresses is a fundamental security best practice because default IP ranges and management addresses for wireless routers are well-known and easily found on the internet, meaning that using a non-default range makes it more difficult for unauthorized outsiders to identify the network's structure or gain access to the device's management interface.",
   },
   {
     number: 49,
@@ -798,7 +786,8 @@ export const questions1to86: Question[] = [
       "association and re-association of roaming clients",
     ],
     correct: [3, 4],
-    explanation: "Explanation: Topic 12.4.3\nUnder the CAPWAP split MAC architecture, management and less time-sensitive tasks are shifted to the Wireless LAN Controller (WLC), which specifically performs association and re-association of roaming clients along with frame translation to other protocols, while the Access Point (AP) handles real-time MAC functions such as beacons, probe responses, and packet acknowledgments.",
+    explanation:
+      "Explanation: Topic 12.4.3\nUnder the CAPWAP split MAC architecture, management and less time-sensitive tasks are shifted to the Wireless LAN Controller (WLC), which specifically performs association and re-association of roaming clients along with frame translation to other protocols, while the Access Point (AP) handles real-time MAC functions such as beacons, probe responses, and packet acknowledgments.",
   },
   {
     number: 50,
@@ -811,7 +800,8 @@ export const questions1to86: Question[] = [
       "all trunk ports that are not root ports",
     ],
     correct: [0],
-    explanation: "Explanation: Topic 11.5.3\nEnd-user ports should connect only to end-user devices and not to other switches. To prevent a switch from being added to the network on an end-user port, BPDU guard will immediately put the port into the error disabled state if a BPDU is received on that port. However, if PortFast is not configured on an end-user port, BPDU guard is not activated on that port.",
+    explanation:
+      "Explanation: Topic 11.5.3\nEnd-user ports should connect only to end-user devices and not to other switches. To prevent a switch from being added to the network on an end-user port, BPDU guard will immediately put the port into the error disabled state if a BPDU is received on that port. However, if PortFast is not configured on an end-user port, BPDU guard is not activated on that port.",
   },
   {
     number: 51,
@@ -824,7 +814,8 @@ export const questions1to86: Question[] = [
       "rogue DHCP servers on a network",
     ],
     correct: [0],
-    explanation: "Explanation: Topic 10.5.9\nThere are several recommended STP stability mechanisms to help mitigate STP manipulation attacks:\nPortFast – used to immediately bring an interface configured as an access or trunk port to the forwarding state from a blocking state. Applied to all end-user ports.\nBPDU guard – immediately error-disables a port that receives a BPDU. Applied to all end-user ports.The receipt of BPDUs may be part of an unauthorized attempt to add a switch to the network.\nRoot guard – prevents a switch from becoming the root switch. Applied to all ports where the root switch should not be located.\nLoop guard – detects unidirectional links to prevent alternate or root ports from becoming designated ports. Applied to all ports that are or can become nondesignated.",
+    explanation:
+      "Explanation: Topic 10.5.9\nThere are several recommended STP stability mechanisms to help mitigate STP manipulation attacks:\nPortFast – used to immediately bring an interface configured as an access or trunk port to the forwarding state from a blocking state. Applied to all end-user ports.\nBPDU guard – immediately error-disables a port that receives a BPDU. Applied to all end-user ports.The receipt of BPDUs may be part of an unauthorized attempt to add a switch to the network.\nRoot guard – prevents a switch from becoming the root switch. Applied to all ports where the root switch should not be located.\nLoop guard – detects unidirectional links to prevent alternate or root ports from becoming designated ports. Applied to all ports that are or can become nondesignated.",
   },
   {
     number: 52,
@@ -837,7 +828,8 @@ export const questions1to86: Question[] = [
       "It uses the MAC-address-to-IP-address binding database to validate an ARP packet.",
     ],
     correct: [3],
-    explanation: "Explanation: Topic 11.4.1\nDAI relies on DHCP snooping. DHCP snooping listens to DHCP message exchanges and builds a bindings database of valid tuples (MAC address, IP address, VLAN interface).\nWhen DAI is enabled, the switch drops ARP packet if the sender MAC address and sender IP address do not match an entry in the DHCP snooping bindings database. However, it can be overcome through static mappings. Static mappings are useful when hosts configure static IP addresses, DHCP snooping cannot be run, or other switches in the network do not run dynamic ARP inspection. A static mapping associates an IP address to a MAC address on a VLAN.",
+    explanation:
+      "Explanation: Topic 11.4.1\nDAI relies on DHCP snooping. DHCP snooping listens to DHCP message exchanges and builds a bindings database of valid tuples (MAC address, IP address, VLAN interface).\nWhen DAI is enabled, the switch drops ARP packet if the sender MAC address and sender IP address do not match an entry in the DHCP snooping bindings database. However, it can be overcome through static mappings. Static mappings are useful when hosts configure static IP addresses, DHCP snooping cannot be run, or other switches in the network do not run dynamic ARP inspection. A static mapping associates an IP address to a MAC address on a VLAN.",
   },
   {
     number: 53,
@@ -856,7 +848,8 @@ export const questions1to86: Question[] = [
       "Change the administrative distance to 1.",
     ],
     correct: [0],
-    explanation: "Explanation: Topic 15.4.1\nThe problem with the current floating static route is that the administrative distance is set too low. The administrative distance will need to be higher than that of OSPF, which is 110, so that the router will only use the OSPF link when it is up.",
+    explanation:
+      "Explanation: Topic 15.4.1\nThe problem with the current floating static route is that the administrative distance is set too low. The administrative distance will need to be higher than that of OSPF, which is 110, so that the router will only use the OSPF link when it is up.",
   },
   {
     number: 54,
@@ -868,16 +861,10 @@ export const questions1to86: Question[] = [
       width: 570,
       height: 579,
     },
-    options: [
-      "90",
-      "128",
-      "2170112",
-      "2681856",
-      "2682112",
-      "3193856",
-    ],
+    options: ["90", "128", "2170112", "2681856", "2682112", "3193856"],
     correct: [4],
-    explanation: "Explanation: Topic 14.4.3\nThe IPv6 destination address 2001:DB8:ACAD:E:240:BFF:FED4:9DD2 belongs to the network of 2001:DB8:ACAD:E::/64. In the routing table, the route to forward the packet has Serial 0/0/1 as an exit interface and 2682112 as the cost.",
+    explanation:
+      "Explanation: Topic 14.4.3\nThe IPv6 destination address 2001:DB8:ACAD:E:240:BFF:FED4:9DD2 belongs to the network of 2001:DB8:ACAD:E::/64. In the routing table, the route to forward the packet has Serial 0/0/1 as an exit interface and 2682112 as the cost.",
   },
   {
     number: 55,
@@ -893,7 +880,8 @@ export const questions1to86: Question[] = [
       "loopback address",
     ],
     correct: [0, 2, 4],
-    explanation: "Explanation: Topic 1.1.5\nTo enable the remote management access, the Cisco switch must be configured with an IP address and a default gateway. In addition, vty lines must configured to enable either Telnet or SSH connections. A loopback address, default VLAN, and VTP domain configurations are not necessary for the purpose of remote switch management.",
+    explanation:
+      "Explanation: Topic 1.1.5\nTo enable the remote management access, the Cisco switch must be configured with an IP address and a default gateway. In addition, vty lines must configured to enable either Telnet or SSH connections. A loopback address, default VLAN, and VTP domain configurations are not necessary for the purpose of remote switch management.",
   },
   {
     number: 56,
@@ -913,7 +901,8 @@ export const questions1to86: Question[] = [
       "dns-server 2001:DB8:8::8",
     ],
     correct: [0],
-    explanation: "Explanation: Topic 8.3.3\nThe interface command ipv6 nd other-config-flag allows RA messages to be sent on this interface, indicating that additional information is available from a stateless DHCPv6 server.",
+    explanation:
+      "Explanation: Topic 8.3.3\nThe interface command ipv6 nd other-config-flag allows RA messages to be sent on this interface, indicating that additional information is available from a stateless DHCPv6 server.",
   },
   {
     number: 57,
@@ -934,7 +923,8 @@ export const questions1to86: Question[] = [
       "(config)# interface fastethernet0/4\n(config-if)# switchport mode trunk",
     ],
     correct: [1, 3],
-    explanation: "Explanation: Topic 4.3.7\nThe no switchport command allows a switch port to be assigned an IP address. The port is a routed port at that point. The ip routing command enables routing for a switch. Use the interface vlan x command on the switch to configure routing for any VLAN that is attached to the switch, including the management VLAN. No management VLAN is shown in this scenario, but the commands interface vlan 5 and interface vlan 6, along with an appropriate IP address and subnet mask for each VLAN, would be used on the switch in the exhibit. There is no need to add an IP address or use the no shutdown command on VLAN 1 because VLAN 1 is not used in this design and because VLAN 1 is “up and up” by default.",
+    explanation:
+      "Explanation: Topic 4.3.7\nThe no switchport command allows a switch port to be assigned an IP address. The port is a routed port at that point. The ip routing command enables routing for a switch. Use the interface vlan x command on the switch to configure routing for any VLAN that is attached to the switch, including the management VLAN. No management VLAN is shown in this scenario, but the commands interface vlan 5 and interface vlan 6, along with an appropriate IP address and subnet mask for each VLAN, would be used on the switch in the exhibit. There is no need to add an IP address or use the no shutdown command on VLAN 1 because VLAN 1 is not used in this design and because VLAN 1 is “up and up” by default.",
   },
   {
     number: 58,
@@ -949,7 +939,8 @@ export const questions1to86: Question[] = [
       "Configure a common SSID for both split networks.",
     ],
     correct: [0, 2],
-    explanation: "Explanation: Topic 13.4.3\nThe \"split-the-traffic\" approach optimizes wireless performance by using the 2.4 GHz and 5 GHz bands as two separate networks to manage data flow more effectively. In this configuration, the 5 GHz band is dedicated to high-bandwidth, time-sensitive traffic like streaming multimedia because it is less crowded and has more interference-free channels, while the 2.4 GHz band is used for basic, non-time-sensitive tasks such as web browsing and email.",
+    explanation:
+      'Explanation: Topic 13.4.3\nThe "split-the-traffic" approach optimizes wireless performance by using the 2.4 GHz and 5 GHz bands as two separate networks to manage data flow more effectively. In this configuration, the 5 GHz band is dedicated to high-bandwidth, time-sensitive traffic like streaming multimedia because it is less crowded and has more interference-free channels, while the 2.4 GHz band is used for basic, non-time-sensitive tasks such as web browsing and email.',
   },
   {
     number: 59,
@@ -962,7 +953,8 @@ export const questions1to86: Question[] = [
       "Create a floating static route to that network.",
     ],
     correct: [2],
-    explanation: "Explanation: Topic 15.3\nWhen switching to a new ISP, a new default static route (0.0.0.0/0) must be configured to point to the new provider's gateway; however, if the old default route remains in the routing table, the router may continue to misdirect internet-bound traffic toward the inactive link of the previous provider. Removing the obsolete route ensures that the router correctly uses the new path as the gateway of last resort for all traffic destined for the internet.",
+    explanation:
+      "Explanation: Topic 15.3\nWhen switching to a new ISP, a new default static route (0.0.0.0/0) must be configured to point to the new provider's gateway; however, if the old default route remains in the routing table, the router may continue to misdirect internet-bound traffic toward the inactive link of the previous provider. Removing the obsolete route ensures that the router correctly uses the new path as the gateway of last resort for all traffic destined for the internet.",
   },
   {
     number: 60,
@@ -977,7 +969,8 @@ export const questions1to86: Question[] = [
       "the source MAC address and the outgoing port",
     ],
     correct: [4],
-    explanation: "Explanation: Topic 2.1.3\nTo maintain the MAC address table, the switch uses the source MAC address of the incoming packets and the port that the packets enter. The destination address is used to select the outgoing port.",
+    explanation:
+      "Explanation: Topic 2.1.3\nTo maintain the MAC address table, the switch uses the source MAC address of the incoming packets and the port that the packets enter. The destination address is used to select the outgoing port.",
   },
   {
     number: 61,
@@ -989,14 +982,10 @@ export const questions1to86: Question[] = [
       width: 365,
       height: 286,
     },
-    options: [
-      "PAgP",
-      "DTP",
-      "LACP",
-      "STP",
-    ],
+    options: ["PAgP", "DTP", "LACP", "STP"],
     correct: [0],
-    explanation: "Explanation: Topic 6.1.6\nThe EtherChannel protocol PAgP provides the grouping of physical interfaces and utilizes the modes of auto and desirable. The EtherChannel protocol LACP provides the grouping of physical interfaces and utilizes the modes of passive and active. DTP and STP are not utilized to group multiple physical interfaces into a single logical link.",
+    explanation:
+      "Explanation: Topic 6.1.6\nThe EtherChannel protocol PAgP provides the grouping of physical interfaces and utilizes the modes of auto and desirable. The EtherChannel protocol LACP provides the grouping of physical interfaces and utilizes the modes of passive and active. DTP and STP are not utilized to group multiple physical interfaces into a single logical link.",
   },
   {
     number: 62,
@@ -1009,7 +998,8 @@ export const questions1to86: Question[] = [
       "standard static route",
     ],
     correct: [0],
-    explanation: "Explanation: Topic 15.4.1\nThere are four basic types of static routes. Floating static routes are backup routes that are placed into the routing table if a primary route is lost. A summary static route aggregates several routes into one, reducing the of the routing table. Standard static routes are manually entered routes into the routing table. Default static routes create a gateway of last resort.",
+    explanation:
+      "Explanation: Topic 15.4.1\nThere are four basic types of static routes. Floating static routes are backup routes that are placed into the routing table if a primary route is lost. A summary static route aggregates several routes into one, reducing the of the routing table. Standard static routes are manually entered routes into the routing table. Default static routes create a gateway of last resort.",
   },
   {
     number: 63,
@@ -1022,7 +1012,8 @@ export const questions1to86: Question[] = [
       "The switch replaces the old entry and uses the more current port.",
     ],
     correct: [1],
-    explanation: "Explanation: Topic 2.1.3\nDuring the forwarding stage of switch operation, if the destination MAC address is a unicast address found in the MAC address table, the switch uses the existing entry to direct the frame exclusively out of the associated egress port rather than flooding it. In contrast, actions such as updating refresh timers or replacing entries occur during the learning stage when examining the source MAC address.",
+    explanation:
+      "Explanation: Topic 2.1.3\nDuring the forwarding stage of switch operation, if the destination MAC address is a unicast address found in the MAC address table, the switch uses the existing entry to direct the frame exclusively out of the associated egress port rather than flooding it. In contrast, actions such as updating refresh timers or replacing entries occur during the learning stage when examining the source MAC address.",
   },
   {
     number: 64,
@@ -1041,20 +1032,17 @@ export const questions1to86: Question[] = [
       "R2(config)# ip route 172.16.3.0 255.255.255.0 172.16.2.254",
     ],
     correct: [2],
-    explanation: "Explanation: Topic 15.2.1\nThe correct syntax is:\nrouter(config)# ip route destination-network destination-mask {next-hop-ip-address | exit-interface}\nIf the local exit interface instead of the next-hop IP address is used then the route will be displayed as a directly connected route instead of a static route in the routing table. Because the network to be reached is 172.16.2.0 and the next-hop IP address is 172.16.3.1, the command is R2(config)# ip route 172.16.2.0 255.255.255.0 172.16.3.1",
+    explanation:
+      "Explanation: Topic 15.2.1\nThe correct syntax is:\nrouter(config)# ip route destination-network destination-mask {next-hop-ip-address | exit-interface}\nIf the local exit interface instead of the next-hop IP address is used then the route will be displayed as a directly connected route instead of a static route in the routing table. Because the network to be reached is 172.16.2.0 and the next-hop IP address is 172.16.3.1, the command is R2(config)# ip route 172.16.2.0 255.255.255.0 172.16.3.1",
   },
   {
     number: 65,
     type: "single",
     text: "What protocol or technology allows data to transmit over redundant switch links?",
-    options: [
-      "EtherChannel",
-      "DTP",
-      "STP",
-      "VTP",
-    ],
+    options: ["EtherChannel", "DTP", "STP", "VTP"],
     correct: [0],
-    explanation: "Explanation: Topic 6.1.1\nEtherChannel is a link aggregation technology that groups multiple physical Ethernet links into a single logical link, allowing data to transmit over redundant paths simultaneously without being blocked by the Spanning Tree Protocol (STP). While STP prevents loops by disabling redundant paths, EtherChannel allows those physical links to remain active and functional by making them appear as a single connection to the network.",
+    explanation:
+      "Explanation: Topic 6.1.1\nEtherChannel is a link aggregation technology that groups multiple physical Ethernet links into a single logical link, allowing data to transmit over redundant paths simultaneously without being blocked by the Spanning Tree Protocol (STP). While STP prevents loops by disabling redundant paths, EtherChannel allows those physical links to remain active and functional by making them appear as a single connection to the network.",
   },
   {
     number: 66,
@@ -1067,16 +1055,10 @@ export const questions1to86: Question[] = [
       height: 342,
     },
     choose: 3,
-    options: [
-      "host B",
-      "host C",
-      "host D",
-      "host E",
-      "host F",
-      "host G",
-    ],
+    options: ["host B", "host C", "host D", "host E", "host F", "host G"],
     correct: [1, 2, 4],
-    explanation: "Explanation: Topic 3.1.1\nARP requests are sent out as broadcasts. That means the ARP request is sent only throughout a specific VLAN. VLAN 1 hosts will only hear ARP requests from hosts on VLAN 1. VLAN 2 hosts will only hear ARP requests from hosts on VLAN 2.",
+    explanation:
+      "Explanation: Topic 3.1.1\nARP requests are sent out as broadcasts. That means the ARP request is sent only throughout a specific VLAN. VLAN 1 hosts will only hear ARP requests from hosts on VLAN 1. VLAN 2 hosts will only hear ARP requests from hosts on VLAN 2.",
   },
   {
     number: 67,
@@ -1096,7 +1078,8 @@ export const questions1to86: Question[] = [
       "Add the switchport nonegotiate command to the configuration of SW2.",
     ],
     correct: [1],
-    explanation: "Explanation: Topic 3.5.3\nIf one trunk port is in auto DTP negotiation mode, a trunk will be formed if the adjacent switch port is placed in trunk or dynamic desirable mode.",
+    explanation:
+      "Explanation: Topic 3.5.3\nIf one trunk port is in auto DTP negotiation mode, a trunk will be formed if the adjacent switch port is placed in trunk or dynamic desirable mode.",
   },
   {
     number: 68,
@@ -1109,7 +1092,8 @@ export const questions1to86: Question[] = [
       "It disables DTP on a non-trunking interface.",
     ],
     correct: [1],
-    explanation: "Explanation: Topic 11.1.1\nThe shutdown interface configuration command is used to administratively disable a switch port, which prevents any traffic from being sent or received through that interface. Issuing this command on all unused ports is a fundamental security best practice to protect a network from unauthorized access by ensuring those physical entry points remain inactive until needed.",
+    explanation:
+      "Explanation: Topic 11.1.1\nThe shutdown interface configuration command is used to administratively disable a switch port, which prevents any traffic from being sent or received through that interface. Issuing this command on all unused ports is a fundamental security best practice to protect a network from unauthorized access by ensuring those physical entry points remain inactive until needed.",
   },
   {
     number: 69,
@@ -1122,7 +1106,8 @@ export const questions1to86: Question[] = [
       "so that the attacker can execute arbitrary code on the switch",
     ],
     correct: [2],
-    explanation: "Explanation: Topic 10.4.2\nA MAC address overflow attack (or MAC flooding) aims to fill the switch's MAC address table with fake entries, forcing the switch to treat all subsequent incoming frames as unknown unicast traffic. When this happens, the switch floods those frames out of all ports on the VLAN, which allows the attacker to use packet sniffing software to capture and view data intended for other devices.",
+    explanation:
+      "Explanation: Topic 10.4.2\nA MAC address overflow attack (or MAC flooding) aims to fill the switch's MAC address table with fake entries, forcing the switch to treat all subsequent incoming frames as unknown unicast traffic. When this happens, the switch floods those frames out of all ports on the VLAN, which allows the attacker to use packet sniffing software to capture and view data intended for other devices.",
   },
   {
     number: 70,
@@ -1135,7 +1120,8 @@ export const questions1to86: Question[] = [
       "Immediately after the determination of which resources a user can access",
     ],
     correct: [0],
-    explanation: "Explanation: Topic 10.2.4\nAAA authorization is implemented immediately after the user is authenticated against a specific AAA data source.",
+    explanation:
+      "Explanation: Topic 10.2.4\nAAA authorization is implemented immediately after the user is authenticated against a specific AAA data source.",
   },
   {
     number: 71,
@@ -1148,22 +1134,18 @@ export const questions1to86: Question[] = [
       "sticky secure MAC addresses",
     ],
     correct: [3],
-    explanation: "Explanation: Topic 11.1.4\nWith sticky secure MAC addressing, the MAC addresses can be either dynamically learned or manually configured and then stored in the address table and added to the running configuration file. In contrast, dynamic secure MAC addressing provides for dynamically learned MAC addressing that is stored only in the address table.",
+    explanation:
+      "Explanation: Topic 11.1.4\nWith sticky secure MAC addressing, the MAC addresses can be either dynamically learned or manually configured and then stored in the address table and added to the running configuration file. In contrast, dynamic secure MAC addressing provides for dynamically learned MAC addressing that is stored only in the address table.",
   },
   {
     number: 72,
     type: "multi",
     text: "Which three Wi-Fi standards operate in the 2.4GHz range of frequencies? (Choose three.)",
     choose: 3,
-    options: [
-      "802.11a",
-      "802.11b",
-      "802.11g",
-      "802.11n",
-      "802.11ac",
-    ],
+    options: ["802.11a", "802.11b", "802.11g", "802.11n", "802.11ac"],
     correct: [1, 2, 3],
-    explanation: "Explanation: Topic 12.1.4\n802.11b and 802.11g operate in the 2.4GHz range, and 802.11n can operate in either the 2.4GHz or the 5GHz range. 802.11a and 802.11ac operate only in the 5GHz range of frequencies.",
+    explanation:
+      "Explanation: Topic 12.1.4\n802.11b and 802.11g operate in the 2.4GHz range, and 802.11n can operate in either the 2.4GHz or the 5GHz range. 802.11a and 802.11ac operate only in the 5GHz range of frequencies.",
   },
   {
     number: 73,
@@ -1178,7 +1160,8 @@ export const questions1to86: Question[] = [
       "The IP address of the management VLAN interface.",
     ],
     correct: [0, 1],
-    explanation: "Explanation: Topic 5.2\nThe show spanning-tree command will display the status of STP for all VLANs that are defined on a switch and other information including the root bridge BID. It does not show the number of broadcast packets received on the ports. The IP address of the management VLAN interface is not related to STP and is displayed by the show running-configuration command.",
+    explanation:
+      "Explanation: Topic 5.2\nThe show spanning-tree command will display the status of STP for all VLANs that are defined on a switch and other information including the root bridge BID. It does not show the number of broadcast packets received on the ports. The IP address of the management VLAN interface is not related to STP and is displayed by the show running-configuration command.",
   },
   {
     number: 74,
@@ -1190,42 +1173,29 @@ export const questions1to86: Question[] = [
       width: 499,
       height: 382,
     },
-    options: [
-      "Trunk1",
-      "Trunk2",
-      "Trunk3",
-      "Trunk4",
-    ],
+    options: ["Trunk1", "Trunk2", "Trunk3", "Trunk4"],
     correct: [1],
-    explanation: "Explanation: Topic 5.2\nS4 has the lowest bridge ID, thus S4 is the root bridge. Because the path cost S1-S2-S4 is lower than the path cost S1-S3-S4, path S1-S2-S4 is the preferred path for S1 to reach S4. Thus, STP will set the S1 port Fa0/1 to a blocking state, and the trunk link Trunk2 will not forward any traffic.",
+    explanation:
+      "Explanation: Topic 5.2\nS4 has the lowest bridge ID, thus S4 is the root bridge. Because the path cost S1-S2-S4 is lower than the path cost S1-S3-S4, path S1-S2-S4 is the preferred path for S1 to reach S4. Thus, STP will set the S1 port Fa0/1 to a blocking state, and the trunk link Trunk2 will not forward any traffic.",
   },
   {
     number: 75,
     type: "single",
     text: "Which method of IPv6 prefix assignment relies on the prefix contained in RA messages?",
-    options: [
-      "EUI-64",
-      "SLAAC",
-      "static",
-      "stateful DHCPv6",
-    ],
+    options: ["EUI-64", "SLAAC", "static", "stateful DHCPv6"],
     correct: [1],
-    explanation: "Explanation: Topic 8.2.1\nStateless Address Autoconfiguration (SLAAC) relies on information received in router advertisement (RA) messages in order to automatically create an IPv6 address. The RA messages contain information such as the network prefix and prefix length, which the host combines with an interface ID in order to make a unique IPv6 unicast address.",
+    explanation:
+      "Explanation: Topic 8.2.1\nStateless Address Autoconfiguration (SLAAC) relies on information received in router advertisement (RA) messages in order to automatically create an IPv6 address. The RA messages contain information such as the network prefix and prefix length, which the host combines with an interface ID in order to make a unique IPv6 unicast address.",
   },
   {
     number: 76,
     type: "multi",
     text: "Which two protocols are used to provide server-based AAA authentication? (Choose two.)",
     choose: 2,
-    options: [
-      "802.1x",
-      "SSH",
-      "SNMP",
-      "TACACS+",
-      "RADIUS",
-    ],
+    options: ["802.1x", "SSH", "SNMP", "TACACS+", "RADIUS"],
     correct: [3, 4],
-    explanation: "Explanation: Topic 10.2.3\nServer-based AAA authentication uses an external TACACS or RADIUS authentication server to maintain a username and password database. When a client establishes a connection with an AAA enabled device, the device authenticates the client by querying the authentication servers.",
+    explanation:
+      "Explanation: Topic 10.2.3\nServer-based AAA authentication uses an external TACACS or RADIUS authentication server to maintain a username and password database. When a client establishes a connection with an AAA enabled device, the device authenticates the client by querying the authentication servers.",
   },
   {
     number: 77,
@@ -1238,7 +1208,8 @@ export const questions1to86: Question[] = [
       "to provide privacy and integrity to wireless traffic by using encryption",
     ],
     correct: [0],
-    explanation: "Explanation: Topic 12.7.2\nDisabling the SSID broadcast feature, also known as SSID cloaking, prevents an Access Point (AP) from including the network name in its periodic beacon frames. While this does not provide strong security against professional attackers, it effectively hides the network from casual outsiders or unauthorized users scanning for available wireless networks, as they must manually configure the SSID on their devices to attempt a connection.",
+    explanation:
+      "Explanation: Topic 12.7.2\nDisabling the SSID broadcast feature, also known as SSID cloaking, prevents an Access Point (AP) from including the network name in its periodic beacon frames. While this does not provide strong security against professional attackers, it effectively hides the network from casual outsiders or unauthorized users scanning for available wireless networks, as they must manually configure the SSID on their devices to attempt a connection.",
   },
   {
     number: 78,
@@ -1251,33 +1222,26 @@ export const questions1to86: Question[] = [
       "implementing port-security on edge ports",
     ],
     correct: [1],
-    explanation: "Explanation: Topic 11.3.2\nLike Dynamic ARP Inspection (DAI), IP Source Guard (IPSG) needs to determine the validity of MAC-address-to-IP-address bindings. To do this IPSG uses the bindings database built by DHCP snooping.",
+    explanation:
+      "Explanation: Topic 11.3.2\nLike Dynamic ARP Inspection (DAI), IP Source Guard (IPSG) needs to determine the validity of MAC-address-to-IP-address bindings. To do this IPSG uses the bindings database built by DHCP snooping.",
   },
   {
     number: 79,
     type: "single",
     text: "A network administrator configures the port security feature on a switch. The security policy specifies that each access port should allow up to two MAC addresses. When the maximum number of MAC addresses is reached, a frame with the unknown source MAC address is dropped and a notification is sent to the syslog server. Which security violation mode should be configured for each access port?",
-    options: [
-      "shutdown",
-      "restrict",
-      "warning",
-      "protect",
-    ],
+    options: ["shutdown", "restrict", "warning", "protect"],
     correct: [1],
-    explanation: "Explanation: Topic 11.1.6\nIn port security implementation, an interface can be configured for one of three violation modes:\nProtect – a port security violation causes the interface to drop packets with unknown source addresses and no notification is sent that a security violation has occurred.\nRestrict – a port security violation causes the interface to drop packets with unknown source addresses and to send a notification that a security violation has occurred.\nShutdown – a port security violation causes the interface to immediately become error-disabled and turns off the port LED. No notification is sent that a security violation has occurred.",
+    explanation:
+      "Explanation: Topic 11.1.6\nIn port security implementation, an interface can be configured for one of three violation modes:\nProtect – a port security violation causes the interface to drop packets with unknown source addresses and no notification is sent that a security violation has occurred.\nRestrict – a port security violation causes the interface to drop packets with unknown source addresses and to send a notification that a security violation has occurred.\nShutdown – a port security violation causes the interface to immediately become error-disabled and turns off the port LED. No notification is sent that a security violation has occurred.",
   },
   {
     number: 80,
     type: "single",
     text: "What protocol or technology defines a group of routers, one of them defined as active and another one as standby?",
-    options: [
-      "EtherChannel",
-      "VTP",
-      "HSRP",
-      "DTP",
-    ],
+    options: ["EtherChannel", "VTP", "HSRP", "DTP"],
     correct: [2],
-    explanation: "Explanation: Topic 9.2.1\nHot Standby Router Protocol (HSRP) is a Cisco-proprietary First Hop Redundancy Protocol (FHRP) designed to provide default gateway redundancy. It operates by grouping multiple physical routers into a single virtual router where one device is elected as active to forward packets, while another is designated as standby to monitor the group and take over forwarding responsibilities if the active device fails.",
+    explanation:
+      "Explanation: Topic 9.2.1\nHot Standby Router Protocol (HSRP) is a Cisco-proprietary First Hop Redundancy Protocol (FHRP) designed to provide default gateway redundancy. It operates by grouping multiple physical routers into a single virtual router where one device is elected as active to forward packets, while another is designated as standby to monitor the group and take over forwarding responsibilities if the active device fails.",
   },
   {
     number: 81,
@@ -1296,7 +1260,8 @@ export const questions1to86: Question[] = [
       "The no shutdown command should have been issued on Fa0/0.20 and Fa0/0.30.",
     ],
     correct: [1],
-    explanation: "Explanation: Topic 4.2.4\nThe IP 192.168.2.49/27 and 192.168.3.62/27 belong to the same subnet of 192.168.3.32/27. Valid host IPv4 addresses include 192.168.3.33 to 192.168.3.62.",
+    explanation:
+      "Explanation: Topic 4.2.4\nThe IP 192.168.2.49/27 and 192.168.3.62/27 belong to the same subnet of 192.168.3.32/27. Valid host IPv4 addresses include 192.168.3.33 to 192.168.3.62.",
   },
   {
     number: 82,
@@ -1312,7 +1277,8 @@ export const questions1to86: Question[] = [
       "dynamic desirable - dynamic auto",
     ],
     correct: [2, 4, 5],
-    explanation: "Explanation: Topic 3.5.3\nDynamic Trunking Protocol (DTP) manages trunk negotiation between Cisco switch ports on a point-to-point basis. Dynamic desirable is an active mode that initiates negotiation and will successfully establish a functional trunk when the neighbor is configured in trunk, dynamic desirable, or dynamic auto modes. In contrast, if both ends are in dynamic auto, they both wait passively for the other to initiate negotiation, resulting in a non-trunking access link instead.",
+    explanation:
+      "Explanation: Topic 3.5.3\nDynamic Trunking Protocol (DTP) manages trunk negotiation between Cisco switch ports on a point-to-point basis. Dynamic desirable is an active mode that initiates negotiation and will successfully establish a functional trunk when the neighbor is configured in trunk, dynamic desirable, or dynamic auto modes. In contrast, if both ends are in dynamic auto, they both wait passively for the other to initiate negotiation, resulting in a non-trunking access link instead.",
   },
   {
     number: 83,
@@ -1325,7 +1291,8 @@ export const questions1to86: Question[] = [
       "Check the statistics on the default route for oversaturation.",
     ],
     correct: [1],
-    explanation: "Explanation: Topic 14.4.5\nIn smaller networks where the complexity of a dynamic routing protocol is not required, static routes are used to manually define paths to internal network segments. Additionally, a default static route (0.0.0.0/0) is configured to serve as the \"gateway of last resort,\" directing all traffic destined for the internet toward the service provider's next-hop router.",
+    explanation:
+      'Explanation: Topic 14.4.5\nIn smaller networks where the complexity of a dynamic routing protocol is not required, static routes are used to manually define paths to internal network segments. Additionally, a default static route (0.0.0.0/0) is configured to serve as the "gateway of last resort," directing all traffic destined for the internet toward the service provider\'s next-hop router.',
   },
   {
     number: 84,
@@ -1338,7 +1305,8 @@ export const questions1to86: Question[] = [
       "channels 2, 6, and 10",
     ],
     correct: [1],
-    explanation: "Explanation: Topic 12.5.2\nIn the North America domain, 11 channels are allowed for 2.4GHz wireless networking. Among these 11 channels, the combination of channels 1, 6, and 11 are the only non-overlapping channel combination.",
+    explanation:
+      "Explanation: Topic 12.5.2\nIn the North America domain, 11 channels are allowed for 2.4GHz wireless networking. Among these 11 channels, the combination of channels 1, 6, and 11 are the only non-overlapping channel combination.",
   },
   {
     number: 85,
@@ -1351,7 +1319,8 @@ export const questions1to86: Question[] = [
       "a username and password configured on the AP",
     ],
     correct: [1],
-    explanation: "Explanation: Topic 12.7.5\nWhen a WLAN is configured with WPA2 PSK, wireless users must know the pre-shared key to associate and authenticate with the AP.",
+    explanation:
+      "Explanation: Topic 12.7.5\nWhen a WLAN is configured with WPA2 PSK, wireless users must know the pre-shared key to associate and authenticate with the AP.",
   },
   {
     number: 86,
@@ -1370,6 +1339,7 @@ export const questions1to86: Question[] = [
       "designated, root, alternate, root",
     ],
     correct: [0],
-    explanation: "Explanation: Topic 5.2.1\nBecause S1 is the root bridge, B is a designated port, and C and D root ports. RSTP supports a new port type, alternate port in discarding state, that can be port A in this scenario.",
+    explanation:
+      "Explanation: Topic 5.2.1\nBecause S1 is the root bridge, B is a designated port, and C and D root ports. RSTP supports a new port type, alternate port in discarding state, that can be port A in this scenario.",
   },
 ];

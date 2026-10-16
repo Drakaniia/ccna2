@@ -6,7 +6,12 @@ export const questions1to31: Question[] = [
     number: 1,
     type: "single",
     text: "Which feature on a Cisco router permits the forwarding of traffic for which there is no specific route?",
-    options: ["next-hop", "gateway of last resort", "route source", "outgoing interface"],
+    options: [
+      "next-hop",
+      "gateway of last resort",
+      "route source",
+      "outgoing interface",
+    ],
     correct: [1],
     explanation:
       "Explanation: Topic 14.4.9\nA default static route is used as a gateway of last resort to forward unknown destination traffic to a next hop/exit interface. The next-hop or exit interface is the destination to send traffic to on a network after the traffic is matched in a router. The route source is the location a route was learned from.",
@@ -133,7 +138,12 @@ export const questions1to31: Question[] = [
     number: 10,
     type: "single",
     text: "Which value in a routing table represents trustworthiness and is used by the router to determine which route to install into the routing table when there are multiple routes toward the same destination?",
-    options: ["administrative distance", "metric", "outgoing interface", "routing protocol"],
+    options: [
+      "administrative distance",
+      "metric",
+      "outgoing interface",
+      "routing protocol",
+    ],
     correct: [0],
     explanation:
       "Explanation: Topic 14.4.12\nThe administrative distance represents the trustworthiness of a particular route. The lower an administrative distance, the more trustworthy the learned route is. When a router learns multiple routes toward the same destination, the router uses the administrative distance value to determine which route to place into the routing table. A metric is used by a routing protocol to compare routes received from the routing protocol. An exit interface is the interface used to send a packet in the direction of the destination network. A routing protocol is used to exchange routing updates between two or more adjacent routers.",
@@ -253,7 +263,7 @@ export const questions1to31: Question[] = [
     ],
     correct: [1],
     explanation:
-      "Explanation: Topic 15.2.1\nWhen a static route is configured with the next hop address (as in the case of the 192.168.10.128 network), the output of the show ip route command lists the route as \"via\" a particular IP address. The router has to look up that IP address to determine which interface to send the packet out. Because the IP address of 10.0.0.6 is part of network 10.0.0.4, the router sends the packet out interface Serial0/0/1.",
+      'Explanation: Topic 15.2.1\nWhen a static route is configured with the next hop address (as in the case of the 192.168.10.128 network), the output of the show ip route command lists the route as "via" a particular IP address. The router has to look up that IP address to determine which interface to send the packet out. Because the IP address of 10.0.0.6 is part of network 10.0.0.4, the router sends the packet out interface Serial0/0/1.',
   },
   {
     number: 19,
@@ -474,7 +484,7 @@ export const questions1to31: Question[] = [
     text: "What characteristic completes the following statement?\nWhen an IPv6 static route is configured, the next-hop address can be ......",
     options: [
       "a destination host route with a /128 prefix.",
-      "the \"show ipv6 route static\" command.",
+      'the "show ipv6 route static" command.',
       "an IPv6 link-local address on the adjacent router.",
       "the interface type and interface number.",
     ],

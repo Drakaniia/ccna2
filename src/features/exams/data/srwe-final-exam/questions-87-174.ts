@@ -19,7 +19,8 @@ export const questions87to174: Question[] = [
       "ip route 172.16.1.0 255.255.255.0 s0/0/0 91",
     ],
     correct: [1],
-    explanation: "Explanation: Topic 15.4.1\nA backup static route is called a floating static route. A floating static route has an administrative distance greater than the administrative distance of another static route or dynamic route.",
+    explanation:
+      "Explanation: Topic 15.4.1\nA backup static route is called a floating static route. A floating static route has an administrative distance greater than the administrative distance of another static route or dynamic route.",
   },
   {
     number: 88,
@@ -32,7 +33,8 @@ export const questions87to174: Question[] = [
       "Place unused ports in an unused VLAN.",
     ],
     correct: [2],
-    explanation: "Explanation: Topic 11.1.2\nA MAC address (CAM) table overflow attack, buffer overflow, and MAC address spoofing can all be mitigated by configuring port security. A network administrator would typically not want to disable STP because it prevents Layer 2 loops. DTP is disabled to prevent VLAN hopping. Placing unused ports in an unused VLAN prevents unauthorized wired connectivity.",
+    explanation:
+      "Explanation: Topic 11.1.2\nA MAC address (CAM) table overflow attack, buffer overflow, and MAC address spoofing can all be mitigated by configuring port security. A network administrator would typically not want to disable STP because it prevents Layer 2 loops. DTP is disabled to prevent VLAN hopping. Placing unused ports in an unused VLAN prevents unauthorized wired connectivity.",
   },
   {
     number: 89,
@@ -45,7 +47,8 @@ export const questions87to174: Question[] = [
       "The only users that can switch to the 5 GHz band will be those with the latest wireless NICs, which will reduce usage.",
     ],
     correct: [1],
-    explanation: "Explanation: Topic 13.4.3\nWireless range is determined by the access point antenna and output power, not the frequency band that is used. In this scenario it is stated that all users have wireless NICs that comply with the latest standard, and so all can access the 5 GHz band. Although some users may find it inconvenient to switch to the 5 Ghz band to access streaming services, it is the greater number of channels, not just fewer users, that will improve network performance.",
+    explanation:
+      "Explanation: Topic 13.4.3\nWireless range is determined by the access point antenna and output power, not the frequency band that is used. In this scenario it is stated that all users have wireless NICs that comply with the latest standard, and so all can access the 5 GHz band. Although some users may find it inconvenient to switch to the 5 Ghz band to access streaming services, it is the greater number of channels, not just fewer users, that will improve network performance.",
   },
   {
     number: 90,
@@ -58,7 +61,8 @@ export const questions87to174: Question[] = [
       "unicast DHCPREQUEST",
     ],
     correct: [1],
-    explanation: "Explanation: Topic 7.1.3\nWhen a DHCP client receives DHCPOFFER messages, it will send a broadcast DHCPREQUEST message for two purposes. First, it indicates to the offering DHCP server that it would like to accept the offer and bind the IP address. Second, it notifies any other responding DHCP servers that their offers are declined.",
+    explanation:
+      "Explanation: Topic 7.1.3\nWhen a DHCP client receives DHCPOFFER messages, it will send a broadcast DHCPREQUEST message for two purposes. First, it indicates to the offering DHCP server that it would like to accept the offer and bind the IP address. Second, it notifies any other responding DHCP servers that their offers are declined.",
   },
   {
     number: 91,
@@ -77,7 +81,8 @@ export const questions87to174: Question[] = [
       "MAC address of the forwarding router",
     ],
     correct: [0],
-    explanation: "Explanation: Topic 9.1.2\nThe IP address of the virtual router acts as the default gateway for all the workstations. Therefore, the MAC address that is returned by the Address Resolution Protocol to the workstation will be the MAC address of the virtual router.",
+    explanation:
+      "Explanation: Topic 9.1.2\nThe IP address of the virtual router acts as the default gateway for all the workstations. Therefore, the MAC address that is returned by the Address Resolution Protocol to the workstation will be the MAC address of the virtual router.",
   },
   {
     number: 92,
@@ -90,7 +95,8 @@ export const questions87to174: Question[] = [
       "The host sends an ARP broadcast to the local link and if no hosts send a reply, the address is considered unique.",
     ],
     correct: [1],
-    explanation: "Explanation: Topic 8.2.6\nBefore a host can actually configure and use an IPv6 address learned through SLAAC or DHCP, the host must verify that no other host is already using that address. To verify that the address is indeed unique, the host sends an ICMPv6 neighbor solicitation to the address. If no neighbor advertisement is returned, the host considers the address to be unique and configures it on the interface.",
+    explanation:
+      "Explanation: Topic 8.2.6\nBefore a host can actually configure and use an IPv6 address learned through SLAAC or DHCP, the host must verify that no other host is already using that address. To verify that the address is indeed unique, the host sends an ICMPv6 neighbor solicitation to the address. If no neighbor advertisement is returned, the host considers the address to be unique and configures it on the interface.",
   },
   {
     number: 93,
@@ -109,29 +115,19 @@ export const questions87to174: Question[] = [
       "A message that is used to suggest a lease to a client",
       "A message is used by a server to finalize a successful lease with a client",
     ],
-    right: [
-      "DHCPREQUEST",
-      "DHCPNAK",
-      "DHCPOFFER",
-      "DHCPDISCOVER",
-      "DHCPACK",
-    ],
+    right: ["DHCPREQUEST", "DHCPNAK", "DHCPOFFER", "DHCPDISCOVER", "DHCPACK"],
     correctPairs: { 0: 3, 1: 1, 2: 0, 3: 2, 4: 4 },
-    explanation: "Explanation: Topic 7.1.3\nThe correct pairings are:\n- a message that is used to locate any available DHCP server on a network → DHCPDISCOVER\n- a message that is used to suggest a lease to a client → DHCPOFFER\n- a message that is used to identify the explicit server and lease offer to accept → DHCPREQUEST\n- a message that is used to acknowledge that the lease is successful → DHCPNAK\n- A message is used by a server to finalize a successful lease with a client → DHCPACK\nDHCPNAK is the response sent when the address the client asked for is already owned (in use), so it cannot be leased out.",
+    explanation:
+      "Explanation: Topic 7.1.3\nThe correct pairings are:\n- a message that is used to locate any available DHCP server on a network → DHCPDISCOVER\n- a message that is used to suggest a lease to a client → DHCPOFFER\n- a message that is used to identify the explicit server and lease offer to accept → DHCPREQUEST\n- a message that is used to acknowledge that the lease is successful → DHCPNAK\n- A message is used by a server to finalize a successful lease with a client → DHCPACK\nDHCPNAK is the response sent when the address the client asked for is already owned (in use), so it cannot be leased out.",
   },
   {
     number: 94,
     type: "single",
     text: "Which protocol adds security to remote connections?",
-    options: [
-      "FTP",
-      "HTTP",
-      "NetBEUI",
-      "POP",
-      "SSH",
-    ],
+    options: ["FTP", "HTTP", "NetBEUI", "POP", "SSH"],
     correct: [4],
-    explanation: "Explanation: Topic 1.3.2\nSSH allows a technician to securely connect to a remote network device for monitoring and troubleshooting. HTTP establishes web page requests. FTP manages file transfer. NetBEUI is not routed on the Internet. POP downloads email messages from email servers.",
+    explanation:
+      "Explanation: Topic 1.3.2\nSSH allows a technician to securely connect to a remote network device for monitoring and troubleshooting. HTTP establishes web page requests. FTP manages file transfer. NetBEUI is not routed on the Internet. POP downloads email messages from email servers.",
   },
   {
     number: 95,
@@ -151,7 +147,8 @@ export const questions87to174: Question[] = [
       "The encapsulation dot1Q 5 command contains the wrong VLAN.",
     ],
     correct: [4],
-    explanation: "Explanation: Topic 4.4.6\nIn router-on-a-stick, the subinterface configuration should match the VLAN number in the encapsulation command, in this case, the command encapsulation dot1Q 10 should be used for VLAN 10. Since subinterfaces are used, there is no need to configure IP on the physical interface Gi0/0. The trunk mode is configured on the switch port that connects to the router. The subinterfaces are turned on when they are added.",
+    explanation:
+      "Explanation: Topic 4.4.6\nIn router-on-a-stick, the subinterface configuration should match the VLAN number in the encapsulation command, in this case, the command encapsulation dot1Q 10 should be used for VLAN 10. Since subinterfaces are used, there is no need to configure IP on the physical interface Gi0/0. The trunk mode is configured on the switch port that connects to the router. The subinterfaces are turned on when they are added.",
   },
   {
     number: 96,
@@ -171,7 +168,8 @@ export const questions87to174: Question[] = [
       "It identifies the number of hosts that are allowed on the interface.",
     ],
     correct: [1],
-    explanation: "Explanation: Topic 4.2.4\nThe completed command would be encapsulation dot1q 7. The encapsulation dot1q part of the command enables trunking and identifies the type of trunking to use. The 7 identifies the VLAN number.",
+    explanation:
+      "Explanation: Topic 4.2.4\nThe completed command would be encapsulation dot1q 7. The encapsulation dot1q part of the command enables trunking and identifies the type of trunking to use. The 7 identifies the VLAN number.",
   },
   {
     number: 97,
@@ -189,15 +187,10 @@ export const questions87to174: Question[] = [
       "the client accepting the IP address provided by the DHCP server",
       "the DHCP server confirming that the lease has been accepted",
     ],
-    right: [
-      "DHCPACK",
-      "DHCPREQUEST",
-      "DHCPNACK",
-      "DHCPDISCOVER",
-      "DHCPOFFER",
-    ],
+    right: ["DHCPACK", "DHCPREQUEST", "DHCPNACK", "DHCPDISCOVER", "DHCPOFFER"],
     correctPairs: { 0: 3, 1: 4, 2: 1, 3: 0 },
-    explanation: "Explanation: Topic 7.1.3\nPlace the options in the following order:\n- a client initiating a message to find a DHCP server → DHCPDISCOVER\n- a DHCP server responding to the initial request by a client → DHCPOFFER\n- the client accepting the IP address provided by the DHCP server → DHCPREQUEST\n- the DHCP server confirming that the lease has been accepted → DHCPACK\nDHCPNACK is not used.",
+    explanation:
+      "Explanation: Topic 7.1.3\nPlace the options in the following order:\n- a client initiating a message to find a DHCP server → DHCPDISCOVER\n- a DHCP server responding to the initial request by a client → DHCPOFFER\n- the client accepting the IP address provided by the DHCP server → DHCPREQUEST\n- the DHCP server confirming that the lease has been accepted → DHCPACK\nDHCPNACK is not used.",
   },
   {
     number: 98,
@@ -210,7 +203,8 @@ export const questions87to174: Question[] = [
       "DHCP spoofing",
     ],
     correct: [1],
-    explanation: "Explanation: Topic 10.5.5\nDCHP starvation attacks are launched by an attacker with the intent to create a DoS for DHCP clients. To accomplish this goal, the attacker uses a tool that sends many DHCPDISCOVER messages in order to lease the entire pool of available IP addresses, thus denying them to legitimate hosts.",
+    explanation:
+      "Explanation: Topic 10.5.5\nDCHP starvation attacks are launched by an attacker with the intent to create a DoS for DHCP clients. To accomplish this goal, the attacker uses a tool that sends many DHCPDISCOVER messages in order to lease the entire pool of available IP addresses, thus denying them to legitimate hosts.",
   },
   {
     number: 99,
@@ -229,7 +223,8 @@ export const questions87to174: Question[] = [
       "The IP address of the DNS server is not contained in the excluded address list.",
     ],
     correct: [1],
-    explanation: "Explanation: Topic 7.2.2\nIn this configuration, the excluded address list should include the address that is assigned to the default gateway router. So the command should be ip dhcp excluded-address 192.168.10.1 192.168.10.9.",
+    explanation:
+      "Explanation: Topic 7.2.2\nIn this configuration, the excluded address list should include the address that is assigned to the default gateway router. So the command should be ip dhcp excluded-address 192.168.10.1 192.168.10.9.",
   },
   {
     number: 100,
@@ -251,46 +246,35 @@ export const questions87to174: Question[] = [
       "R1(config-if)# ip helper-address 10.1.0.254",
     ],
     correct: [0, 2],
-    explanation: "Explanation: Topic 7.2.8\nYou need the router interface that is connected to the new subnet and the dhcp server address.\nThe ip helper-address command is used to configure a router to be a DHCPv4 relay. The command should be placed on the interface facing the DHCPv4 clients. When the command is applied on the router interface, the interface will receive DHCPv4 broadcast messages and forward them as unicast to the IP address of the DHCPv4 server.",
+    explanation:
+      "Explanation: Topic 7.2.8\nYou need the router interface that is connected to the new subnet and the dhcp server address.\nThe ip helper-address command is used to configure a router to be a DHCPv4 relay. The command should be placed on the interface facing the DHCPv4 clients. When the command is applied on the router interface, the interface will receive DHCPv4 broadcast messages and forward them as unicast to the IP address of the DHCPv4 server.",
   },
   {
     number: 101,
     type: "single",
     text: "What protocol or technology uses source IP to destination IP as a load-balancing mechanism?",
-    options: [
-      "VTP",
-      "EtherChannel",
-      "DTP",
-      "STP",
-    ],
+    options: ["VTP", "EtherChannel", "DTP", "STP"],
     correct: [1],
-    explanation: "Explanation: Topic 6.1.3\nEtherChannel is a link aggregation technology that bundles multiple physical links into a single logical link to increase bandwidth and provide redundancy. One of its key advantages is the ability to perform load balancing across the bundled physical links, which can be implemented using mechanisms such as source IP to destination IP or source MAC to destination MAC, depending on the hardware platform.",
+    explanation:
+      "Explanation: Topic 6.1.3\nEtherChannel is a link aggregation technology that bundles multiple physical links into a single logical link to increase bandwidth and provide redundancy. One of its key advantages is the ability to perform load balancing across the bundled physical links, which can be implemented using mechanisms such as source IP to destination IP or source MAC to destination MAC, depending on the hardware platform.",
   },
   {
     number: 102,
     type: "single",
     text: "What protocol should be disabled to help mitigate VLAN attacks?",
-    options: [
-      "CDP",
-      "ARP",
-      "STP",
-      "DTP",
-    ],
+    options: ["CDP", "ARP", "STP", "DTP"],
     correct: [3],
-    explanation: "Explanation: Topic 11.2.2\nDynamic Trunking Protocol (DTP) should be disabled to mitigate VLAN hopping attacks because a threat actor can spoof DTP signaling to trick a switch port into establishing an unauthorized trunk link. Once a trunk is established, the attacker can access all VLANs on the switch. Mitigation involves disabling DTP negotiations on both access ports (by setting them to static access mode) and trunk ports (using the switchport nonegotiate command) to ensure that trunking is only enabled manually.",
+    explanation:
+      "Explanation: Topic 11.2.2\nDynamic Trunking Protocol (DTP) should be disabled to mitigate VLAN hopping attacks because a threat actor can spoof DTP signaling to trick a switch port into establishing an unauthorized trunk link. Once a trunk is established, the attacker can access all VLANs on the switch. Mitigation involves disabling DTP negotiations on both access ports (by setting them to static access mode) and trunk ports (using the switchport nonegotiate command) to ensure that trunking is only enabled manually.",
   },
   {
     number: 103,
     type: "single",
     text: "What protocol or technology requires switches to be in server mode or client mode?",
-    options: [
-      "EtherChannel",
-      "STP",
-      "VTP",
-      "DTP",
-    ],
+    options: ["EtherChannel", "STP", "VTP", "DTP"],
     correct: [2],
-    explanation: "Explanation: Topic 3.3.1\nVLAN Trunking Protocol (VTP) is a Cisco-proprietary protocol used to synchronize and manage the VLAN database across multiple switches in a network. It requires switches to be configured in specific modes to operate: Server mode (the default) allows administrators to create, modify, or delete VLANs, while Client mode prevents local changes and instead requires the switch to receive and store VLAN information from a VTP server.",
+    explanation:
+      "Explanation: Topic 3.3.1\nVLAN Trunking Protocol (VTP) is a Cisco-proprietary protocol used to synchronize and manage the VLAN database across multiple switches in a network. It requires switches to be configured in specific modes to operate: Server mode (the default) allows administrators to create, modify, or delete VLANs, while Client mode prevents local changes and instead requires the switch to receive and store VLAN information from a VTP server.",
   },
   {
     number: 104,
@@ -306,7 +290,8 @@ export const questions87to174: Question[] = [
       "to isolate ARP request messages from the rest of the network",
     ],
     correct: [1, 4],
-    explanation: "Explanation: Topic 2.2.3\nA switch has the ability of creating temporary point-to-point connections between the directly-attached transmitting and receiving network devices. The two devices have full-bandwidth full-duplex connectivity during the transmission.",
+    explanation:
+      "Explanation: Topic 2.2.3\nA switch has the ability of creating temporary point-to-point connections between the directly-attached transmitting and receiving network devices. The two devices have full-bandwidth full-duplex connectivity during the transmission.",
   },
   {
     number: 105,
@@ -319,7 +304,8 @@ export const questions87to174: Question[] = [
       "the ip routing command",
     ],
     correct: [2],
-    explanation: "Explanation: Topic 8.2.2\nTo enable IPv6 on a router you must use the ipv6 unicast-routing global configuration command or use the ipv6 enable interface configuration command. This is equivalent to entering ip routing to enable IPv4 routing on a router when it has been turned off. Keep in mind that IPv4 is enabled on a router by default. IPv6 is not enabled by default.",
+    explanation:
+      "Explanation: Topic 8.2.2\nTo enable IPv6 on a router you must use the ipv6 unicast-routing global configuration command or use the ipv6 enable interface configuration command. This is equivalent to entering ip routing to enable IPv4 routing on a router when it has been turned off. Keep in mind that IPv4 is enabled on a router by default. IPv6 is not enabled by default.",
   },
   {
     number: 106,
@@ -332,7 +318,8 @@ export const questions87to174: Question[] = [
       "Configure the port as a trunk port and assign it to VLAN1.",
     ],
     correct: [2],
-    explanation: "Explanation: Topic 4.1.3\nThe port on the switch that connects to the router interface should be configured as a trunk port. Once it becomes a trunk port, it does not belong to any particular VLAN and will forward traffic from various VLANs.",
+    explanation:
+      "Explanation: Topic 4.1.3\nThe port on the switch that connects to the router interface should be configured as a trunk port. Once it becomes a trunk port, it does not belong to any particular VLAN and will forward traffic from various VLANs.",
   },
   {
     number: 107,
@@ -348,7 +335,8 @@ export const questions87to174: Question[] = [
       "Set the native VLAN to an unused VLAN.",
     ],
     correct: [2, 4, 5],
-    explanation: "Explanation: Topic 11.2.2\nMitigating a VLAN attack can be done by disabling Dynamic Trunking Protocol (DTP), manually setting ports to trunking mode, and by setting the native VLAN of trunk links to VLANs not in use.",
+    explanation:
+      "Explanation: Topic 11.2.2\nMitigating a VLAN attack can be done by disabling Dynamic Trunking Protocol (DTP), manually setting ports to trunking mode, and by setting the native VLAN of trunk links to VLANs not in use.",
   },
   {
     number: 108,
@@ -360,12 +348,7 @@ export const questions87to174: Question[] = [
       width: 906,
       height: 927,
     },
-    left: [
-      "Step 1",
-      "Step 2",
-      "Step 3",
-      "Step 4",
-    ],
+    left: ["Step 1", "Step 2", "Step 3", "Step 4"],
     right: [
       "DHCPACK",
       "DHCPREQUEST",
@@ -375,7 +358,8 @@ export const questions87to174: Question[] = [
       "DHCPOFFER",
     ],
     correctPairs: { 0: 2, 1: 5, 2: 1, 3: 0 },
-    explanation: "Explanation: Topic 7.1.3\nThe broadcast DHCPDISCOVER message finds DHCPv4 servers on the network. When the DHCPv4 server receives a DHCPDISCOVER message, it reserves an available IPv4 address to lease to the client and sends the unicast DHCPOFFER message to the requesting client. When the client receives the DHCPOFFER from the server, it sends back a DHCPREQUEST. On receiving the DHCPREQUEST message the server replies with a unicast DHCPACK message. DHCPREPLY and DHCPINFORMATION-REQUEST are DHCPv6 messages and are not used.",
+    explanation:
+      "Explanation: Topic 7.1.3\nThe broadcast DHCPDISCOVER message finds DHCPv4 servers on the network. When the DHCPv4 server receives a DHCPDISCOVER message, it reserves an available IPv4 address to lease to the client and sends the unicast DHCPOFFER message to the requesting client. When the client receives the DHCPOFFER from the server, it sends back a DHCPREQUEST. On receiving the DHCPREQUEST message the server replies with a unicast DHCPACK message. DHCPREPLY and DHCPINFORMATION-REQUEST are DHCPv6 messages and are not used.",
   },
   {
     number: 109,
@@ -388,7 +372,8 @@ export const questions87to174: Question[] = [
       "to determine the MAC address of a directly attached network device on a particular interface",
     ],
     correct: [1],
-    explanation: "Explanation: Topic 1.2.6\nThe show interfaces command is useful to detect media errors, to see if packets are being sent and received, and to determine if any runts, giants, CRCs, interface resets, or other errors have occurred. Problems with reachability to a remote network would likely be caused by a misconfigured default gateway or other routing issue, not a switch issue. The show mac address-table command shows the MAC address of a directly attached device.",
+    explanation:
+      "Explanation: Topic 1.2.6\nThe show interfaces command is useful to detect media errors, to see if packets are being sent and received, and to determine if any runts, giants, CRCs, interface resets, or other errors have occurred. Problems with reachability to a remote network would likely be caused by a misconfigured default gateway or other routing issue, not a switch issue. The show mac address-table command shows the MAC address of a directly attached device.",
   },
   {
     number: 110,
@@ -401,7 +386,8 @@ export const questions87to174: Question[] = [
       "The passwords can only be stored in plain text in the running configuration.",
     ],
     correct: [1],
-    explanation: "Explanation: Topic 10.2.1\nThe local database method of securing device access utilizes usernames and passwords that are configured locally on the router. This allows administrators to keep track of who logged in to the device and when. The passwords can also be encrypted in the configuration. However, the account information must be configured on each device where that account should have access, making this solution very difficult to scale.",
+    explanation:
+      "Explanation: Topic 10.2.1\nThe local database method of securing device access utilizes usernames and passwords that are configured locally on the router. This allows administrators to keep track of who logged in to the device and when. The passwords can also be encrypted in the configuration. However, the account information must be configured on each device where that account should have access, making this solution very difficult to scale.",
   },
   {
     number: 111,
@@ -414,7 +400,8 @@ export const questions87to174: Question[] = [
       "It accepts both DHCPOFFER messages and sends a DHCPACK.",
     ],
     correct: [0],
-    explanation: "Explanation: Topic 7.1.3\nIf there are multiple DHCP servers in a network, it is possible for a client to receive more than one DHCPOFFER. In this scenario, the client will only send one DHCPREQUEST, which includes the server from which the client is accepting the offer.",
+    explanation:
+      "Explanation: Topic 7.1.3\nIf there are multiple DHCP servers in a network, it is possible for a client to receive more than one DHCPOFFER. In this scenario, the client will only send one DHCPREQUEST, which includes the server from which the client is accepting the offer.",
   },
   {
     number: 112,
@@ -436,20 +423,17 @@ export const questions87to174: Question[] = [
       "The switch port mode for this interface is access mode.",
     ],
     correct: [1, 3, 5],
-    explanation: "Explanation: Topic 11.1.3\nBecause the security violation count is at 0, no violation has occurred. The system shows that 3 MAC addresses are allowed on port fa0/2, but only one has been configured and no sticky MAC addresses have been learned. The port is up because of the port status of secure-up. The violation mode is what happens when an unauthorized device is attached to the port. A port must be in access mode in order to activate and use port security.",
+    explanation:
+      "Explanation: Topic 11.1.3\nBecause the security violation count is at 0, no violation has occurred. The system shows that 3 MAC addresses are allowed on port fa0/2, but only one has been configured and no sticky MAC addresses have been learned. The port is up because of the port status of secure-up. The violation mode is what happens when an unauthorized device is attached to the port. A port must be in access mode in order to activate and use port security.",
   },
   {
     number: 113,
     type: "single",
     text: "What method of wireless authentication is dependent on a RADIUS authentication server?",
-    options: [
-      "WEP",
-      "WPA Personal",
-      "WPA2 Personal",
-      "WPA2 Enterprise",
-    ],
+    options: ["WEP", "WPA Personal", "WPA2 Personal", "WPA2 Enterprise"],
     correct: [3],
-    explanation: "Explanation: Topic 12.7.7\nWPA2 Enterprise relies on an external RADIUS server to authenticate clients when they attempt to connect. WEP and WPA/WPA2 Personal both use a pre-shared key that the clients must know in order to authenticate.",
+    explanation:
+      "Explanation: Topic 12.7.7\nWPA2 Enterprise relies on an external RADIUS server to authenticate clients when they attempt to connect. WEP and WPA/WPA2 Personal both use a pre-shared key that the clients must know in order to authenticate.",
   },
   {
     number: 114,
@@ -462,7 +446,8 @@ export const questions87to174: Question[] = [
       "Trunk ports should use the default VLAN as the native VLAN number.",
     ],
     correct: [1],
-    explanation: "Explanation: Topic 10.5.3\nA double-tagging attack is unidirectional and specifically requires the attacker to be connected to a port residing in the same VLAN as the native VLAN of the trunk port. When this condition is met, the first switch strips the outer tag (the native VLAN) and forwards the frame untagged, leaving the hidden inner tag to be processed by the second switch. The best solution is to ensure that user access ports are assigned to VLANs that are distinct from the native VLANs used on trunk links, effectively breaking the prerequisite for the attack.",
+    explanation:
+      "Explanation: Topic 10.5.3\nA double-tagging attack is unidirectional and specifically requires the attacker to be connected to a port residing in the same VLAN as the native VLAN of the trunk port. When this condition is met, the first switch strips the outer tag (the native VLAN) and forwards the frame untagged, leaving the hidden inner tag to be processed by the second switch. The best solution is to ensure that user access ports are assigned to VLANs that are distinct from the native VLANs used on trunk links, effectively breaking the prerequisite for the attack.",
   },
   {
     number: 115,
@@ -483,7 +468,8 @@ export const questions87to174: Question[] = [
       "The load-balancing method used is source port to destination port.",
     ],
     correct: [0, 1],
-    explanation: "Explanation: Topic 6.3.1\nAccording to the Flags provided in the output, the letter \"D\" indicates that the channel and its member ports (Fa0/1 and Fa0/2) are down. The port channel is identified as Po2, which signifies that the port channel ID is 2. Additionally, the letter \"S\" indicates this is a Layer 2 EtherChannel, not Layer 3.",
+    explanation:
+      'Explanation: Topic 6.3.1\nAccording to the Flags provided in the output, the letter "D" indicates that the channel and its member ports (Fa0/1 and Fa0/2) are down. The port channel is identified as Po2, which signifies that the port channel ID is 2. Additionally, the letter "S" indicates this is a Layer 2 EtherChannel, not Layer 3.',
   },
   {
     number: 116,
@@ -495,11 +481,7 @@ export const questions87to174: Question[] = [
       width: 580,
       height: 464,
     },
-    left: [
-      "Step 1",
-      "Step 2",
-      "Step 3",
-    ],
+    left: ["Step 1", "Step 2", "Step 3"],
     right: [
       "The standby router assumes the role of the forwarding router using both the IP and MAC addresses of the virtual router.",
       "The standby router stops seeing hello messages from the forwarding router.",
@@ -507,20 +489,17 @@ export const questions87to174: Question[] = [
       "The host initiates an ARP request for the MAC address of the new forwarding router.",
     ],
     correctPairs: { 0: 2, 1: 1, 2: 0 },
-    explanation: "Explanation: Topic 9.1.3\nThe HSRP failover process occurs in the following order:\nStep 1: The forwarding router fails.\nStep 2: The standby router stops seeing hello messages from the forwarding router.\nStep 3: The standby router assumes the role of the forwarding router using both the IP and MAC addresses of the virtual router.\nHot Standby Router Protocol (HSRP) is a Cisco-proprietary protocol that is designed to allow for transparent failover of a first-hop IPv4 device. The ARP request step is not used.",
+    explanation:
+      "Explanation: Topic 9.1.3\nThe HSRP failover process occurs in the following order:\nStep 1: The forwarding router fails.\nStep 2: The standby router stops seeing hello messages from the forwarding router.\nStep 3: The standby router assumes the role of the forwarding router using both the IP and MAC addresses of the virtual router.\nHot Standby Router Protocol (HSRP) is a Cisco-proprietary protocol that is designed to allow for transparent failover of a first-hop IPv4 device. The ARP request step is not used.",
   },
   {
     number: 117,
     type: "single",
     text: "On a Cisco 3504 WLC Summary page ( Advanced > Summary ), which tab allows a network administrator to configure a particular WLAN with a WPA2 policy?",
-    options: [
-      "WLANs",
-      "SECURITY",
-      "WIRELESS",
-      "MANAGEMENT",
-    ],
+    options: ["WLANs", "SECURITY", "WIRELESS", "MANAGEMENT"],
     correct: [0],
-    explanation: "Explanation: Topic 13.2.6\nThe WLANs tab in the Cisco 3504 WLC advanced Summary page allows a user to access the configuration of WLANs including security, QoS, and policy-mapping.",
+    explanation:
+      "Explanation: Topic 13.2.6\nThe WLANs tab in the Cisco 3504 WLC advanced Summary page allows a user to access the configuration of WLANs including security, QoS, and policy-mapping.",
   },
   {
     number: 118,
@@ -539,7 +518,8 @@ export const questions87to174: Question[] = [
       "ipv6 route ::/0 serial 0/1/1",
     ],
     correct: [3],
-    explanation: "Explanation: Topic 15.3.1\nAn IPv6 default static route uses the prefix ::/0, where the /0 prefix length indicates that no bits need to match the destination IP address for the route to be used. On router HQ, the Serial 0/1/1 interface is the exit point connected directly to the Internet; therefore, specifying this interface in the command ensures all traffic without a more specific match is forwarded toward the ISP.",
+    explanation:
+      "Explanation: Topic 15.3.1\nAn IPv6 default static route uses the prefix ::/0, where the /0 prefix length indicates that no bits need to match the destination IP address for the route to be used. On router HQ, the Serial 0/1/1 interface is the exit point connected directly to the Internet; therefore, specifying this interface in the command ensures all traffic without a more specific match is forwarded toward the ISP.",
   },
   {
     number: 119,
@@ -552,7 +532,8 @@ export const questions87to174: Question[] = [
       "Check the statistics on the default route for oversaturation.",
     ],
     correct: [3],
-    explanation: "Explanation: Topic 16.2.1\nSporadic internet access occurring at specific times (such as every afternoon) often indicates that a network link has become oversaturated due to high traffic volume. According to the sources, when there are changes in network status or links become congested, administrators must use troubleshooting tools to check for oversaturation, which causes intermittent connectivity rather than a complete routing failure.",
+    explanation:
+      "Explanation: Topic 16.2.1\nSporadic internet access occurring at specific times (such as every afternoon) often indicates that a network link has become oversaturated due to high traffic volume. According to the sources, when there are changes in network status or links become congested, administrators must use troubleshooting tools to check for oversaturation, which causes intermittent connectivity rather than a complete routing failure.",
   },
   {
     number: 120,
@@ -565,7 +546,8 @@ export const questions87to174: Question[] = [
       "The switch forwards the frame out of the specified port.",
     ],
     correct: [1],
-    explanation: "Explanation: Topic 2.1.3\nDuring the learning process, if a switch receives a frame and discovers that the source MAC address already exists in its MAC address table but is associated with a different port, it treats this as a location change for that device. The switch then replaces the old entry with the more current port number and updates the refresh timer to maintain accurate forwarding information.",
+    explanation:
+      "Explanation: Topic 2.1.3\nDuring the learning process, if a switch receives a frame and discovers that the source MAC address already exists in its MAC address table but is associated with a different port, it treats this as a location change for that device. The switch then replaces the old entry with the more current port number and updates the refresh timer to maintain accurate forwarding information.",
   },
   {
     number: 121,
@@ -578,7 +560,8 @@ export const questions87to174: Question[] = [
       "to provide prioritized service for time-sensitive applications",
     ],
     correct: [2],
-    explanation: "Explanation: Topic 12.4.2\nA WLAN Controller (WLC) is used to centrally manage and automatically configure multiple Lightweight Access Points (LAPs) and WLANs using the CAPWAP protocol. While autonomous APs require time-consuming manual configuration for each device, a WLC facilitates group configuration, allowing an administrator to manage many APs simultaneously as a single system, which is essential for scalability in large network environments.",
+    explanation:
+      "Explanation: Topic 12.4.2\nA WLAN Controller (WLC) is used to centrally manage and automatically configure multiple Lightweight Access Points (LAPs) and WLANs using the CAPWAP protocol. While autonomous APs require time-consuming manual configuration for each device, a WLC facilitates group configuration, allowing an administrator to manage many APs simultaneously as a single system, which is essential for scalability in large network environments.",
   },
   {
     number: 122,
@@ -595,7 +578,8 @@ export const questions87to174: Question[] = [
       "modifying the default VLAN",
     ],
     correct: [0, 2, 3],
-    explanation: "Explanation: Topic 4.3.3\nSteps to configure Layer 3 switch to route with a router:\nStep 1. Configure the routed port.\nStep 2. Enable routing.\nStep 3. Configure routing.\nStep 4. Verify routing.\nStep 5. Verify connectivity.\nReference: 4.3.8 Packet Tracer Configure Layer 3 Switching and inter VLAN Routing",
+    explanation:
+      "Explanation: Topic 4.3.3\nSteps to configure Layer 3 switch to route with a router:\nStep 1. Configure the routed port.\nStep 2. Enable routing.\nStep 3. Configure routing.\nStep 4. Verify routing.\nStep 5. Verify connectivity.\nReference: 4.3.8 Packet Tracer Configure Layer 3 Switching and inter VLAN Routing",
   },
   {
     number: 123,
@@ -611,7 +595,8 @@ export const questions87to174: Question[] = [
       "By default, the autonegotiation feature is disabled.",
     ],
     correct: [0, 1, 2],
-    explanation: "Explanation: Topic 1.2.2\nCisco 2960 switches allow administrators to manually configure speed and duplex settings for each port using the speed and duplex interface commands. While ports default to autonegotiation, a failure in this process leads to mismatched settings, which can cause significant connectivity issues. Additionally, when a port speed is set to 1000 Mb/s (Gigabit Ethernet), the switch port is restricted to operating only in full-duplex mode.",
+    explanation:
+      "Explanation: Topic 1.2.2\nCisco 2960 switches allow administrators to manually configure speed and duplex settings for each port using the speed and duplex interface commands. While ports default to autonegotiation, a failure in this process leads to mismatched settings, which can cause significant connectivity issues. Additionally, when a port speed is set to 1000 Mb/s (Gigabit Ethernet), the switch port is restricted to operating only in full-duplex mode.",
   },
   {
     number: 124,
@@ -630,7 +615,8 @@ export const questions87to174: Question[] = [
       "The command interface gigabitEthernet 0/0.1 is wrong.",
     ],
     correct: [1],
-    explanation: "Explanation: Topic 4.2.4\nIn a router-on-a-stick configuration, each subinterface must be assigned to the correct VLAN using the encapsulation dot1q vlan-id command. The exhibit shows two errors: first, \"dot10\" is an incorrect protocol name (it should be dot1q), and second, the second subinterface is assigned to VLAN 2 (encapsulation dot10 2) instead of the intended VLAN 20 associated with the 192.168.20.0/24 subnet.",
+    explanation:
+      'Explanation: Topic 4.2.4\nIn a router-on-a-stick configuration, each subinterface must be assigned to the correct VLAN using the encapsulation dot1q vlan-id command. The exhibit shows two errors: first, "dot10" is an incorrect protocol name (it should be dot1q), and second, the second subinterface is assigned to VLAN 2 (encapsulation dot10 2) instead of the intended VLAN 20 associated with the 192.168.20.0/24 subnet.',
   },
   {
     number: 125,
@@ -643,22 +629,18 @@ export const questions87to174: Question[] = [
       "PortFast is not configured on all access ports.",
     ],
     correct: [3],
-    explanation: "Explanation: Topic 11.5.3\nBPDU guard can be enabled globally on all PortFast-enabled ports by using the spanning-tree portfast bpduguard default global configuration command. If PortFast is not configured, then BPDU guard is not activated.",
+    explanation:
+      "Explanation: Topic 11.5.3\nBPDU guard can be enabled globally on all PortFast-enabled ports by using the spanning-tree portfast bpduguard default global configuration command. If PortFast is not configured, then BPDU guard is not activated.",
   },
   {
     number: 126,
     type: "multi",
     text: "Which two types of spanning tree protocols can cause suboptimal traffic flows because they assume only one spanning-tree instance for the entire bridged network? (Choose two.)",
     choose: 2,
-    options: [
-      "MSTP",
-      "RSTP",
-      "Rapid PVST+",
-      "PVST+",
-      "STP",
-    ],
+    options: ["MSTP", "RSTP", "Rapid PVST+", "PVST+", "STP"],
     correct: [1, 4],
-    explanation: "Explanation: Topic 5.3.1\nSTP and RSTP assume only one IEEE 802.1D spanning-tree instance for the entire bridged network irrespective of the number of VLANs, This can result in suboptimal traffic flow issues. PVST+ provides a separate spanning-tree instance for each VLAN configured. Rapid PVST+ provides a separate instance of 802.1w per VLAN, and MSTP maps multiple VLANs that have the same traffic flow requirements into the same spanning-tree instance but allows for more than one instance for dissimilar traffic flows.",
+    explanation:
+      "Explanation: Topic 5.3.1\nSTP and RSTP assume only one IEEE 802.1D spanning-tree instance for the entire bridged network irrespective of the number of VLANs, This can result in suboptimal traffic flow issues. PVST+ provides a separate spanning-tree instance for each VLAN configured. Rapid PVST+ provides a separate instance of 802.1w per VLAN, and MSTP maps multiple VLANs that have the same traffic flow requirements into the same spanning-tree instance but allows for more than one instance for dissimilar traffic flows.",
   },
   {
     number: 127,
@@ -670,14 +652,10 @@ export const questions87to174: Question[] = [
       width: 657,
       height: 263,
     },
-    options: [
-      "stateful",
-      "stateless",
-      "manual configuration",
-      "SLAAC",
-    ],
+    options: ["stateful", "stateless", "manual configuration", "SLAAC"],
     correct: [0],
-    explanation: "Explanation: Topic 8.3.5\nThe command ipv6 nd managed-config-flag is used to set the M (Managed Address Configuration) flag to 1 in ICMPv6 Router Advertisement (RA) messages. Setting this flag informs hosts that they must contact a stateful DHCPv6 server to acquire their IPv6 global unicast address and all other network configuration information, rather than using SLAAC.",
+    explanation:
+      "Explanation: Topic 8.3.5\nThe command ipv6 nd managed-config-flag is used to set the M (Managed Address Configuration) flag to 1 in ICMPv6 Router Advertisement (RA) messages. Setting this flag informs hosts that they must contact a stateful DHCPv6 server to acquire their IPv6 global unicast address and all other network configuration information, rather than using SLAAC.",
   },
   {
     number: 128,
@@ -690,7 +668,8 @@ export const questions87to174: Question[] = [
       "Data encryption requires a DTLS license to be installed on each access point (AP) prior to being enabled on the wireless LAN controller (WLC).",
     ],
     correct: [1],
-    explanation: "Explanation: Topic 12.4.4\nTLS is a protocol which provides security between the AP and the WLC. It allows them to communicate using encryption and prevents eavesdropping or tampering.\nDTLS is enabled by default to secure the CAPWAP control channel but is disabled by default for the data channel. All CAPWAP management and control traffic exchanged between an AP and WLC is encrypted and secured by default to provide control plane privacy and prevent Man-In-the-Middle (MITM) attacks.",
+    explanation:
+      "Explanation: Topic 12.4.4\nTLS is a protocol which provides security between the AP and the WLC. It allows them to communicate using encryption and prevents eavesdropping or tampering.\nDTLS is enabled by default to secure the CAPWAP control channel but is disabled by default for the data channel. All CAPWAP management and control traffic exchanged between an AP and WLC is encrypted and secured by default to provide control plane privacy and prevent Man-In-the-Middle (MITM) attacks.",
   },
   {
     number: 129,
@@ -705,7 +684,8 @@ export const questions87to174: Question[] = [
       "Enable VTP pruning.",
     ],
     correct: [0, 1],
-    explanation: "Explanation: Topic 3.3.1\nBefore the switch is put in the correct VTP domain and in client mode, the switch must be connected to any other switch in the VTP domain through a trunk in order to receive/transmit VTP information.",
+    explanation:
+      "Explanation: Topic 3.3.1\nBefore the switch is put in the correct VTP domain and in client mode, the switch must be connected to any other switch in the VTP domain through a trunk in order to receive/transmit VTP information.",
   },
   {
     number: 130,
@@ -725,7 +705,8 @@ export const questions87to174: Question[] = [
       "to Fa0/1 and Fa0/2 only",
     ],
     correct: [0],
-    explanation: "Explanation: Topic 2.1.3\nWhen a switch receives a broadcast frame, such as a DHCP Discover request, it follows a specific forwarding rule: it floods the frame out of all available ports in the same VLAN except for the port where the frame entered the switch (the ingress port). In this star topology, PC3 sends the request through port Fa0/4; therefore, SW1 will forward that broadcast to all other active ports, which are Fa0/1 (the DHCP Server), Fa0/2 (PC1), and Fa0/3 (PC2). Although the restoration of power means the switch is undergoing the STP convergence process, the logic for broadcast forwarding remains defined by the exclusion of the source port.",
+    explanation:
+      "Explanation: Topic 2.1.3\nWhen a switch receives a broadcast frame, such as a DHCP Discover request, it follows a specific forwarding rule: it floods the frame out of all available ports in the same VLAN except for the port where the frame entered the switch (the ingress port). In this star topology, PC3 sends the request through port Fa0/4; therefore, SW1 will forward that broadcast to all other active ports, which are Fa0/1 (the DHCP Server), Fa0/2 (PC1), and Fa0/3 (PC2). Although the restoration of power means the switch is undergoing the STP convergence process, the logic for broadcast forwarding remains defined by the exclusion of the source port.",
   },
   {
     number: 131,
@@ -738,20 +719,22 @@ export const questions87to174: Question[] = [
       "The switch adds a MAC address table entry mapping for the destination MAC address and the ingress port.",
     ],
     correct: [2],
-    explanation: "Explanation: Topic 2.1.3\nEvery frame that enters a switch is checked for new information during the learning process. If the switch examines the source MAC address and finds it does not exist in the MAC address table, it adds that MAC address along with the incoming (ingress) port number to the table. This allows the switch to populate its database so it can efficiently forward future frames destined for that specific device.",
+    explanation:
+      "Explanation: Topic 2.1.3\nEvery frame that enters a switch is checked for new information during the learning process. If the switch examines the source MAC address and finds it does not exist in the MAC address table, it adds that MAC address along with the incoming (ingress) port number to the table. This allows the switch to populate its database so it can efficiently forward future frames destined for that specific device.",
   },
   {
     number: 132,
     type: "single",
     text: "Employees are unable to connect to servers on one of the internal networks. What should be done or checked?",
     options: [
-      "Use the \"show ip interface brief\" command to see if an interface is down.",
+      'Use the "show ip interface brief" command to see if an interface is down.',
       "Verify that there is not a default route in any of the edge router routing tables.",
       "Create static routes to all internal networks and a default route to the internet.",
       "Check the statistics on the default route for oversaturation.",
     ],
     correct: [0],
-    explanation: "Explanation: Topic 1.5.2\nWhen connectivity to a specific internal network is lost, the network administrator must determine if the physical or logical path is active. The show ip interface brief command is a fundamental troubleshooting tool that provides a quick summary of the status and protocol for all interfaces, allowing the technician to immediately see if an interface has failed or been administratively shut down. While checking for oversaturation is useful for sporadic issues, a complete inability to connect typically requires verifying interface operational status first.",
+    explanation:
+      "Explanation: Topic 1.5.2\nWhen connectivity to a specific internal network is lost, the network administrator must determine if the physical or logical path is active. The show ip interface brief command is a fundamental troubleshooting tool that provides a quick summary of the status and protocol for all interfaces, allowing the technician to immediately see if an interface has failed or been administratively shut down. While checking for oversaturation is useful for sporadic issues, a complete inability to connect typically requires verifying interface operational status first.",
   },
   {
     number: 133,
@@ -764,7 +747,8 @@ export const questions87to174: Question[] = [
       "It manually enables a trunk link.",
     ],
     correct: [0],
-    explanation: "Explanation: Topic 11.3.3\nThe ip dhcp snooping global configuration command is used to activate the DHCP snooping security feature on the switch. It is the essential first step that must be performed before an administrator can configure trusted interfaces or enable the feature for specific VLANs to mitigate DHCP spoofing and starvation attacks.",
+    explanation:
+      "Explanation: Topic 11.3.3\nThe ip dhcp snooping global configuration command is used to activate the DHCP snooping security feature on the switch. It is the essential first step that must be performed before an administrator can configure trusted interfaces or enable the feature for specific VLANs to mitigate DHCP spoofing and starvation attacks.",
   },
   {
     number: 134,
@@ -777,7 +761,8 @@ export const questions87to174: Question[] = [
       "Check the routing table for a missing static route.",
     ],
     correct: [3],
-    explanation: "Explanation: Topic 16.2.1\nWhen an administrator observes large numbers of packets being dropped, it is often a symptom of link congestion or oversaturation. According to the sources, network links are subject to events where they become overwhelmed by traffic volume, leading to drops. By checking the statistics (such as interface counters or queue drops), an administrator can determine if the traffic load exceeds the link's capacity, which is a common cause of performance degradation on branch routers.",
+    explanation:
+      "Explanation: Topic 16.2.1\nWhen an administrator observes large numbers of packets being dropped, it is often a symptom of link congestion or oversaturation. According to the sources, network links are subject to events where they become overwhelmed by traffic volume, leading to drops. By checking the statistics (such as interface counters or queue drops), an administrator can determine if the traffic load exceeds the link's capacity, which is a common cause of performance degradation on branch routers.",
   },
   {
     number: 135,
@@ -792,7 +777,8 @@ export const questions87to174: Question[] = [
       "frame check sequence (FCS) check",
     ],
     correct: [0, 1],
-    explanation: "Explanation: Topic 2.2.3\nFast internal switching utilizes high-speed internal buses or shared memory to provide high performance during data processing. Large frame buffers provide the capacity to temporarily store more received frames, which prevents them from being dropped during traffic bursts or when forwarding data from a high-speed ingress port to a slower egress port.",
+    explanation:
+      "Explanation: Topic 2.2.3\nFast internal switching utilizes high-speed internal buses or shared memory to provide high performance during data processing. Large frame buffers provide the capacity to temporarily store more received frames, which prevents them from being dropped during traffic bursts or when forwarding data from a high-speed ingress port to a slower egress port.",
   },
   {
     number: 136,
@@ -805,7 +791,8 @@ export const questions87to174: Question[] = [
       "The size of the collision domain is increased.",
     ],
     correct: [1],
-    explanation: "Explanation: Topic 2.2.2\nWhen two or more switches are connected together, the size of the broadcast domain is increased and so is the number of collision domains. The number of broadcast domains is increased only when routers are added.",
+    explanation:
+      "Explanation: Topic 2.2.2\nWhen two or more switches are connected together, the size of the broadcast domain is increased and so is the number of collision domains. The number of broadcast domains is increased only when routers are added.",
   },
   {
     number: 138,
@@ -813,12 +800,13 @@ export const questions87to174: Question[] = [
     text: "Branch users were able to access a site in the morning but have had no connectivity with the site since lunch time. What should be done or checked?",
     options: [
       "Verify that the static route to the server is present in the routing table.",
-      "Use the \"show ip interface brief\" command to see if an interface is down.",
+      'Use the "show ip interface brief" command to see if an interface is down.',
       "Check the configuration on the floating static route and adjust the AD.",
       "Create a floating static route to that network.",
     ],
     correct: [0],
-    explanation: "Explanation: Topic 16.2.3\nWhen connectivity to a remote site is suddenly lost, the administrator should verify that the path still exists in the router's database. A static route is only installed and maintained in the routing table as long as the associated exit interface is active; if the physical or logical link fails, the router automatically removes the route. Using the show ip route command helps confirm if the route has disappeared due to an interface failure or a topology change.",
+    explanation:
+      "Explanation: Topic 16.2.3\nWhen connectivity to a remote site is suddenly lost, the administrator should verify that the path still exists in the router's database. A static route is only installed and maintained in the routing table as long as the associated exit interface is active; if the physical or logical link fails, the router automatically removes the route. Using the show ip route command helps confirm if the route has disappeared due to an interface failure or a topology change.",
   },
   {
     number: 139,
@@ -831,7 +819,8 @@ export const questions87to174: Question[] = [
       "It restricts the number of discovery messages, per second, to be received on the interface.",
     ],
     correct: [1],
-    explanation: "Explanation: Topic 11.1.3\nThe switchport port-security command is an interface configuration command used to activate the port security feature on a specific switch port. Once entered, the switch will begin to secure the port by limiting the number of allowed MAC addresses (defaulting to one) and applying a violation mode (defaulting to shutdown) if an unauthorized device is detected. Unlike DHCP snooping, port security is not enabled globally but must be configured on each individual access or trunk port.",
+    explanation:
+      "Explanation: Topic 11.1.3\nThe switchport port-security command is an interface configuration command used to activate the port security feature on a specific switch port. Once entered, the switch will begin to secure the port by limiting the number of allowed MAC addresses (defaulting to one) and applying a violation mode (defaulting to shutdown) if an unauthorized device is detected. Unlike DHCP snooping, port security is not enabled globally but must be configured on each individual access or trunk port.",
   },
   {
     number: 140,
@@ -844,7 +833,8 @@ export const questions87to174: Question[] = [
       "to facilitate group configuration and management of multiple WLANs through a WLC",
     ],
     correct: [3],
-    explanation: "Explanation: Topic 13.2.2\nLightweight APs (LAPs) are controller-based devices that require no initial configuration and communicate with a WLAN Controller (WLC) using protocols like CAPWAP or LWAPP. The primary benefit of using multiple LAPs is that they allow a network administrator to centrally manage and automatically configure a large number of access points as a single system through the WLC. This architecture facilitates efficient group configuration and management of multiple WLANs, which is essential for scalability in enterprise environments.",
+    explanation:
+      "Explanation: Topic 13.2.2\nLightweight APs (LAPs) are controller-based devices that require no initial configuration and communicate with a WLAN Controller (WLC) using protocols like CAPWAP or LWAPP. The primary benefit of using multiple LAPs is that they allow a network administrator to centrally manage and automatically configure a large number of access points as a single system through the WLC. This architecture facilitates efficient group configuration and management of multiple WLANs, which is essential for scalability in enterprise environments.",
   },
   {
     number: 141,
@@ -863,7 +853,8 @@ export const questions87to174: Question[] = [
       "The VLAN that is used by PC-A is not in the list of allowed VLANs on the trunk.",
     ],
     correct: [3],
-    explanation: "Explanation: Topic 3.4.1\nBecause PC-A and PC-B are connected to different switches, traffic between them must flow over the trunk link. Trunks can be configured so that they only allow traffic for particular VLANs to cross the link. In this scenario, VLAN 60, the VLAN that is associated with PC-A and PC-B, has not been allowed across the link, as shown by the output of show interfaces trunk.",
+    explanation:
+      "Explanation: Topic 3.4.1\nBecause PC-A and PC-B are connected to different switches, traffic between them must flow over the trunk link. Trunks can be configured so that they only allow traffic for particular VLANs to cross the link. In this scenario, VLAN 60, the VLAN that is associated with PC-A and PC-B, has not been allowed across the link, as shown by the output of show interfaces trunk.",
   },
   {
     number: 142,
@@ -876,7 +867,8 @@ export const questions87to174: Question[] = [
       "to monitor the operation of the wireless network",
     ],
     correct: [1],
-    explanation: "Explanation: Topic 12.7.7\nA RADIUS server is required for Enterprise security mode to provide Authentication, Authorization, and Accounting (AAA) services. Unlike the Personal mode which uses a single pre-shared key, RADIUS requires users to provide their own unique username and password. This allows the administrator to restrict access to authorized users only, centrally manage user accounts, and maintain a detailed audit trail of individual network activity.",
+    explanation:
+      "Explanation: Topic 12.7.7\nA RADIUS server is required for Enterprise security mode to provide Authentication, Authorization, and Accounting (AAA) services. Unlike the Personal mode which uses a single pre-shared key, RADIUS requires users to provide their own unique username and password. This allows the administrator to restrict access to authorized users only, centrally manage user accounts, and maintain a detailed audit trail of individual network activity.",
   },
   {
     number: 143,
@@ -889,7 +881,8 @@ export const questions87to174: Question[] = [
       "It disables DTP on a non-trunking interface.",
     ],
     correct: [3],
-    explanation: "Explanation: Topic 11.2.2\nThe switchport mode access command puts an interface into permanent nontrunking mode. By explicitly defining the port as an access port, it disables DTP (auto trunking) negotiations, which is a critical security measure to mitigate VLAN hopping attacks where a threat actor might try to spoof trunking signals to access unauthorized VLANs.",
+    explanation:
+      "Explanation: Topic 11.2.2\nThe switchport mode access command puts an interface into permanent nontrunking mode. By explicitly defining the port as an access port, it disables DTP (auto trunking) negotiations, which is a critical security measure to mitigate VLAN hopping attacks where a threat actor might try to spoof trunking signals to access unauthorized VLANs.",
   },
   {
     number: 144,
@@ -904,7 +897,8 @@ export const questions87to174: Question[] = [
       "The ipv6 nd managed-config-flag is entered for the interface that faces the LAN segment.",
     ],
     correct: [1, 2],
-    explanation: "Explanation: Topic 8.3.3\nTo use the stateless DHCPv6 method, the router must inform DHCPv6 clients to configure a SLAAC IPv6 address and contact the DHCPv6 server for additional configuration parameters, such as the DNS server address. This is done through the command ipv6 nd other-config-flag entered at the interface configuration mode. The DNS server address is indicated in the ipv6 dhcp pool configuration.",
+    explanation:
+      "Explanation: Topic 8.3.3\nTo use the stateless DHCPv6 method, the router must inform DHCPv6 clients to configure a SLAAC IPv6 address and contact the DHCPv6 server for additional configuration parameters, such as the DNS server address. This is done through the command ipv6 nd other-config-flag entered at the interface configuration mode. The DNS server address is indicated in the ipv6 dhcp pool configuration.",
   },
   {
     number: 145,
@@ -917,7 +911,8 @@ export const questions87to174: Question[] = [
       "to provide prioritized service for time-sensitive applications",
     ],
     correct: [0],
-    explanation: "Explanation: Topic 12.7.2\nDisabling the SSID broadcast feature, also known as SSID cloaking, prevents an Access Point (AP) from including the network name in its periodic beacon frames. While this does not provide strong security against professional attackers, it effectively hides the network from casual outsiders or unauthorized users scanning for available wireless networks, as they must manually configure the SSID on their devices to attempt a connection.",
+    explanation:
+      "Explanation: Topic 12.7.2\nDisabling the SSID broadcast feature, also known as SSID cloaking, prevents an Access Point (AP) from including the network name in its periodic beacon frames. While this does not provide strong security against professional attackers, it effectively hides the network from casual outsiders or unauthorized users scanning for available wireless networks, as they must manually configure the SSID on their devices to attempt a connection.",
   },
   {
     number: 146,
@@ -936,7 +931,8 @@ export const questions87to174: Question[] = [
       "The network prefix is incorrect.",
     ],
     correct: [1],
-    explanation: "Explanation: Topic 15.1.2\nIn this example the interface in the static route is incorrect. The interface should be the exit interface on R1, which is s0/0/0.",
+    explanation:
+      "Explanation: Topic 15.1.2\nIn this example the interface in the static route is incorrect. The interface should be the exit interface on R1, which is s0/0/0.",
   },
   {
     number: 147,
@@ -949,7 +945,8 @@ export const questions87to174: Question[] = [
       "The switch will forward the frame out all ports except the incoming port.",
     ],
     correct: [3],
-    explanation: "Explanation: Topic 2.1.3\nWhen a switch receives a frame with a unicast destination MAC address that is not in its MAC address table, it does not know which specific port to use for forwarding. Consequently, it treats the frame as an unknown unicast and floods it out of all available ports within the same VLAN, except for the ingress port (the port where the frame originally entered the switch). This process ensures the intended recipient receives the frame so the switch can later learn its location from the response.",
+    explanation:
+      "Explanation: Topic 2.1.3\nWhen a switch receives a frame with a unicast destination MAC address that is not in its MAC address table, it does not know which specific port to use for forwarding. Consequently, it treats the frame as an unknown unicast and floods it out of all available ports within the same VLAN, except for the ingress port (the port where the frame originally entered the switch). This process ensures the intended recipient receives the frame so the switch can later learn its location from the response.",
   },
   {
     number: 148,
@@ -962,7 +959,8 @@ export const questions87to174: Question[] = [
       "Verify that the static route to the server is present in the routing table.",
     ],
     correct: [2],
-    explanation: "Explanation: Topic 16.2.1\nWhen a traceroute reveals a wrong path or unreachable status immediately after adding a static route, it typically indicates that the route was configured with an incorrect egress point; therefore, checking the exit interface is essential to ensure the router is forwarding packets toward the intended network segment rather than misdirecting them out a different physical or logical interface.",
+    explanation:
+      "Explanation: Topic 16.2.1\nWhen a traceroute reveals a wrong path or unreachable status immediately after adding a static route, it typically indicates that the route was configured with an incorrect egress point; therefore, checking the exit interface is essential to ensure the router is forwarding packets toward the intended network segment rather than misdirecting them out a different physical or logical interface.",
   },
   {
     number: 149,
@@ -975,20 +973,17 @@ export const questions87to174: Question[] = [
       "It globally enables BPDU guard on all PortFast-enabled ports.",
     ],
     correct: [1],
-    explanation: "Explanation: Topic 11.4.2\nThe ip arp inspection vlan 10 global configuration command is used to enable Dynamic ARP Inspection (DAI) for the specified VLAN. DAI is a security feature that helps prevent ARP spoofing by intercepting ARP packets on untrusted ports and validating them against a DHCP snooping binding table; therefore, DHCP snooping must be enabled on the VLAN and trusted interfaces before DAI can operate.",
+    explanation:
+      "Explanation: Topic 11.4.2\nThe ip arp inspection vlan 10 global configuration command is used to enable Dynamic ARP Inspection (DAI) for the specified VLAN. DAI is a security feature that helps prevent ARP spoofing by intercepting ARP packets on untrusted ports and validating them against a DHCP snooping binding table; therefore, DHCP snooping must be enabled on the VLAN and trusted interfaces before DAI can operate.",
   },
   {
     number: 150,
     type: "single",
     text: "What protocol or technology manages trunk negotiations between switches?",
-    options: [
-      "VTP",
-      "EtherChannel",
-      "DTP",
-      "STP",
-    ],
+    options: ["VTP", "EtherChannel", "DTP", "STP"],
     correct: [2],
-    explanation: "Explanation: Topic 3.5.1\nDynamic Trunking Protocol (DTP) is a Cisco proprietary protocol specifically designed to automatically manage trunk negotiation between neighboring switches. It operates on a point-to-point basis to determine whether a link should become a trunk or remain as an access port, thereby simplifying and speeding up the network configuration process.",
+    explanation:
+      "Explanation: Topic 3.5.1\nDynamic Trunking Protocol (DTP) is a Cisco proprietary protocol specifically designed to automatically manage trunk negotiation between neighboring switches. It operates on a point-to-point basis to determine whether a link should become a trunk or remain as an access port, thereby simplifying and speeding up the network configuration process.",
   },
   {
     number: 151,
@@ -1001,7 +996,8 @@ export const questions87to174: Question[] = [
       "to provide privacy and integrity to wireless traffic by using encryption",
     ],
     correct: [3],
-    explanation: "Explanation: Topic 12.7.6\nWPA2 utilizes Advanced Encryption Standard (AES) to protect wireless data. Encryption provides privacy by ensuring that even if data is intercepted, it cannot be deciphered in a reasonable amount of time. Furthermore, it ensures integrity through the use of CCMP, which allows receiving hosts to identify if the encrypted or non-encrypted bits have been altered during transmission.",
+    explanation:
+      "Explanation: Topic 12.7.6\nWPA2 utilizes Advanced Encryption Standard (AES) to protect wireless data. Encryption provides privacy by ensuring that even if data is intercepted, it cannot be deciphered in a reasonable amount of time. Furthermore, it ensures integrity through the use of CCMP, which allows receiving hosts to identify if the encrypted or non-encrypted bits have been altered during transmission.",
   },
   {
     number: 152,
@@ -1014,20 +1010,17 @@ export const questions87to174: Question[] = [
       "Create a floating static route to that network.",
     ],
     correct: [1],
-    explanation: "Explanation: Topic 16.2.3\nUsers are able to reach other destinations but not the company web server, so the problem is specific to the route to the network where the server resides. The administrator should use the show ip route command to verify that the static route to that server network is present in the routing table; if the route (or its exit interface) is missing, traffic to the server cannot be forwarded.",
+    explanation:
+      "Explanation: Topic 16.2.3\nUsers are able to reach other destinations but not the company web server, so the problem is specific to the route to the network where the server resides. The administrator should use the show ip route command to verify that the static route to that server network is present in the routing table; if the route (or its exit interface) is missing, traffic to the server cannot be forwarded.",
   },
   {
     number: 153,
     type: "single",
     text: "What IPv6 prefix is designed for link-local communication?",
-    options: [
-      "2001::/3",
-      "ff00::/8",
-      "fc::/07",
-      "fe80::/10",
-    ],
+    options: ["2001::/3", "ff00::/8", "fc::/07", "fe80::/10"],
     correct: [3],
-    explanation: "Explanation: Topic 1.5.3\nIPv6 link-local addresses are designed for communication between devices on the same local network link and are not routable beyond that segment. The sources specify that these addresses always begin with the prefix FE80. Every IPv6-enabled interface is required to have a link-local address to facilitate local network functions.",
+    explanation:
+      "Explanation: Topic 1.5.3\nIPv6 link-local addresses are designed for communication between devices on the same local network link and are not routable beyond that segment. The sources specify that these addresses always begin with the prefix FE80. Every IPv6-enabled interface is required to have a link-local address to facilitate local network functions.",
   },
   {
     number: 154,
@@ -1040,7 +1033,8 @@ export const questions87to174: Question[] = [
       "It dynamically learns the L2 address and copies it to the running configuration.",
     ],
     correct: [2],
-    explanation: "Explanation: Topic 11.3.3\nThe ip dhcp snooping limit rate command is used on untrusted interfaces to mitigate DHCP starvation attacks. It restricts the number of DHCP discovery messages that can be received on a port every second; if the limit (in this case, 6 packets per second) is exceeded, the interface can be placed into an error-disabled state to protect the DHCP server's resources.",
+    explanation:
+      "Explanation: Topic 11.3.3\nThe ip dhcp snooping limit rate command is used on untrusted interfaces to mitigate DHCP starvation attacks. It restricts the number of DHCP discovery messages that can be received on a port every second; if the limit (in this case, 6 packets per second) is exceeded, the interface can be placed into an error-disabled state to protect the DHCP server's resources.",
   },
   {
     number: 155,
@@ -1053,7 +1047,8 @@ export const questions87to174: Question[] = [
       "to reduce the risk of interference by external devices such as microwave ovens",
     ],
     correct: [2],
-    explanation: "Explanation: Topic 13.1.3\nChanging default DHCP IPv4 addresses is a fundamental security best practice because default IP ranges and management addresses for wireless routers are well-known and easily found on the internet, meaning that using a non-default range makes it more difficult for unauthorized outsiders to identify the network's structure or gain access to the device's management interface.",
+    explanation:
+      "Explanation: Topic 13.1.3\nChanging default DHCP IPv4 addresses is a fundamental security best practice because default IP ranges and management addresses for wireless routers are well-known and easily found on the internet, meaning that using a non-default range makes it more difficult for unauthorized outsiders to identify the network's structure or gain access to the device's management interface.",
   },
   {
     number: 156,
@@ -1066,33 +1061,26 @@ export const questions87to174: Question[] = [
       "It enables portfast on a specific switch interface.",
     ],
     correct: [0],
-    explanation: "Explanation: Topic 11.4.3\nThe ip arp inspection validate src-mac command is a supplemental DAI feature used to prevent ARP spoofing. It specifically instructs the switch to check the source MAC address in the Ethernet header and compare it against the sender MAC address found in the body of the ARP packet. If these two Layer 2 addresses do not match, the ARP packet is considered invalid and is dropped.",
+    explanation:
+      "Explanation: Topic 11.4.3\nThe ip arp inspection validate src-mac command is a supplemental DAI feature used to prevent ARP spoofing. It specifically instructs the switch to check the source MAC address in the Ethernet header and compare it against the sender MAC address found in the body of the ARP packet. If these two Layer 2 addresses do not match, the ARP packet is considered invalid and is dropped.",
   },
   {
     number: 157,
     type: "single",
     text: "What protocol or technology is a Cisco proprietary protocol that is automatically enabled on 2960 switches?",
-    options: [
-      "DTP",
-      "STP",
-      "VTP",
-      "EtherChannel",
-    ],
+    options: ["DTP", "STP", "VTP", "EtherChannel"],
     correct: [0],
-    explanation: "Explanation: Topic 3.5.1\nDynamic Trunking Protocol (DTP) is a Cisco proprietary protocol that is automatically enabled on Catalyst 2960 and 3650 Series switches. Its default state on these switches is dynamic auto, which allows the interface to automatically negotiate a trunk link if the neighboring device is set to trunk or desirable mode. While Spanning Tree Protocol (STP) is also enabled by default, the base protocol (802.1D) is an IEEE standard, and EtherChannel must be manually configured.",
+    explanation:
+      "Explanation: Topic 3.5.1\nDynamic Trunking Protocol (DTP) is a Cisco proprietary protocol that is automatically enabled on Catalyst 2960 and 3650 Series switches. Its default state on these switches is dynamic auto, which allows the interface to automatically negotiate a trunk link if the neighboring device is set to trunk or desirable mode. While Spanning Tree Protocol (STP) is also enabled by default, the base protocol (802.1D) is an IEEE standard, and EtherChannel must be manually configured.",
   },
   {
     number: 158,
     type: "single",
     text: "What address and prefix length is used when configuring an IPv6 default static route?",
-    options: [
-      "::/0",
-      "FF02::1/8",
-      "0.0.0.0/0",
-      "::1/128",
-    ],
+    options: ["::/0", "FF02::1/8", "0.0.0.0/0", "::1/128"],
     correct: [0],
-    explanation: "Explanation: Topic 15.3.1\nThe IPv6 address and prefix for a default static route is ::/0. This represents all zeros in the address and a prefix length of zero.",
+    explanation:
+      "Explanation: Topic 15.3.1\nThe IPv6 address and prefix for a default static route is ::/0. This represents all zeros in the address and a prefix length of zero.",
   },
   {
     number: 159,
@@ -1107,20 +1095,17 @@ export const questions87to174: Question[] = [
       "When a packet arrives on a router interface, it is forwarded to the control plane where the CPU searches for a match in the fast-switching cache.",
     ],
     correct: [1, 3],
-    explanation: "Explanation: Topic 14.2.3\nCisco Express Forwarding (CEF) builds a forwarding information base (FIB) and an adjacency table to be able to route packets quicker than traditional packet forwarding methods can.",
+    explanation:
+      "Explanation: Topic 14.2.3\nCisco Express Forwarding (CEF) builds a forwarding information base (FIB) and an adjacency table to be able to route packets quicker than traditional packet forwarding methods can.",
   },
   {
     number: 160,
     type: "single",
     text: "Which term describes the role of a Cisco switch in the 802.1X port-based access control?",
-    options: [
-      "agent",
-      "supplicant",
-      "authenticator",
-      "authentication server",
-    ],
+    options: ["agent", "supplicant", "authenticator", "authentication server"],
     correct: [2],
-    explanation: "Explanation: Topic 10.2.6\n802.1X port-based authentication defines specific roles for the devices in the network:\nClient (Supplicant) – The device that requests access to LAN and switch services\nSwitch (Authenticator) – Controls physical access to the network based on the authentication status of the client\nAuthentication server – Performs the actual authentication of the client",
+    explanation:
+      "Explanation: Topic 10.2.6\n802.1X port-based authentication defines specific roles for the devices in the network:\nClient (Supplicant) – The device that requests access to LAN and switch services\nSwitch (Authenticator) – Controls physical access to the network based on the authentication status of the client\nAuthentication server – Performs the actual authentication of the client",
   },
   {
     number: 161,
@@ -1133,7 +1118,8 @@ export const questions87to174: Question[] = [
       "Port Security",
     ],
     correct: [0],
-    explanation: "Explanation: Topic 10.3.3\nDynamic ARP Inspection (DAI) is a security feature designed to mitigate ARP spoofing and ARP poisoning attacks. It works by intercepting all ARP requests and replies on untrusted ports and verifying each packet for a valid IP-to-MAC address binding. DAI relies on the DHCP snooping binding table to identify legitimate addresses, dropping and logging any invalid ARP messages to prevent a threat actor from poisoning the ARP caches of other devices on the network.",
+    explanation:
+      "Explanation: Topic 10.3.3\nDynamic ARP Inspection (DAI) is a security feature designed to mitigate ARP spoofing and ARP poisoning attacks. It works by intercepting all ARP requests and replies on untrusted ports and verifying each packet for a valid IP-to-MAC address binding. DAI relies on the DHCP snooping binding table to identify legitimate addresses, dropping and logging any invalid ARP messages to prevent a threat actor from poisoning the ARP caches of other devices on the network.",
   },
   {
     number: 162,
@@ -1146,20 +1132,17 @@ export const questions87to174: Question[] = [
       "PVST+ optimizes performance on the network through load sharing.",
     ],
     correct: [3],
-    explanation: "Explanation: Topic 5.3.1\nPVST+ results in optimum load balancing. However, this is accomplished by manually configuring switches to be elected as root bridges for different VLANs on the network. The root bridges are not automatically selected. Furthermore, having spanning-tree instances for each VLAN actually consumes more bandwidth and it increases the CPU cycles for all the switches in the network.",
+    explanation:
+      "Explanation: Topic 5.3.1\nPVST+ results in optimum load balancing. However, this is accomplished by manually configuring switches to be elected as root bridges for different VLANs on the network. The root bridges are not automatically selected. Furthermore, having spanning-tree instances for each VLAN actually consumes more bandwidth and it increases the CPU cycles for all the switches in the network.",
   },
   {
     number: 163,
     type: "single",
     text: "What protocol or technology uses a standby router to assume packet-forwarding responsibility if the active router fails?",
-    options: [
-      "EtherChannel",
-      "DTP",
-      "HSRP",
-      "VTP",
-    ],
+    options: ["EtherChannel", "DTP", "HSRP", "VTP"],
     correct: [2],
-    explanation: "Explanation: Topic 9.2.1\nHot Standby Router Protocol (HSRP) is a Cisco-proprietary protocol designed to provide first-hop redundancy. In an HSRP group, one router is elected as the active device to forward packets while another acts as the standby router. The standby router's function is to monitor the operational status of the active router and assume packet-forwarding responsibility immediately if the active router fails, ensuring high network availability for hosts.",
+    explanation:
+      "Explanation: Topic 9.2.1\nHot Standby Router Protocol (HSRP) is a Cisco-proprietary protocol designed to provide first-hop redundancy. In an HSRP group, one router is elected as the active device to forward packets while another acts as the standby router. The standby router's function is to monitor the operational status of the active router and assume packet-forwarding responsibility immediately if the active router fails, ensuring high network availability for hosts.",
   },
   {
     number: 164,
@@ -1172,7 +1155,8 @@ export const questions87to174: Question[] = [
       "It displays the IP-to-MAC address associations for switch interfaces.",
     ],
     correct: [3],
-    explanation: "Explanation: Topic 11.3.4\nThe show ip dhcp snooping binding command is used to display the DHCP snooping binding table. This table records the associations (bindings) between the source MAC addresses of devices on untrusted ports and the IPv4 addresses assigned to them by a legitimate DHCP server. It is an essential tool for verifying which clients have received DHCP information and serves as a critical database for other security features like Dynamic ARP Inspection (DAI).",
+    explanation:
+      "Explanation: Topic 11.3.4\nThe show ip dhcp snooping binding command is used to display the DHCP snooping binding table. This table records the associations (bindings) between the source MAC addresses of devices on untrusted ports and the IPv4 addresses assigned to them by a legitimate DHCP server. It is an essential tool for verifying which clients have received DHCP information and serves as a critical database for other security features like Dynamic ARP Inspection (DAI).",
   },
   {
     number: 165,
@@ -1185,7 +1169,8 @@ export const questions87to174: Question[] = [
       "The switch adds a MAC address table entry for the destination MAC address and the egress port.",
     ],
     correct: [1],
-    explanation: "Explanation: Topic 2.1.3\nEvery frame entering a switch is checked for new information. If the source MAC address is already present in the MAC address table, the switch simply updates the refresh timer for that entry to prevent it from aging out and being deleted. If the address exists in the table but appears on a different port, the switch will then update the entry with the more current port number.",
+    explanation:
+      "Explanation: Topic 2.1.3\nEvery frame entering a switch is checked for new information. If the source MAC address is already present in the MAC address table, the switch simply updates the refresh timer for that entry to prevent it from aging out and being deleted. If the address exists in the table but appears on a different port, the switch will then update the entry with the more current port number.",
   },
   {
     number: 166,
@@ -1198,7 +1183,8 @@ export const questions87to174: Question[] = [
       "Replace at least half of the switches with hubs to reduce the size of the broadcast domain.",
     ],
     correct: [2],
-    explanation: "Explanation: Topic 3.1.2\nBy dividing the one big network into two smaller network, the network administrator has created two smaller broadcast domains. When a broadcast is sent on the network now, the broadcast will only be sent to the devices on the same Ethernet LAN. The other LAN will not receive the broadcast.",
+    explanation:
+      "Explanation: Topic 3.1.2\nBy dividing the one big network into two smaller network, the network administrator has created two smaller broadcast domains. When a broadcast is sent on the network now, the broadcast will only be sent to the devices on the same Ethernet LAN. The other LAN will not receive the broadcast.",
   },
   {
     number: 167,
@@ -1211,7 +1197,8 @@ export const questions87to174: Question[] = [
       "A static IPv6 host route must include the interface type and the interface number of the next hop router.",
     ],
     correct: [1],
-    explanation: "Explanation: Topic 15.5.1\nA host route is an IPv4 address with a 32-bit mask, or an IPv6 address with a 128-bit mask. When an active interface on a router is configured with an IPv4 or IPv6 address, a local host route is automatically added to the routing table. A host route is marked with L in the output of the routing table. For IPv6 static routes, the next-hop address can be the link-local address of the adjacent router. In this case you must specify the interface type and the interface number of the local router.",
+    explanation:
+      "Explanation: Topic 15.5.1\nA host route is an IPv4 address with a 32-bit mask, or an IPv6 address with a 128-bit mask. When an active interface on a router is configured with an IPv4 or IPv6 address, a local host route is automatically added to the routing table. A host route is marked with L in the output of the routing table. For IPv6 static routes, the next-hop address can be the link-local address of the adjacent router. In this case you must specify the interface type and the interface number of the local router.",
   },
   {
     number: 168,
@@ -1224,22 +1211,18 @@ export const questions87to174: Question[] = [
       "interface number and type",
     ],
     correct: [3],
-    explanation: "Explanation: Topic 15.2.6\nWhen configuring an IPv6 static route with a next-hop link-local address, the router requires a fully specified static route, which includes both the next-hop address and the interface number and type (exit interface). This is necessary because link-local addresses are only unique to a specific link and are not contained in the IPv6 routing table; therefore, the router must be explicitly told which interface to use to reach that particular neighbor. If the interface is not specified, the command will fail because the next-hop link-local address could theoretically be valid on multiple networks connected to the same router.",
+    explanation:
+      "Explanation: Topic 15.2.6\nWhen configuring an IPv6 static route with a next-hop link-local address, the router requires a fully specified static route, which includes both the next-hop address and the interface number and type (exit interface). This is necessary because link-local addresses are only unique to a specific link and are not contained in the IPv6 routing table; therefore, the router must be explicitly told which interface to use to reach that particular neighbor. If the interface is not specified, the command will fail because the next-hop link-local address could theoretically be valid on multiple networks connected to the same router.",
   },
   {
     number: 169,
     type: "multi",
     text: "A technician is configuring a wireless network for a small business using a SOHO wireless router. Which two authentication methods are used, if the router is configured with WPA2? (Choose two.)",
     choose: 2,
-    options: [
-      "personal",
-      "AES",
-      "TKIP",
-      "WEP",
-      "enterprise",
-    ],
+    options: ["personal", "AES", "TKIP", "WEP", "enterprise"],
     correct: [0, 4],
-    explanation: "Explanation: Topic 12.7.5\nWPA2 provides two primary authentication modes: Personal (WPA2-PSK), which uses a pre-shared key for home or small office environments, and Enterprise (WPA2-Enterprise), which requires a RADIUS server for centralized user authentication via 802.1X. AES and TKIP are encryption protocols used to protect the data, not authentication methods themselves, while WEP is an obsolete legacy standard that is separate from WPA2.",
+    explanation:
+      "Explanation: Topic 12.7.5\nWPA2 provides two primary authentication modes: Personal (WPA2-PSK), which uses a pre-shared key for home or small office environments, and Enterprise (WPA2-Enterprise), which requires a RADIUS server for centralized user authentication via 802.1X. AES and TKIP are encryption protocols used to protect the data, not authentication methods themselves, while WEP is an obsolete legacy standard that is separate from WPA2.",
   },
   {
     number: 170,
@@ -1252,7 +1235,8 @@ export const questions87to174: Question[] = [
       "disabling CDP on edge ports",
     ],
     correct: [0],
-    explanation: "Explanation: Topic 11.6.2\nDHCPv6 Guard is a feature designed to ensure that rogue DHCPv6 servers are not able to hand out addresses to clients, redirect client traffic, or starve out the DHCPv6 server and cause a DoS attack. DHCPv6 Guard requires a policy to be configured in DHCP Guard configuration mode, and DHCPv6 Guard is enabled on an interface-by-interface basis.",
+    explanation:
+      "Explanation: Topic 11.6.2\nDHCPv6 Guard is a feature designed to ensure that rogue DHCPv6 servers are not able to hand out addresses to clients, redirect client traffic, or starve out the DHCPv6 server and cause a DoS attack. DHCPv6 Guard requires a policy to be configured in DHCP Guard configuration mode, and DHCPv6 Guard is enabled on an interface-by-interface basis.",
   },
   {
     number: 171,
@@ -1268,20 +1252,17 @@ export const questions87to174: Question[] = [
       "DNS server IP address",
     ],
     correct: [0, 4],
-    explanation: "Explanation: Topic 8.2.4\nRouter is part of the IPv6 all-routers group and received the RS message. It generates an RA containing the local network prefix and prefix length (e.g., 2001:db8:acad:1::/64)",
+    explanation:
+      "Explanation: Topic 8.2.4\nRouter is part of the IPv6 all-routers group and received the RS message. It generates an RA containing the local network prefix and prefix length (e.g., 2001:db8:acad:1::/64)",
   },
   {
     number: 172,
     type: "single",
     text: "While attending a conference, participants are using laptops for network connectivity. When a guest speaker attempts to connect to the network, the laptop fails to display any available wireless networks. The access point must be operating in which mode?",
-    options: [
-      "mixed",
-      "passive",
-      "active",
-      "open",
-    ],
+    options: ["mixed", "passive", "active", "open"],
     correct: [2],
-    explanation: "Explanation: Topic 12.3.7\nActive is a mode used to configure an access point so that clients must know the SSID to connect to the access point. APs and wireless routers can operate in a mixed mode meaning that that multiple wireless standards are supported. Open is an authentication mode for an access point that has no impact on the listing of available wireless networks for a client. When an access point is configured in passive mode, the SSID is broadcast so that the name of wireless network will appear in the listing of available networks for clients.",
+    explanation:
+      "Explanation: Topic 12.3.7\nActive is a mode used to configure an access point so that clients must know the SSID to connect to the access point. APs and wireless routers can operate in a mixed mode meaning that that multiple wireless standards are supported. Open is an authentication mode for an access point that has no impact on the listing of available wireless networks for a client. When an access point is configured in passive mode, the SSID is broadcast so that the name of wireless network will appear in the listing of available networks for clients.",
   },
   {
     number: 173,
@@ -1297,19 +1278,16 @@ export const questions87to174: Question[] = [
       "port ID",
     ],
     correct: [0, 3, 4],
-    explanation: "Explanation: Topic 5.2.1\nThe three components that are combined to form a bridge ID are bridge priority, extended system ID, and MAC address.",
+    explanation:
+      "Explanation: Topic 5.2.1\nThe three components that are combined to form a bridge ID are bridge priority, extended system ID, and MAC address.",
   },
   {
     number: 174,
     type: "single",
     text: "On a Cisco 3504 WLC Summary page (Advanced > Summary), which tab allows a network administrator to configure a particular WLAN with a WPA2 policy?",
-    options: [
-      "SECURITY",
-      "WIRELESS",
-      "WLANs",
-      "MANAGEMENT",
-    ],
+    options: ["SECURITY", "WIRELESS", "WLANs", "MANAGEMENT"],
     correct: [2],
-    explanation: "Explanation: Topic 13.2.6\nTo configure or edit settings for a particular WLAN, including its WPA2 security policy, a network administrator must first navigate to the WLANs tab from the top-level menu of the WLC. Once a specific WLAN is selected or created, the administrator can access its individual Security sub-tab to enable WPA2 and set encryption parameters. The top-level SECURITY tab is used for global security configurations, such as defining RADIUS or SNMP servers, rather than configuring specific WLAN profiles.",
+    explanation:
+      "Explanation: Topic 13.2.6\nTo configure or edit settings for a particular WLAN, including its WPA2 security policy, a network administrator must first navigate to the WLANs tab from the top-level menu of the WLC. Once a specific WLAN is selected or created, the administrator can access its individual Security sub-tab to enable WPA2 and set encryption parameters. The top-level SECURITY tab is used for global security configurations, such as defining RADIUS or SNMP servers, rather than configuring specific WLAN profiles.",
   },
 ];
