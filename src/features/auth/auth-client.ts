@@ -21,7 +21,8 @@ export interface SessionResponse {
 
 /** Public Worker origin. Defaults to the local `wrangler dev` server. */
 export const AUTH_BASE_URL: string = (
-  (import.meta.env.PUBLIC_AUTH_BASE_URL as string | undefined) ?? "http://localhost:8787"
+  (import.meta.env.PUBLIC_AUTH_BASE_URL as string | undefined) ??
+  "http://localhost:8787"
 ).replace(/\/+$/, "");
 
 /** Site root including the repo-name base path, without a trailing slash. */
@@ -54,7 +55,8 @@ export function safeReturnPath(raw: string | null | undefined): string {
   const fallback = `${SITE_BASE}/`;
   if (!raw) return fallback;
   const value = raw.trim();
-  if (!value.startsWith("/") || value.startsWith("//") || value.includes("\\")) return fallback;
+  if (!value.startsWith("/") || value.startsWith("//") || value.includes("\\"))
+    return fallback;
   const pathOnly = value.split(/[?#]/)[0];
   if (SITE_BASE === "") return value;
   if (pathOnly === SITE_BASE || pathOnly === `${SITE_BASE}/`) return value;
@@ -83,10 +85,14 @@ export type AuthServiceState = "ready" | "outdated" | "unreachable";
  */
 export async function probeAuthService(): Promise<AuthServiceState> {
   try {
-    const res = await fetch(`${AUTH_BASE_URL}/health`, { headers: { Accept: "application/json" } });
+    const res = await fetch(`${AUTH_BASE_URL}/health`, {
+      headers: { Accept: "application/json" },
+    });
     if (!res.ok) return "unreachable";
     const body = (await res.json()) as { api?: unknown };
-    return typeof body.api === "number" && body.api >= REQUIRED_AUTH_API ? "ready" : "outdated";
+    return typeof body.api === "number" && body.api >= REQUIRED_AUTH_API
+      ? "ready"
+      : "outdated";
   } catch {
     // No answer is not an old answer: the service may simply be unreachable.
     return "unreachable";
@@ -151,7 +157,9 @@ async function consumeHandoff(): Promise<void> {
 
   let handoff: string | null = null;
   try {
-    handoff = new URLSearchParams(window.location.hash.replace(/^#/, "")).get(HANDOFF_PARAM);
+    handoff = new URLSearchParams(window.location.hash.replace(/^#/, "")).get(
+      HANDOFF_PARAM,
+    );
   } catch {
     return;
   }
@@ -159,12 +167,19 @@ async function consumeHandoff(): Promise<void> {
 
   // Strip it from the address bar before redeeming: the token is spent either
   // way, and this keeps it out of history and out of a shared screen.
-  window.history.replaceState(null, "", `${window.location.pathname}${window.location.search}`);
+  window.history.replaceState(
+    null,
+    "",
+    `${window.location.pathname}${window.location.search}`,
+  );
 
   try {
     const res = await fetch(`${AUTH_BASE_URL}/auth/exchange`, {
       method: "POST",
-      headers: { "Content-Type": "application/json", Accept: "application/json" },
+      headers: {
+        "Content-Type": "application/json",
+        Accept: "application/json",
+      },
       body: JSON.stringify({ [HANDOFF_PARAM]: handoff }),
     });
     if (!res.ok) return;
@@ -179,13 +194,27 @@ async function consumeHandoff(): Promise<void> {
  * Headers for a Worker request: the stored session token as a Bearer token when
  * we have one, so Worker-authenticated calls work without the session cookie.
  */
-export function authHeaders(extra: Record<string, string> = {}): Record<string, string> {
+export function authHeaders(
+  extra: Record<string, string> = {},
+): Record<string, string> {
   const token = readToken();
   return { ...extra, ...(token ? { Authorization: `Bearer ${token}` } : {}) };
 }
 
-/** Ask the Worker who the visitor is. Never throws. */
-export async function fetchSession(): Promise<SessionResponse> {
+/**
+ * What the session check produced: a real answer from the Worker, or nothing at
+ * all because the Worker could not be reached.
+ *
+ * The two cases must not be collapsed. "The Worker said no" is an answer and
+ * demotes the visitor to the preview; "the Worker said nothing" (offline, VPN,
+ * a blocked request) is not, and demoting on it silently punishes a signed-in
+ * student for a dropped connection.
+ */
+export type SessionOutcome =
+  { kind: "ok"; session: SessionResponse } | { kind: "offline" };
+
+/** Ask the Worker who the visitor is, distinguishing a refusal from no answer. */
+export async function resolveSession(): Promise<SessionOutcome> {
   await finishSignIn();
   const token = readToken();
   try {
@@ -193,16 +222,26 @@ export async function fetchSession(): Promise<SessionResponse> {
       credentials: "include",
       headers: authHeaders({ Accept: "application/json" }),
     });
-    if (!res.ok) return { authenticated: false };
+    // An HTTP answer — even a 401 — is still an answer: the Worker is up and it
+    // does not recognise this visitor.
+    if (!res.ok) return { kind: "ok", session: { authenticated: false } };
     const body = (await res.json()) as SessionResponse;
     // The Worker answered, and it did not recognise the token we sent — drop it
     // so a later visit stops replaying a dead session.
     if (token && !body.authenticated) writeToken(null);
-    return body;
+    return { kind: "ok", session: body };
   } catch {
     // A thrown fetch (offline, blocked) is not an answer, so the token stays.
-    return { authenticated: false };
+    return { kind: "offline" };
   }
+}
+
+/** Ask the Worker who the visitor is. Never throws. */
+export async function fetchSession(): Promise<SessionResponse> {
+  const outcome = await resolveSession();
+  // Callers that cannot act on the distinction still get the safe reading: an
+  // unreachable Worker is not a session.
+  return outcome.kind === "ok" ? outcome.session : { authenticated: false };
 }
 
 /** End this site's session only (the Google session is left alone). */
@@ -210,7 +249,10 @@ export async function signOut(returnTo: string = sitePath("")): Promise<void> {
   // The Worker can only clear its own cookie, so the stored token goes too.
   writeToken(null);
   try {
-    await fetch(`${AUTH_BASE_URL}/auth/logout`, { method: "POST", credentials: "include" });
+    await fetch(`${AUTH_BASE_URL}/auth/logout`, {
+      method: "POST",
+      credentials: "include",
+    });
   } catch {
     /* even if the Worker is unreachable, still send the visitor to login */
   }
@@ -247,11 +289,44 @@ export function isAccessMode(value: unknown): value is AccessMode {
 /**
  * Publish the resolved access mode to islands that hydrated before it was known.
  * Sets the document flag first so a late reader still gets the right answer.
+ *
+ * The resolved mode is also remembered, so a later visit that cannot reach the
+ * Worker has something to fall back to instead of quietly dropping a signed-in
+ * student to the preview.
  */
 export function publishAccessMode(access: AccessMode): void {
+  try {
+    localStorage.setItem(LAST_ACCESS_KEY, access);
+  } catch {
+    /* storage unavailable — offline simply falls back to the preview */
+  }
   if (typeof document === "undefined") return;
   document.documentElement.dataset.access = access;
-  window.dispatchEvent(new CustomEvent<AccessMode>(ACCESS_MODE_EVENT, { detail: access }));
+  window.dispatchEvent(
+    new CustomEvent<AccessMode>(ACCESS_MODE_EVENT, { detail: access }),
+  );
+}
+
+/** localStorage key holding the last access mode the Worker confirmed. */
+const LAST_ACCESS_KEY = "ccna-last-access";
+
+/**
+ * The last access mode the Worker confirmed, for use when it cannot be reached.
+ *
+ * Requires a stored session token. Without one, the honest offline reading is
+ * "unknown", and starting at the preview is the safe answer — otherwise a
+ * shared device could hand the next visitor the previous one's full access just
+ * by going offline. Keying it to the token closes that hole with no arbitrary
+ * expiry, and the token is dropped the moment the Worker answers "signed out".
+ */
+export function lastKnownAccessMode(): AccessMode | null {
+  if (!readToken()) return null;
+  try {
+    const raw = localStorage.getItem(LAST_ACCESS_KEY);
+    return isAccessMode(raw) ? raw : null;
+  } catch {
+    return null;
+  }
 }
 
 /**

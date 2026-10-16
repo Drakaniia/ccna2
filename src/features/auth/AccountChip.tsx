@@ -87,7 +87,10 @@ export default function AccountChip({ showSignedOut = false }: Props) {
           referrerPolicy="no-referrer"
         />
       ) : (
-        <span className="account-avatar account-avatar-fallback" aria-hidden="true">
+        <span
+          className="account-avatar account-avatar-fallback"
+          aria-hidden="true"
+        >
           {initials}
         </span>
       )}
