@@ -10,7 +10,6 @@ import ResultScreen from "../../features/exams/components/ResultScreen.astro";
 import FollowModal from "../../features/exams/components/FollowModal.astro";
 import LeaveGuard from "../../features/exams/components/LeaveGuard.astro";
 import { availableModules, moduleRegistry } from "../../features/exams/data";
-import { PREVIEW_QUESTION_COUNT } from "../../features/auth/auth-client";
 
 export async function getStaticPaths() {
   // Only modules with question data get a route; everything else 404s.
@@ -62,12 +61,7 @@ const abs = (p: string) => `${import.meta.env.BASE_URL.replace(/\/?$/, "/")}${p}
     <div class="app" id="quizApp">
       <ExamHeader title={headerTitle} currentId={mod.id} />
 
-      <!-- Shown when the session check could not reach the Worker, so the
-           access mode on screen is the last one we knew rather than a fresh
-           answer. Toggled by `syncOfflineBanner()` below. -->
-      <div class="offline-banner" id="offlineBanner" role="status" hidden>
-        Offline — using your last known access. Sign-in and downloads need a connection.
-      </div>
+
 
       <!-- Intro — minimal centered, no box background -->
       <section id="introScreen" class="intro-screen" aria-label="Exam instructions">
@@ -76,7 +70,6 @@ const abs = (p: string) => `${import.meta.env.BASE_URL.replace(/\/?$/, "/")}${p}
           <h1>{mod.title}: {mod.subtitle}</h1>
           <p class="intro-qcount" id="introQCount">{mod.questions.length} Questions</p>
           <p class="intro-warn">Your progress is saved automatically as you go — if you refresh or close the page, you can pick up right where you left off. You can retake this exam as many times as you like.</p>
-          <p class="intro-warn" id="introPreviewNote" hidden>Answer the first {PREVIEW_QUESTION_COUNT} questions free — sign in to take the full exam.</p>
           <p class="intro-shortcut desktop-only">Desktop: use <kbd>←</kbd> <kbd>→</kbd> to go back / next · press <kbd>R</kbd> to shuffle the choices (or retry the question once it is checked).</p>
           <button type="button" class="primary intro-start" id="startExamBtn">Start Exam</button>
           <div class="intro-resume" id="introResume" hidden>
@@ -1169,23 +1162,6 @@ const abs = (p: string) => `${import.meta.env.BASE_URL.replace(/\/?$/, "/")}${p}
         });
       }
 
-      /**
-       * The offline notice. It goes up when the session check could not reach
-       * the Worker — the access mode on screen is then the last one we knew,
-       * not a fresh answer — and also whenever the browser reports no network,
-       * so the state is never mistaken for a live one.
-       */
-      let resolvedOffline = false;
-
-      function syncOfflineBanner(): void {
-        const banner = document.getElementById("offlineBanner");
-        if (!banner) return;
-        banner.hidden = !(resolvedOffline || navigator.onLine === false);
-      }
-
-      window.addEventListener("online", syncOfflineBanner);
-      window.addEventListener("offline", syncOfflineBanner);
-
       async function init(): Promise<void> {
         // The service worker is registered on every visit, whatever the offline
         // toggle says: it is what makes the app installable and the shell
@@ -1195,7 +1171,6 @@ const abs = (p: string) => `${import.meta.env.BASE_URL.replace(/\/?$/, "/")}${p}
 
         const outcome = await resolveSession();
         const online = outcome.kind === "ok";
-        resolvedOffline = !online;
 
         if (online && !outcome.session.authenticated) {
           // A `?auth=ok` return that still looks signed out means the browser
@@ -1219,7 +1194,6 @@ const abs = (p: string) => `${import.meta.env.BASE_URL.replace(/\/?$/, "/")}${p}
         document.documentElement.dataset.auth = "ok";
         // Reflects whatever we resolved, so going offline later reuses it.
         publishAccessMode(access);
-        syncOfflineBanner();
         main(access);
       }
 

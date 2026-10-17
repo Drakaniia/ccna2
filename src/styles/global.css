@@ -312,33 +312,6 @@ header.topbar {
     padding 260ms ease;
 }
 
-/*
- * Offline notice. It sits in normal flow directly under the top bar, so it is
- * visible on the intro, quiz, submit and review screens alike. Raised by the
- * exam page when the session check could not reach the Worker, or whenever the
- * browser reports no network.
- */
-.offline-banner {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 8px;
-  padding: 9px 16px;
-  background: #fff4d6;
-  border-bottom: 1px solid #e8d49a;
-  color: #6b4e00;
-  font-size: 13px;
-  font-weight: 600;
-  line-height: 1.35;
-  text-align: center;
-}
-
-html[data-theme="dark"] .offline-banner {
-  background: #3a3013;
-  border-bottom-color: #584716;
-  color: #f4d99a;
-}
-
 /* let React islands inside the top bar participate in its flex layout */
 astro-island {
   display: contents;
