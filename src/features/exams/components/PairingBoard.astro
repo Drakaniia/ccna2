@@ -19,6 +19,18 @@
     display: flex;
     flex-direction: column;
     gap: 10px;
+    /* Both columns may shrink below their content width; without this a long
+       description pushes its column wider and the board overflows the page at
+       phone widths. */
+    min-width: 0;
+  }
+
+  /* The text half of an item: allowed to wrap and to break long tokens, so a
+     long interface name wraps onto a second line rather than clipping. */
+  .pair-item > span:not(.pair-badge) {
+    min-width: 0;
+    overflow-wrap: anywhere;
+    line-height: 1.35;
   }
 
   .pair-item {
@@ -202,6 +214,51 @@
   @media (max-width: 800px) {
     .pairing-board {
       gap: 62px;
+    }
+  }
+
+  /*
+   * 390px is the narrowest viewport this board has to stay usable on. The two
+   * columns are kept side by side (a stacked board cannot draw its connector
+   * lines), so the gap, the padding and the badge are what give way.
+   */
+  @media (max-width: 560px) {
+    .pairing-board {
+      gap: 34px;
+      min-height: 220px;
+    }
+
+    .pair-item {
+      min-height: 48px;
+      padding: 8px 10px 8px 12px;
+      font-size: 13px;
+      line-height: 1.35;
+    }
+
+    .pair-badge {
+      min-width: 26px;
+      height: 26px;
+      font-size: 12px;
+    }
+
+    /* The badge overlaps the card border by the same amount either side of the
+       gap, so the two circles still face each other across the narrower gap. */
+    .pair-right .pair-badge {
+      margin-left: -23px;
+    }
+
+    .pair-item:not(.pair-right) .pair-badge {
+      margin-right: -23px;
+    }
+
+    .pair-answer-table th,
+    .pair-answer-table td {
+      padding: 8px 10px;
+      font-size: 13px;
+    }
+
+    .pair-answer-table td.pair-arrow {
+      width: 24px;
     }
   }
 </style>

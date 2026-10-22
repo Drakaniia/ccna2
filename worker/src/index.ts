@@ -44,10 +44,14 @@ interface StatePayload {
  * version in place the site can say which side is stale — and the Pages
  * workflow refuses to publish a site whose Worker is behind.
  */
-export const AUTH_API_VERSION = 2;
+const AUTH_API_VERSION = 2;
 
 export default {
-  async fetch(request: Request, env: Env, _ctx: ExecutionContext): Promise<Response> {
+  async fetch(
+    request: Request,
+    env: Env,
+    _ctx: ExecutionContext,
+  ): Promise<Response> {
     const url = new URL(request.url);
     const cors = corsHeaders(env);
 
@@ -58,7 +62,11 @@ export default {
     try {
       switch (`${request.method} ${url.pathname}`) {
         case "GET /health":
-          return json({ ok: true, service: "ccna-auth", api: AUTH_API_VERSION }, 200, cors);
+          return json(
+            { ok: true, service: "ccna-auth", api: AUTH_API_VERSION },
+            200,
+            cors,
+          );
         case "GET /auth/login":
           return handleLogin(env, url, cors);
         case "GET /auth/callback":
@@ -76,14 +84,21 @@ export default {
       }
     } catch (err) {
       console.error("ccna-auth: unhandled error", err);
-      return htmlResponse(errorPage(env, "Something went wrong", "Please try signing in again."), 500);
+      return htmlResponse(
+        errorPage(env, "Something went wrong", "Please try signing in again."),
+        500,
+      );
     }
   },
 } satisfies ExportedHandler<Env>;
 
 /* --------------------------------- /auth ---------------------------------- */
 
-async function handleLogin(env: Env, url: URL, cors: Headers): Promise<Response> {
+async function handleLogin(
+  env: Env,
+  url: URL,
+  cors: Headers,
+): Promise<Response> {
   const redirect = resolveRedirect(url.searchParams.get("redirect"), env);
   const state = generateState();
   const { verifier, challenge } = await generatePkce();
@@ -96,7 +111,11 @@ async function handleLogin(env: Env, url: URL, cors: Headers): Promise<Response>
     codeChallenge: challenge,
   });
 
-  const stateToken = await signJwt({ state, verifier, redirect } satisfies StatePayload, env.SESSION_SECRET, STATE_TTL_SECONDS);
+  const stateToken = await signJwt(
+    { state, verifier, redirect } satisfies StatePayload,
+    env.SESSION_SECRET,
+    STATE_TTL_SECONDS,
+  );
 
   const headers = new Headers(cors);
   // The state cookie is scoped to the Worker and sent on the top-level
@@ -109,14 +128,19 @@ async function handleLogin(env: Env, url: URL, cors: Headers): Promise<Response>
       secure: isHttps(env),
       sameSite: "Lax",
       maxAge: STATE_TTL_SECONDS,
-    })
+    }),
   );
   headers.set("Location", authorizeUrl);
   headers.set("Cache-Control", "no-store");
   return new Response(null, { status: 302, headers });
 }
 
-async function handleCallback(request: Request, env: Env, url: URL, cors: Headers): Promise<Response> {
+async function handleCallback(
+  request: Request,
+  env: Env,
+  url: URL,
+  cors: Headers,
+): Promise<Response> {
   const clearStateCookie = serializeCookie(STATE_COOKIE, "", {
     path: "/",
     httpOnly: true,
@@ -145,21 +169,34 @@ async function handleCallback(request: Request, env: Env, url: URL, cors: Header
       errorParam === "access_denied"
         ? "You cancelled the Google sign-in, or access was denied."
         : `Google returned an error: ${errorParam}.`;
-    return respond(errorPage(env, "Sign-in was declined", message, statePayload?.redirect ?? null), 200);
+    return respond(
+      errorPage(
+        env,
+        "Sign-in was declined",
+        message,
+        statePayload?.redirect ?? null,
+      ),
+      200,
+    );
   }
 
   const stateParam = url.searchParams.get("state");
   const code = url.searchParams.get("code");
-  if (!statePayload || !stateParam || stateParam !== statePayload.state || !code) {
+  if (
+    !statePayload ||
+    !stateParam ||
+    stateParam !== statePayload.state ||
+    !code
+  ) {
     // CSRF guard (spec §11): never exchange the code when state is bad.
     return respond(
       errorPage(
         env,
         "Sign-in session expired",
         "The sign-in link was stale or did not match. Please start again.",
-        statePayload?.redirect ?? null
+        statePayload?.redirect ?? null,
       ),
-      200
+      200,
     );
   }
 
@@ -178,32 +215,45 @@ async function handleCallback(request: Request, env: Env, url: URL, cors: Header
         env,
         "Sign-in failed",
         tokens.error_description || "Google did not return an identity token.",
-        statePayload.redirect
+        statePayload.redirect,
       ),
-      200
+      200,
     );
   }
 
   const claims = decodeIdToken(tokens.id_token);
   if (!claims) {
     return respond(
-      errorPage(env, "Sign-in failed", "Could not read the identity token from Google.", statePayload.redirect),
-      200
+      errorPage(
+        env,
+        "Sign-in failed",
+        "Could not read the identity token from Google.",
+        statePayload.redirect,
+      ),
+      200,
     );
   }
 
   const invalid = validateIdTokenClaims(claims, env.GOOGLE_CLIENT_ID);
   if (invalid) {
     return respond(
-      errorPage(env, "Sign-in failed", `Identity token rejected (${invalid}).`, statePayload.redirect),
-      200
+      errorPage(
+        env,
+        "Sign-in failed",
+        `Identity token rejected (${invalid}).`,
+        statePayload.redirect,
+      ),
+      200,
     );
   }
 
   // Admission rules (spec §4).
   const result = evaluateIdentity(claims, configFromEnv(env));
   if (!result.allowed) {
-    return respond(deniedPage(env, denyMessage(result.reason), statePayload.redirect), 403);
+    return respond(
+      deniedPage(env, denyMessage(result.reason), statePayload.redirect),
+      403,
+    );
   }
 
   const user: SessionUser = {
@@ -228,7 +278,10 @@ async function handleCallback(request: Request, env: Env, url: URL, cors: Header
       role: user.role,
     });
   } catch (err) {
-    console.error("ccna-auth: D1 upsert failed (fail-open, login allowed)", err);
+    console.error(
+      "ccna-auth: D1 upsert failed (fail-open, login allowed)",
+      err,
+    );
   }
 
   const sessionToken = await createSessionToken(user, env.SESSION_SECRET);
@@ -239,7 +292,10 @@ async function handleCallback(request: Request, env: Env, url: URL, cors: Header
   // itself also expires after 8 hours, whichever comes first. Kept as a
   // first-party fallback — the handoff below is what the site actually uses.
   headers.append("Set-Cookie", sessionCookie(sessionToken, isHttps(env)));
-  headers.set("Location", handoffLocation(env, statePayload.redirect, handoffToken));
+  headers.set(
+    "Location",
+    handoffLocation(env, statePayload.redirect, handoffToken),
+  );
   headers.set("Cache-Control", "no-store");
   return new Response(null, { status: 302, headers });
 }
@@ -250,7 +306,11 @@ async function handleCallback(request: Request, env: Env, url: URL, cors: Header
  * server, so the token stays out of access logs and `Referer` headers, and the
  * site strips it from the address bar the moment it has traded it in.
  */
-function handoffLocation(env: Env, redirect: string, handoffToken: string): string {
+function handoffLocation(
+  env: Env,
+  redirect: string,
+  handoffToken: string,
+): string {
   const target = `${trimSlash(env.SITE_ORIGIN)}${withAuthFlag(redirect)}`;
   return `${target}#${HANDOFF_HASH_PARAM}=${handoffToken}`;
 }
@@ -263,7 +323,11 @@ function handoffLocation(env: Env, redirect: string, handoffToken: string): stri
  * everywhere. Only a token minted by `/auth/callback` is accepted, and only
  * within its short TTL.
  */
-async function handleExchange(request: Request, env: Env, cors: Headers): Promise<Response> {
+async function handleExchange(
+  request: Request,
+  env: Env,
+  cors: Headers,
+): Promise<Response> {
   let handoff: string | null = null;
   try {
     const body = (await request.json()) as { s?: unknown } | null;
@@ -275,7 +339,7 @@ async function handleExchange(request: Request, env: Env, cors: Headers): Promis
 
   const payload = await verifyJwt<{ purpose?: string; user?: SessionUser }>(
     handoff,
-    env.SESSION_SECRET
+    env.SESSION_SECRET,
   );
   if (payload?.purpose !== HANDOFF_PURPOSE || !payload.user?.email) {
     return json({ error: "invalid_handoff" }, 400, cors);
@@ -285,7 +349,11 @@ async function handleExchange(request: Request, env: Env, cors: Headers): Promis
   return json({ token }, 200, cors);
 }
 
-async function handleSession(request: Request, env: Env, cors: Headers): Promise<Response> {
+async function handleSession(
+  request: Request,
+  env: Env,
+  cors: Headers,
+): Promise<Response> {
   const user = await currentUser(request, env);
   if (!user) return json({ authenticated: false }, 200, cors);
   return json(
@@ -300,7 +368,7 @@ async function handleSession(request: Request, env: Env, cors: Headers): Promise
       },
     },
     200,
-    cors
+    cors,
   );
 }
 
@@ -313,7 +381,11 @@ async function handleLogout(env: Env, cors: Headers): Promise<Response> {
 
 /* -------------------------------- /admin ---------------------------------- */
 
-async function handleAdminUsers(request: Request, env: Env, cors: Headers): Promise<Response> {
+async function handleAdminUsers(
+  request: Request,
+  env: Env,
+  cors: Headers,
+): Promise<Response> {
   const user = await currentUser(request, env);
   if (!user) return json({ error: "unauthorized" }, 401, cors);
   if (user.role !== "admin") return json({ error: "forbidden" }, 403, cors);
@@ -338,7 +410,10 @@ async function handleAdminUsers(request: Request, env: Env, cors: Headers): Prom
 
 /* --------------------------------- helpers -------------------------------- */
 
-async function currentUser(request: Request, env: Env): Promise<SessionClaims | null> {
+async function currentUser(
+  request: Request,
+  env: Env,
+): Promise<SessionClaims | null> {
   // Bearer first: the site's own token survives third-party-cookie blocking,
   // while the cookie only works where the browser lets a cross-site cookie
   // through (and on localhost, where the two ports are same-site).
@@ -369,7 +444,10 @@ function corsHeaders(env: Env): Headers {
   // as a Bearer header preflights. Accept is listed defensively — it is
   // safelisted, but a browser that still reports it would otherwise fail the
   // whole sign-in. The cache keeps the preflight to one extra round trip.
-  headers.set("Access-Control-Allow-Headers", "Content-Type, Authorization, Accept");
+  headers.set(
+    "Access-Control-Allow-Headers",
+    "Content-Type, Authorization, Accept",
+  );
   headers.set("Access-Control-Max-Age", "600");
   headers.set("Vary", "Origin");
   return headers;
@@ -387,7 +465,10 @@ function json(body: unknown, status: number, base: Headers): Response {
 function htmlResponse(body: string, status: number): Response {
   return new Response(body, {
     status,
-    headers: { "Content-Type": "text/html; charset=utf-8", "Cache-Control": "no-store" },
+    headers: {
+      "Content-Type": "text/html; charset=utf-8",
+      "Cache-Control": "no-store",
+    },
   });
 }
 
@@ -409,7 +490,8 @@ export function resolveRedirect(raw: string | null, env: Env): string {
   if (!raw) return fallback;
 
   const value = raw.trim();
-  if (!value.startsWith("/") || value.startsWith("//") || value.includes("\\")) return fallback;
+  if (!value.startsWith("/") || value.startsWith("//") || value.includes("\\"))
+    return fallback;
 
   const pathOnly = value.split(/[?#]/)[0];
   if (base === "") return value;

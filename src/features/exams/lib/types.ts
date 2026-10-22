@@ -49,7 +49,9 @@ export interface ExamModule {
 }
 
 /** Normalize the exhibit field (may be a single image or an array). */
-export function exhibitList(exhibit: Exhibit | Exhibit[] | undefined): Exhibit[] {
+export function exhibitList(
+  exhibit: Exhibit | Exhibit[] | undefined,
+): Exhibit[] {
   if (!exhibit) return [];
   return Array.isArray(exhibit) ? exhibit : [exhibit];
 }

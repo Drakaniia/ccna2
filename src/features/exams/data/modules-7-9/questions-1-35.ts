@@ -104,7 +104,12 @@ export const questions1to35: Question[] = [
     number: 9,
     type: "single",
     text: "Which command, when issued in the interface configuration mode of a router, enables the interface to acquire an IPv4 address automatically from an ISP, when that link to the ISP is enabled?",
-    options: ["service dhcp", "ip address dhcp", "ip helper-address", "ip dhcp pool"],
+    options: [
+      "service dhcp",
+      "ip address dhcp",
+      "ip helper-address",
+      "ip dhcp pool",
+    ],
     correct: [1],
     explanation:
       "Explanation: Topic 7.3.1\nThe ip address dhcp interface configuration command configures an Ethernet interface as a DHCP client. The service dhcp global configuration command enables the DHCPv4 server process on the router. The ip helper-address command is issued to enable DHCP relay on the router. The ip dhcp pool command creates the name of a pool of addresses that the server can assign to hosts.",
@@ -127,7 +132,13 @@ export const questions1to35: Question[] = [
     number: 11,
     type: "single",
     text: "A host PC is attempting to lease an address through DHCP. What message is sent by the server to let the client know it is able to use the provided IP information?",
-    options: ["DHCPDISCOVER", "DHCPOFFER", "DHCPREQUEST", "DHCPACK", "DHCPNACK"],
+    options: [
+      "DHCPDISCOVER",
+      "DHCPOFFER",
+      "DHCPREQUEST",
+      "DHCPACK",
+      "DHCPNACK",
+    ],
     correct: [3],
     explanation:
       "Explanation: Topic 7.1.3\nWhen a host uses DHCP to automatically configure an IP address, it typically sends two messages: the DHCPDISCOVER message and the DHCPREQUEST message. These two messages are usually sent as broadcasts to ensure that all DHCP servers receive them. The servers respond to these messages using DHCPOFFER, DHCPACK, and DHCPNACK messages, depending on the circumstance.",

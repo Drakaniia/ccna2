@@ -10,7 +10,6 @@ import ResultScreen from "../../features/exams/components/ResultScreen.astro";
 import FollowModal from "../../features/exams/components/FollowModal.astro";
 import LeaveGuard from "../../features/exams/components/LeaveGuard.astro";
 import { availableModules, moduleRegistry } from "../../features/exams/data";
-import { PREVIEW_QUESTION_COUNT } from "../../features/auth/auth-client";
 
 export async function getStaticPaths() {
   // Only modules with question data get a route; everything else 404s.
@@ -33,7 +32,9 @@ const abs = (p: string) => `${import.meta.env.BASE_URL.replace(/\/?$/, "/")}${p}
 <html lang="en">
   <head>
     <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <!-- viewport-fit=cover opts into the notch/home-indicator area; the fixed
+         bars then pad themselves with env(safe-area-inset-*). -->
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
     <script is:inline>
       (function () {
         try {
@@ -51,11 +52,16 @@ const abs = (p: string) => `${import.meta.env.BASE_URL.replace(/\/?$/, "/")}${p}
     </script>
     <link rel="icon" type="image/svg+xml" href={abs("favicon.svg")} />
     <link rel="icon" href={abs("favicon.ico")} />
+    <link rel="apple-touch-icon" href={abs("icons/apple-touch-icon.png")} />
+    <link rel="manifest" href={abs("manifest.webmanifest")} />
+    <meta name="theme-color" content="#4d9838" />
     <title>{headerTitle} — CCNA 2 v7 Practice Exam</title>
   </head>
   <body data-module={mod.id} data-phase="intro">
     <div class="app" id="quizApp">
       <ExamHeader title={headerTitle} currentId={mod.id} />
+
+
 
       <!-- Intro — minimal centered, no box background -->
       <section id="introScreen" class="intro-screen" aria-label="Exam instructions">
@@ -64,7 +70,6 @@ const abs = (p: string) => `${import.meta.env.BASE_URL.replace(/\/?$/, "/")}${p}
           <h1>{mod.title}: {mod.subtitle}</h1>
           <p class="intro-qcount" id="introQCount">{mod.questions.length} Questions</p>
           <p class="intro-warn">Your progress is saved automatically as you go — if you refresh or close the page, you can pick up right where you left off. You can retake this exam as many times as you like.</p>
-          <p class="intro-warn" id="introPreviewNote" hidden>Answer the first {PREVIEW_QUESTION_COUNT} questions free — sign in to take the full exam.</p>
           <p class="intro-shortcut desktop-only">Desktop: use <kbd>←</kbd> <kbd>→</kbd> to go back / next · press <kbd>R</kbd> to shuffle the choices (or retry the question once it is checked).</p>
           <button type="button" class="primary intro-start" id="startExamBtn">Start Exam</button>
           <div class="intro-resume" id="introResume" hidden>
@@ -82,10 +87,22 @@ const abs = (p: string) => `${import.meta.env.BASE_URL.replace(/\/?$/, "/")}${p}
 
       <div class="progress" id="progress"></div>
 
-      <footer class="quiz-footer">
+      <footer class="quiz-footer" id="quizFooter">
         <button type="button" class="link-btn" id="skipAllBtn">Skip All</button>
         <button type="button" class="link-btn" id="reviewQBtn" aria-pressed="false">Review Question</button>
         <button type="button" class="primary" id="footerNextBtn">Submit</button>
+      </footer>
+
+      <!--
+        Review mode's footer. Only one of the two bars is ever visible, chosen
+        by `body[data-phase]` in global.css rather than by JS — the phase is
+        already mirrored onto <body>, so hiding the other bar costs no code and
+        cannot fall out of sync.
+      -->
+      <footer class="quiz-footer review-footer" id="reviewFooter">
+        <button type="button" class="link-btn" id="reviewPrevBtn">Prev</button>
+        <button type="button" class="link-btn" id="reviewNextBtn">Next</button>
+        <button type="button" class="primary" id="reviewBackBtn">Back to Results</button>
       </footer>
     </div>
 
@@ -336,18 +353,22 @@ const abs = (p: string) => `${import.meta.env.BASE_URL.replace(/\/?$/, "/")}${p}
       import { setStoredCourse } from "../../features/exams/lib/course-selection";
       import { exhibitList } from "../../features/exams/lib/types";
       import { isQuestionCorrect } from "../../features/exams/lib/scoring";
+      import { tabStateFor } from "../../features/exams/lib/tab-state";
+      import { registerServiceWorker } from "../../features/pwa/pwa-client";
       import { getEffectiveCount, LIMIT_EVENT } from "../../features/exams/lib/exam-limits";
       import { getCheckMode, MODE_EVENT } from "../../features/exams/lib/exam-mode";
       import {
         cookieBlockedUrl,
         currentPath,
-        fetchSession,
+        lastKnownAccessMode,
         publishAccessMode,
+        resolveSession,
         type AccessMode,
       } from "../../features/auth/auth-client";
       import {
         attemptHasProgress,
         atGate,
+        backToResults,
         backToQuiz,
         bootQuiz,
         checkCurrent,
@@ -487,7 +508,7 @@ const abs = (p: string) => `${import.meta.env.BASE_URL.replace(/\/?$/, "/")}${p}
           });
           const flagged = s.reviewed.filter(Boolean).length;
           const flagText = flagged > 0 ? ` · ${flagged} flagged for review` : "";
-          if (s.phase === "result" && s.result) {
+          if ((s.phase === "result" || s.phase === "review") && s.result) {
             return `Completed — scored ${s.result.score}% · ${answered} of ${total} answered${flagText}`;
           }
           // The position clause shows the real module total so a preview never
@@ -509,6 +530,10 @@ const abs = (p: string) => `${import.meta.env.BASE_URL.replace(/\/?$/, "/")}${p}
           }
           started = true;
           lastShellPos = -1;
+          // A submitted attempt is resumed into review, not onto the score
+          // screen: the score is already known, and what the student came back
+          // for is the answers behind it.
+          if (restored.phase === "result" || restored.phase === "review") reviewAssessment();
           focusFirstTab();
         }
 
@@ -556,10 +581,26 @@ const abs = (p: string) => `${import.meta.env.BASE_URL.replace(/\/?$/, "/")}${p}
          * quietly doing nothing when pressed.
          */
         function syncFooter(): void {
-          const gate = atGate(getState());
+          const st = getState();
+          const gate = atGate(st);
           for (const id of ["footerNextBtn", "skipAllBtn", "reviewQBtn"]) {
             const btn = $(id) as HTMLButtonElement | null;
             if (btn) btn.disabled = gate;
+          }
+
+          // Review footer: Prev bottoms out on the first question, and Next on
+          // the last one hands over to Back to Results, so there is no looping
+          // and no dead-end. Neither press can touch the stored score.
+          const reviewing = st?.phase === "review";
+          const prev = $("reviewPrevBtn") as HTMLButtonElement | null;
+          if (prev) prev.disabled = !reviewing || !st || st.current <= 0;
+          const next = $("reviewNextBtn") as HTMLButtonElement | null;
+          if (next) {
+            const last = !st || st.current >= st.order.length - 1;
+            next.disabled = !reviewing;
+            next.title = last
+              ? "Back to the score screen"
+              : "Next question";
           }
         }
 
@@ -631,6 +672,13 @@ const abs = (p: string) => `${import.meta.env.BASE_URL.replace(/\/?$/, "/")}${p}
           const st = getState();
           const bar = $("checkBar");
           if (!st || !bar) return;
+
+          // Review is read-only: every verdict is already revealed, so neither
+          // Check nor Retry belongs on the screen.
+          if (st.phase === "review") {
+            bar.hidden = true;
+            return;
+          }
 
           // The gate has no question under it, so there is nothing to check —
           // and `hasAnswerFor` must not be asked about a locked position.
@@ -728,22 +776,18 @@ const abs = (p: string) => `${import.meta.env.BASE_URL.replace(/\/?$/, "/")}${p}
                 ? !!st.pairs[idx] && Object.keys(st.pairs[idx] ?? {}).length > 0
                 : (st.answers[idx]?.length ?? 0) > 0;
 
-            if (idx === p) {
-              btn.classList.add("current");
-            } else if (st.reviewed[idx]) {
-              // Flagged to revisit — orange wins over every other state. It has
-              // to be tested above `unanswered`, because "Review Question"
-              // flags and moves on without answering, so a flagged question is
-              // usually unanswered and would otherwise never turn orange.
-              btn.classList.add("reviewed");
-            } else if (st.skipped[idx] || !answered) {
-              btn.classList.add("unanswered");
-            } else if (st.checked[idx] && !isQuestionCorrect(q, st, idx)) {
-              btn.classList.add("wrong");
-            } else {
-              // answered (and not wrong) — filled green
-              btn.classList.add("answered");
-            }
+            // The precedence lives in `tabStateFor` (see tab-state.ts) so it can
+            // be asserted on its own. `st.skipped` is deliberately not an input:
+            // skipping is not a visual state, and letting it win over the verdict
+            // branches is exactly what made "Skip All" repaint answered tabs.
+            btn.classList.add(
+              tabStateFor({
+                current: idx === p,
+                reviewed: !!st.reviewed[idx],
+                answered,
+                wrong: !!st.checked[idx] && !isQuestionCorrect(q, st, idx),
+              }),
+            );
 
             btn.addEventListener("click", () => goTo(idx));
             tabs.appendChild(btn);
@@ -1023,6 +1067,21 @@ const abs = (p: string) => `${import.meta.env.BASE_URL.replace(/\/?$/, "/")}${p}
           reviewAssessment();
         });
 
+        /* -------------------------------- review mode ------------------------------ */
+
+        el("reviewPrevBtn")?.addEventListener("click", () => {
+          if (getState()?.phase === "review") goPrev();
+        });
+        el("reviewNextBtn")?.addEventListener("click", () => {
+          const st = getState();
+          if (st?.phase !== "review") return;
+          if (st.current < st.order.length - 1) goNext();
+          else backToResults();
+        });
+        el("reviewBackBtn")?.addEventListener("click", () => {
+          if (getState()?.phase === "review") backToResults();
+        });
+
         /* -------------------- keyboard shortcuts (desktop only) ------------------- */
         // Left / Right arrows to move between questions. Disabled on mobile/tablet
         // where swipe/scroll is the primary interaction.
@@ -1070,7 +1129,8 @@ const abs = (p: string) => `${import.meta.env.BASE_URL.replace(/\/?$/, "/")}${p}
           // Intro phase: Enter already handled; arrows do nothing until quiz starts
           const st = getState();
           if (!st) return;
-          if (st.phase !== "quiz") return;
+          const reviewing = st.phase === "review";
+          if (st.phase !== "quiz" && !reviewing) return;
           // On the gate there is no question under the cursor, so only the two
           // arrows mean anything — the rest would read past the attempt.
           if (atGate(st) && e.key !== "ArrowLeft" && e.key !== "ArrowRight") return;
@@ -1078,6 +1138,13 @@ const abs = (p: string) => `${import.meta.env.BASE_URL.replace(/\/?$/, "/")}${p}
           if (!isDesktop()) return;
           if (e.key === "ArrowRight") {
             e.preventDefault();
+            if (reviewing) {
+              // Same hand-off as the footer button: the last question leads back
+              // to the score screen rather than off the end of the attempt.
+              if (st.current < st.order.length - 1) goNext();
+              else backToResults();
+              return;
+            }
             if (atPreviewEnd()) {
               goToLogin();
               return;
@@ -1087,7 +1154,8 @@ const abs = (p: string) => `${import.meta.env.BASE_URL.replace(/\/?$/, "/")}${p}
           } else if (e.key === "ArrowLeft") {
             e.preventDefault();
             goPrev();
-          } else if (e.key === "r" || e.key === "R") {
+          } else if (!reviewing && (e.key === "r" || e.key === "R")) {
+            // Review is read-only, so R (retry / reshuffle) stays off there.
             if (st.checked[st.current]) {
               e.preventDefault();
               clearCurrentAnswer();
@@ -1101,18 +1169,36 @@ const abs = (p: string) => `${import.meta.env.BASE_URL.replace(/\/?$/, "/")}${p}
       }
 
       async function init(): Promise<void> {
-        const session = await fetchSession();
-        // A `?auth=ok` return that still looks signed out means the browser
-        // dropped the cross-site cookie — the same bounce as before. It only
-        // happens after a real sign-in attempt, never on a plain preview visit.
-        if (!session.authenticated && new URLSearchParams(location.search).get("auth") === "ok") {
-          // Carry this exam's path along, so the recovery page's retry link can
-          // bring the student straight back here once cookies are allowed.
-          location.replace(cookieBlockedUrl(currentPath()));
-          return;
+        // The service worker is registered on every visit, whatever the offline
+        // toggle says: it is what makes the app installable and the shell
+        // resilient. The per-exam toggle only decides what gets downloaded
+        // up front and whether the exam claims to be ready offline.
+        registerServiceWorker();
+
+        const outcome = await resolveSession();
+        const online = outcome.kind === "ok";
+
+        if (online && !outcome.session.authenticated) {
+          // A `?auth=ok` return that still looks signed out means the browser
+          // dropped the cross-site cookie — the same bounce as before. It only
+          // happens after a real sign-in attempt, never on a plain preview visit.
+          // Only checked against a real answer: offline, nothing was said.
+          if (new URLSearchParams(location.search).get("auth") === "ok") {
+            // Carry this exam's path along, so the recovery page's retry link
+            // can bring the student straight back here once cookies are allowed.
+            location.replace(cookieBlockedUrl(currentPath()));
+            return;
+          }
         }
-        const access: AccessMode = session.authenticated ? "full" : "preview";
+
+        const access: AccessMode = online
+          ? outcome.session.authenticated
+            ? "full"
+            : "preview"
+          : (lastKnownAccessMode() ?? "preview");
+
         document.documentElement.dataset.auth = "ok";
+        // Reflects whatever we resolved, so going offline later reuses it.
         publishAccessMode(access);
         main(access);
       }

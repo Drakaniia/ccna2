@@ -7,6 +7,7 @@ exam was built (`src/features/exams/data/modules-7-9/` is the reference pattern)
 WordPress dump is reference-only source material — never edit it.
 
 **Exam parameters (fill these in):**
+
 - Module registry id: `{module-id}` — e.g. `modules-10-13`
 - Title: `{Title}` — e.g. `Modules 10 - 13`
 - Subtitle: `{Subtitle}` — e.g. `L2 Security and WLANs`
@@ -36,7 +37,7 @@ WordPress dump is reference-only source material — never edit it.
      without Packet Tracer (e.g. asks for a keyword or known fact); otherwise drop the
      question and note it.
    - CLI / router-output content shown above the options → put it in the `code` string on
-     the question. Command-set *options* (multi-line blocks) → keep each block as ONE
+     the question. Command-set _options_ (multi-line blocks) → keep each block as ONE
      multi-line string; the option renderer already displays these monospace with line
      breaks preserved.
    - Classification matches where several descriptions map to the SAME target (e.g. "match
@@ -67,12 +68,12 @@ WordPress dump is reference-only source material — never edit it.
 
 ## Fill-in values for each remaining exam
 
-| # | registry id | title | subtitle | group label | source dump |
-| --- | --- | --- | --- | --- | --- |
-| 1 | `modules-10-13` | `Modules 10 - 13` | `L2 Security and WLANs` | `Checkpoint Exam` | `public/itexamanswers_modules10-13.html` |
-| 2 | `modules-14-16` | `Modules 14 - 16` | `Routing Concepts and Configuration` | `Checkpoint Exam` | `public/itexamanswers_modules14-16.html` |
-| 3 | `srwe-practice-final` | `SRWEv7 Practice Final Exam` | `CCNA 2 v7 (SRWE)` | `Practice Exam` | `public/itexamanswers_srwe-practice-final.html` |
-| 4 | `srwe-final-exam` | `CCNA 2 v7 Course FINAL Exam` | `Switching, Routing, and Wireless Essentials` | `Final Exam` | `public/itexamanswers_srwe-final-exam.html` |
+| #   | registry id           | title                         | subtitle                                      | group label       | source dump                                     |
+| --- | --------------------- | ----------------------------- | --------------------------------------------- | ----------------- | ----------------------------------------------- |
+| 1   | `modules-10-13`       | `Modules 10 - 13`             | `L2 Security and WLANs`                       | `Checkpoint Exam` | `public/itexamanswers_modules10-13.html`        |
+| 2   | `modules-14-16`       | `Modules 14 - 16`             | `Routing Concepts and Configuration`          | `Checkpoint Exam` | `public/itexamanswers_modules14-16.html`        |
+| 3   | `srwe-practice-final` | `SRWEv7 Practice Final Exam`  | `CCNA 2 v7 (SRWE)`                            | `Practice Exam`   | `public/itexamanswers_srwe-practice-final.html` |
+| 4   | `srwe-final-exam`     | `CCNA 2 v7 Course FINAL Exam` | `Switching, Routing, and Wireless Essentials` | `Final Exam`      | `public/itexamanswers_srwe-final-exam.html`     |
 
 Note: final exams are large and are sometimes saved from a multi-page article; if a dump's
 question numbering is not contiguous (e.g. starts at 1 then jumps, or says "Part 2"), say so

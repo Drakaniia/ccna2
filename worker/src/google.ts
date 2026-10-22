@@ -1,7 +1,8 @@
 import type { GoogleClaims } from "./types";
 
 /** Google OAuth 2.0 endpoints. */
-export const GOOGLE_AUTH_ENDPOINT = "https://accounts.google.com/o/oauth2/v2/auth";
+export const GOOGLE_AUTH_ENDPOINT =
+  "https://accounts.google.com/o/oauth2/v2/auth";
 export const GOOGLE_TOKEN_ENDPOINT = "https://oauth2.googleapis.com/token";
 
 const encoder = new TextEncoder();
@@ -9,7 +10,10 @@ const encoder = new TextEncoder();
 function bytesToB64url(bytes: Uint8Array): string {
   let binary = "";
   for (const b of bytes) binary += String.fromCharCode(b);
-  return btoa(binary).replace(/\+/g, "-").replace(/\//g, "_").replace(/=+$/, "");
+  return btoa(binary)
+    .replace(/\+/g, "-")
+    .replace(/\//g, "_")
+    .replace(/=+$/, "");
 }
 
 /**
@@ -19,7 +23,8 @@ function bytesToB64url(bytes: Uint8Array): string {
  */
 function b64urlToString(value: string): string {
   const padded = value.replace(/-/g, "+").replace(/_/g, "/");
-  const pad = padded.length % 4 === 0 ? "" : "=".repeat(4 - (padded.length % 4));
+  const pad =
+    padded.length % 4 === 0 ? "" : "=".repeat(4 - (padded.length % 4));
   const binary = atob(padded + pad);
   const bytes = Uint8Array.from(binary, (c) => c.charCodeAt(0));
   return new TextDecoder().decode(bytes);
@@ -34,9 +39,15 @@ export function generateState(): string {
  * PKCE verifier + S256 challenge. The verifier is stashed inside the signed
  * state cookie and replayed on the callback.
  */
-export async function generatePkce(): Promise<{ verifier: string; challenge: string }> {
+export async function generatePkce(): Promise<{
+  verifier: string;
+  challenge: string;
+}> {
   const verifier = bytesToB64url(crypto.getRandomValues(new Uint8Array(32)));
-  const digest = await crypto.subtle.digest("SHA-256", encoder.encode(verifier));
+  const digest = await crypto.subtle.digest(
+    "SHA-256",
+    encoder.encode(verifier),
+  );
   return { verifier, challenge: bytesToB64url(new Uint8Array(digest)) };
 }
 
@@ -81,7 +92,9 @@ export interface ExchangeParams {
 }
 
 /** Exchange the authorization code for tokens (server-side, holds the secret). */
-export async function exchangeCode(params: ExchangeParams): Promise<TokenResponse> {
+export async function exchangeCode(
+  params: ExchangeParams,
+): Promise<TokenResponse> {
   const body = new URLSearchParams({
     code: params.code,
     client_id: params.clientId,
@@ -121,9 +134,12 @@ export function decodeIdToken(idToken: string): GoogleClaims | null {
 export function validateIdTokenClaims(
   claims: GoogleClaims,
   clientId: string,
-  now: number = Math.floor(Date.now() / 1000)
+  now: number = Math.floor(Date.now() / 1000),
 ): string | null {
-  if (claims.iss !== "accounts.google.com" && claims.iss !== "https://accounts.google.com") {
+  if (
+    claims.iss !== "accounts.google.com" &&
+    claims.iss !== "https://accounts.google.com"
+  ) {
     return "bad_issuer";
   }
   if (claims.aud !== clientId) return "bad_audience";

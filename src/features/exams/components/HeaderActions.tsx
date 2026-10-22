@@ -2,8 +2,27 @@ import { useEffect, useRef, useState } from "react";
 import { Maximize2, Moon, Settings, Sun } from "lucide-react";
 import { getStoredLimit, setStoredLimit } from "../lib/exam-limits";
 import { getCheckMode, setCheckMode, type CheckMode } from "../lib/exam-mode";
+import {
+  cacheExamFiles,
+  formatBytes,
+  getOfflineEnabled,
+  offlineCacheSummary,
+  setOfflineEnabled,
+} from "../lib/exam-offline";
 import { getState } from "../lib/quiz-state";
-import { ACCESS_MODE_EVENT, currentAccessMode, type AccessMode } from "../../auth/auth-client";
+import {
+  ACCESS_MODE_EVENT,
+  currentAccessMode,
+  type AccessMode,
+} from "../../auth/auth-client";
+import {
+  captureInstallPrompt,
+  installPromptReady,
+  isInstalled,
+  needsIosInstallSteps,
+  onInstallStateChange,
+  promptInstall,
+} from "../../pwa/pwa-client";
 
 /**
  * Header action buttons (right side of the top bar):
@@ -15,10 +34,18 @@ const THEME_KEY = "ccna-theme";
 
 type Theme = "light" | "dark";
 
+/** What the offline section is doing right now. */
+type CacheState = "idle" | "caching" | "ready" | "error";
+
 interface Props {
   /** Only set inside /exam/[module] — when absent the settings button is hidden. */
   moduleId?: string;
   maxQuestions?: number;
+  /**
+   * Everything this exam needs on disk, built by the server-rendered header.
+   * Empty when there is no exam on the page.
+   */
+  offlineFiles?: string[];
 }
 
 function readTheme(): Theme {
@@ -34,7 +61,11 @@ function applyTheme(theme: Theme): void {
   }
 }
 
-export default function HeaderActions({ moduleId, maxQuestions }: Props) {
+export default function HeaderActions({
+  moduleId,
+  maxQuestions,
+  offlineFiles = [],
+}: Props) {
   const [theme, setTheme] = useState<Theme>("light");
   const [access, setAccess] = useState<AccessMode>("full");
   const [fullView, setFullView] = useState(false);
@@ -48,12 +79,20 @@ export default function HeaderActions({ moduleId, maxQuestions }: Props) {
     next: number | null;
     snapshotLen: number;
   } | null>(null);
+  const [offlineOn, setOfflineOn] = useState(false);
+  const [cacheState, setCacheState] = useState<CacheState>("idle");
+  const [cacheBytes, setCacheBytes] = useState(0);
+  const [cachePercent, setCachePercent] = useState(0);
+  const [canInstall, setCanInstall] = useState(false);
+  const [installed, setInstalled] = useState(false);
+  const [iosSteps, setIosSteps] = useState(false);
   const inputRef = useRef<HTMLInputElement>(null);
   const triggerRef = useRef<HTMLButtonElement>(null);
   const closeRef = useRef<HTMLButtonElement>(null);
   const confirmPrimaryRef = useRef<HTMLButtonElement>(null);
 
-  const hasSettings = !!moduleId && typeof maxQuestions === "number" && maxQuestions > 0;
+  const hasSettings =
+    !!moduleId && typeof maxQuestions === "number" && maxQuestions > 0;
   const max = maxQuestions ?? 0;
   // A preview attempt is fixed at the free question count, so the "Number of
   // items" control has nothing to control (D12).
@@ -64,6 +103,43 @@ export default function HeaderActions({ moduleId, maxQuestions }: Props) {
   useEffect(() => {
     setTheme(readTheme());
   }, []);
+
+  /*
+   * The install affordance.
+   *
+   * `beforeinstallprompt` fires once and is lost if nothing is listening, and
+   * it can land before this island hydrates — so the module keeps the deferred
+   * event and this only mirrors it into state. `captureInstallPrompt()` is also
+   * called from the page, which is earlier still; it is idempotent.
+   */
+  useEffect(() => {
+    captureInstallPrompt();
+    setIosSteps(needsIosInstallSteps());
+    const sync = (): void => {
+      setCanInstall(installPromptReady());
+      setInstalled(isInstalled());
+    };
+    sync();
+    return onInstallStateChange(sync);
+  }, []);
+
+  // What is already on the device, read when the modal opens rather than kept
+  // in sync — the only thing that changes it is this modal itself.
+  useEffect(() => {
+    if (!settingsOpen || !hasSettings || !moduleId) return;
+    let alive = true;
+    setOfflineOn(getOfflineEnabled(moduleId));
+    setCacheState("idle");
+    setCachePercent(0);
+    void offlineCacheSummary(moduleId).then((summary) => {
+      if (!alive) return;
+      setCacheBytes(summary.bytes);
+      if (summary.count > 0) setCacheState("ready");
+    });
+    return () => {
+      alive = false;
+    };
+  }, [settingsOpen, hasSettings, moduleId]);
 
   // The exam page resolves the mode from an awaited session fetch, which lands
   // strictly after this island has hydrated — so reading `data-access` on mount
@@ -207,7 +283,9 @@ export default function HeaderActions({ moduleId, maxQuestions }: Props) {
     const snapshotLen = pendingRestart.snapshotLen;
     setConfirmOpen(false);
     setPendingRestart(null);
-    const ev = new CustomEvent("exam:limit-apply-restart", { detail: { moduleId } });
+    const ev = new CustomEvent("exam:limit-apply-restart", {
+      detail: { moduleId },
+    });
     document.dispatchEvent(ev);
     // Small timeout to allow exam page to handle reboot; if still same state, reload
     window.setTimeout(() => {
@@ -221,6 +299,63 @@ export default function HeaderActions({ moduleId, maxQuestions }: Props) {
   function handleCancelRestart(): void {
     setConfirmOpen(false);
     setPendingRestart(null);
+  }
+
+  /**
+   * Download everything this exam needs, reporting progress as it lands. The
+   * download runs here rather than through a message to the service worker:
+   * the Cache Storage API is the same one the worker reads, so the page can
+   * fill it directly and progress is a plain callback.
+   */
+  async function runCache(): Promise<void> {
+    if (!moduleId || offlineFiles.length === 0) return;
+    setCacheState("caching");
+    setCachePercent(0);
+    const result = await cacheExamFiles(moduleId, offlineFiles, (progress) => {
+      setCacheBytes(progress.bytes);
+      setCachePercent(progress.total > 0 ? progress.done / progress.total : 0);
+    });
+    setCacheBytes(result.bytes);
+    setCacheState(result.count > 0 ? "ready" : "error");
+  }
+
+  /** The switch writes immediately; only switching it *on* costs a download. */
+  async function toggleOffline(next: boolean): Promise<void> {
+    if (!moduleId) return;
+    setOfflineOn(next);
+    setOfflineEnabled(moduleId, next);
+    // Off keeps the download and only drops the "ready" claim, so flipping
+    // back on reuses what is already there instead of starting over.
+    if (next) {
+      if (cacheState === "ready" && cacheBytes > 0) return;
+      await runCache();
+    }
+  }
+
+  async function handleInstall(): Promise<void> {
+    const outcome = await promptInstall();
+    if (outcome === "accepted") setInstalled(true);
+    setCanInstall(installPromptReady());
+  } /**
+   * State + size, so the student knows both what happened and what it cost.
+   *
+   * The "ready" claim hangs off the switch, not off the download: turning the
+   * switch off keeps the files on disk but must stop saying this exam is ready
+   * to take offline, which is the whole difference the switch buys.
+   */
+  function offlineStatus(): string {
+    if (cacheState === "caching")
+      return `Caching… ${Math.round(cachePercent * 100)}%`;
+    if (cacheState === "error")
+      return "Download failed — check your connection and try again.";
+    if (offlineOn) {
+      return cacheBytes > 0
+        ? `Ready offline · ${formatBytes(cacheBytes)}`
+        : "Not downloaded yet.";
+    }
+    if (cacheBytes > 0)
+      return "Offline data for this exam is kept on your device but not used.";
+    return "Not downloaded yet.";
   }
 
   function applyPreset(v: number | null): void {
@@ -256,7 +391,9 @@ export default function HeaderActions({ moduleId, maxQuestions }: Props) {
         type="button"
         className="hdr-btn"
         onClick={toggleTheme}
-        aria-label={theme === "dark" ? "Switch to light mode" : "Switch to dark mode"}
+        aria-label={
+          theme === "dark" ? "Switch to light mode" : "Switch to dark mode"
+        }
         title={theme === "dark" ? "Light mode" : "Dark mode"}
       >
         {theme === "dark" ? <Sun size={19} /> : <Moon size={19} />}
@@ -308,8 +445,16 @@ export default function HeaderActions({ moduleId, maxQuestions }: Props) {
               <legend className="settings-label">Solution feedback</legend>
               {(
                 [
-                  { v: "auto", t: "Show solution automatically", d: "Reveals the answer as soon as you finish selecting." },
-                  { v: "manual", t: "Show solution after I press Check", d: "A Check button appears under the options." },
+                  {
+                    v: "auto",
+                    t: "Show solution automatically",
+                    d: "Reveals the answer as soon as you finish selecting.",
+                  },
+                  {
+                    v: "manual",
+                    t: "Show solution after I press Check",
+                    d: "A Check button appears under the options.",
+                  },
                 ] as { v: CheckMode; t: string; d: string }[]
               ).map((opt) => (
                 <label key={opt.v} className="mode-option">
@@ -326,7 +471,10 @@ export default function HeaderActions({ moduleId, maxQuestions }: Props) {
                   </span>
                 </label>
               ))}
-              <p className="settings-hint">Applies to every exam. Press Review Question to flag the current question — its tab turns orange.</p>
+              <p className="settings-hint">
+                Applies to every exam. Press Review Question to flag the current
+                question — its tab turns orange.
+              </p>
             </fieldset>
 
             {showLimitField && (
@@ -377,29 +525,111 @@ export default function HeaderActions({ moduleId, maxQuestions }: Props) {
                       {v}
                     </button>
                   ))}
-                  <button type="button" className="preset-btn preset-all" onClick={() => applyPreset(null)}>
+                  <button
+                    type="button"
+                    className="preset-btn preset-all"
+                    onClick={() => applyPreset(null)}
+                  >
                     All
                   </button>
                 </div>
               </>
             )}
 
+            <section
+              className="settings-offline"
+              aria-labelledby="settingsOfflineLabel"
+            >
+              <span className="settings-label" id="settingsOfflineLabel">
+                Offline
+              </span>
+              <label className="settings-switch">
+                <input
+                  type="checkbox"
+                  checked={offlineOn}
+                  onChange={(e) => void toggleOffline(e.target.checked)}
+                />
+                <span>
+                  <span className="mode-title">
+                    Save this exam for offline use
+                  </span>
+                  <span className="mode-desc">
+                    Downloads this exam's questions and exhibits to your device
+                    so you can take it without a connection. Only this exam is
+                    downloaded.
+                  </span>
+                </span>
+              </label>
+              <p className="settings-status" role="status">
+                {offlineStatus()}
+              </p>
+              {offlineOn && cacheState !== "caching" && (
+                <button
+                  type="button"
+                  className="preset-btn"
+                  onClick={() => void runCache()}
+                >
+                  Refresh download
+                </button>
+              )}
+
+              <div className="settings-install">
+                {installed ? (
+                  <p className="settings-hint">
+                    This site is installed on your device.
+                  </p>
+                ) : canInstall ? (
+                  <button
+                    type="button"
+                    className="preset-btn install-btn"
+                    onClick={() => void handleInstall()}
+                  >
+                    Install app
+                  </button>
+                ) : iosSteps ? (
+                  <p className="settings-hint">
+                    To install: tap <strong>Share</strong>, then{" "}
+                    <strong>Add to Home Screen</strong>.
+                  </p>
+                ) : (
+                  <p className="settings-hint">
+                    Your browser can install this site from its own menu.
+                  </p>
+                )}
+              </div>
+            </section>
+
             <div className="settings-actions">
-              <button type="button" className="link-btn" onClick={() => setSettingsOpen(false)}>
+              <button
+                type="button"
+                className="link-btn"
+                onClick={() => setSettingsOpen(false)}
+              >
                 Cancel
               </button>
-              <button type="button" className="primary" onClick={validateAndApply}>
+              <button
+                type="button"
+                className="primary"
+                onClick={validateAndApply}
+              >
                 Apply
               </button>
             </div>
 
-            <p className="settings-foot">Takes effect on next start. If an exam is in progress, you’ll be asked to restart.</p>
+            <p className="settings-foot">
+              Takes effect on next start. If an exam is in progress, you’ll be
+              asked to restart.
+            </p>
           </div>
         </div>
       )}
 
       {confirmOpen && pendingRestart && (
-        <div className="settings-scrim is-open confirm-scrim" onClick={handleCancelRestart} aria-hidden="true">
+        <div
+          className="settings-scrim is-open confirm-scrim"
+          onClick={handleCancelRestart}
+          aria-hidden="true"
+        >
           <div
             className="settings-modal confirm-modal"
             role="dialog"
@@ -416,18 +646,36 @@ export default function HeaderActions({ moduleId, maxQuestions }: Props) {
             </h2>
             <p id="confirmDesc" className="confirm-desc">
               Question limit changed to{" "}
-              <strong>{pendingRestart.next === null ? `All (${max})` : pendingRestart.next}</strong>. Restart now with a new random set of{" "}
-              {pendingRestart.next === null ? max : pendingRestart.next} questions? Your current progress will be lost.
+              <strong>
+                {pendingRestart.next === null
+                  ? `All (${max})`
+                  : pendingRestart.next}
+              </strong>
+              . Restart now with a new random set of{" "}
+              {pendingRestart.next === null ? max : pendingRestart.next}{" "}
+              questions? Your current progress will be lost.
             </p>
             <div className="settings-actions confirm-actions">
-              <button type="button" className="link-btn" onClick={handleCancelRestart}>
+              <button
+                type="button"
+                className="link-btn"
+                onClick={handleCancelRestart}
+              >
                 Keep current exam
               </button>
-              <button ref={confirmPrimaryRef} type="button" className="primary confirm-primary" onClick={handleConfirmRestart}>
+              <button
+                ref={confirmPrimaryRef}
+                type="button"
+                className="primary confirm-primary"
+                onClick={handleConfirmRestart}
+              >
                 Restart now
               </button>
             </div>
-            <p className="settings-foot">If you keep the current exam, the new limit will apply on the next start.</p>
+            <p className="settings-foot">
+              If you keep the current exam, the new limit will apply on the next
+              start.
+            </p>
           </div>
         </div>
       )}

@@ -16,7 +16,6 @@
 # Plain vars come from worker/wrangler.toml [vars], which is the single source
 # of truth, so changing SITE_ORIGIN or ADMIN_EMAIL is just a commit.
 
-
 name: Deploy Worker
 
 on:

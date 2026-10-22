@@ -1,4 +1,9 @@
-import type { ChoiceQuestion, ExamModule, PairQuestion, Question } from "./types";
+import type {
+  ChoiceQuestion,
+  ExamModule,
+  PairQuestion,
+  Question,
+} from "./types";
 import type { AttemptState } from "./quiz-state";
 
 export const PASS_THRESHOLD = 70;
@@ -7,7 +12,7 @@ export const PASS_THRESHOLD = 70;
 export function isAnswered(
   q: Question,
   answer: number[],
-  pairs: Record<number, number> | null | undefined
+  pairs: Record<number, number> | null | undefined,
 ): boolean {
   if (q.type === "pair") {
     return !!pairs && Object.keys(pairs).length > 0;
@@ -22,10 +27,13 @@ export function isAnswered(
 export function isChoiceQuestionCorrect(
   q: ChoiceQuestion,
   answer: number[],
-  optionOrder: number[]
+  optionOrder: number[],
 ): boolean {
   if (answer.length === 0) return false;
-  const selected = [...answer].map((i) => optionOrder[i]).sort((a, b) => a - b).join(",");
+  const selected = [...answer]
+    .map((i) => optionOrder[i])
+    .sort((a, b) => a - b)
+    .join(",");
   const correct = [...q.correct].sort((a, b) => a - b).join(",");
   return selected === correct;
 }
@@ -37,24 +45,34 @@ export function isChoiceQuestionCorrect(
 export function isPairQuestionCorrect(
   q: PairQuestion,
   pairs: Record<number, number> | null | undefined,
-  rightOrder: number[]
+  rightOrder: number[],
 ): boolean {
   if (!pairs) return false;
   const lefts = Object.keys(pairs).map(Number);
   if (lefts.length !== q.left.length) return false;
-  return lefts.every((left) => pairs[left] === rightOrder.indexOf(q.correctPairs[left]));
+  return lefts.every(
+    (left) => pairs[left] === rightOrder.indexOf(q.correctPairs[left]),
+  );
 }
 
 /** Grade one displayed question (display position `p` maps to source question `q`). */
 export function isQuestionCorrect(
   q: Question,
   state: AttemptState,
-  p: number
+  p: number,
 ): boolean {
   if (q.type === "pair") {
-    return isPairQuestionCorrect(q, state.pairs[p] ?? {}, state.rightOrders[p] ?? []);
+    return isPairQuestionCorrect(
+      q,
+      state.pairs[p] ?? {},
+      state.rightOrders[p] ?? [],
+    );
   }
-  return isChoiceQuestionCorrect(q, state.answers[p], state.optionOrders[p] ?? []);
+  return isChoiceQuestionCorrect(
+    q,
+    state.answers[p],
+    state.optionOrders[p] ?? [],
+  );
 }
 
 export interface AttemptResult {
@@ -65,7 +83,10 @@ export interface AttemptResult {
 }
 
 /** Equal weight per question; unanswered counts as wrong; round to nearest %; pass >= 70%. */
-export function scoreAttempt(module: ExamModule, state: AttemptState): AttemptResult {
+export function scoreAttempt(
+  module: ExamModule,
+  state: AttemptState,
+): AttemptResult {
   let correct = 0;
   const total = state.order.length;
   state.order.forEach((sourceIndex, p) => {

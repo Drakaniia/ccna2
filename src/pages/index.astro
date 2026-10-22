@@ -17,7 +17,7 @@ const defaultCourse = "ccna2";
 <html lang="en" data-course={defaultCourse}>
   <head>
     <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
     <script is:inline>
       (function () {
         try {
@@ -39,6 +39,9 @@ const defaultCourse = "ccna2";
     </script>
     <link rel="icon" type="image/svg+xml" href={abs("favicon.svg")} />
     <link rel="icon" href={abs("favicon.ico")} />
+    <link rel="apple-touch-icon" href={abs("icons/apple-touch-icon.png")} />
+    <link rel="manifest" href={abs("manifest.webmanifest")} />
+    <meta name="theme-color" content="#4d9838" />
     <meta
       name="description"
       content="CCNA 1 (ITN) and CCNA 2 (SRWE) practice exams — module checkpoint quizzes."
@@ -128,6 +131,13 @@ const defaultCourse = "ccna2";
     <script>
       import { getStoredCourse, setStoredCourse } from "../features/exams/lib/course-selection";
       import { isCourseId, type CourseId } from "../features/exams/data/courses";
+      import { captureInstallPrompt, registerServiceWorker } from "../features/pwa/pwa-client";
+
+      // The chooser is usually the first page a visitor sees, so it is where
+      // the install prompt has to be caught — the event fires once, long before
+      // anyone opens the settings modal that offers the button.
+      captureInstallPrompt();
+      registerServiceWorker();
 
       function main(): void {
         const cards = Array.from(
@@ -491,5 +501,11 @@ const defaultCourse = "ccna2";
     a.module-card:hover {
       transform: none;
     }
+  }
+
+  .site-credit {
+    position: fixed;
+    bottom: calc(14px + env(safe-area-inset-bottom, 0px));
+    right: calc(18px + env(safe-area-inset-right, 0px));
   }
 </style>

@@ -19,7 +19,8 @@ function key(moduleId: string): string {
 
 /** Raw stored value: number string or empty. Returns number | null (null = All). */
 export function getStoredLimit(moduleId: string): number | null {
-  if (typeof window === "undefined" || typeof localStorage === "undefined") return null;
+  if (typeof window === "undefined" || typeof localStorage === "undefined")
+    return null;
   try {
     const raw = localStorage.getItem(key(moduleId));
     if (raw === null || raw === "") return null;
@@ -56,7 +57,9 @@ export function setStoredLimit(moduleId: string, value: number | null): void {
     /* private mode */
   }
   if (typeof document !== "undefined") {
-    document.dispatchEvent(new CustomEvent(LIMIT_EVENT, { detail: { moduleId, value } }));
+    document.dispatchEvent(
+      new CustomEvent(LIMIT_EVENT, { detail: { moduleId, value } }),
+    );
   }
 }
 

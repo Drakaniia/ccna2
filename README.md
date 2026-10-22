@@ -25,16 +25,16 @@ Choose an exam group from the home page and work through its questions with inst
 
 ### CCNA 2 v7 — SRWE
 
-| Module | Title | Status |
-| --- | --- | --- |
-| System Test | — | 🚧 Coming soon |
-| Modules 1 – 4 | Switching Concepts, VLANs, and InterVLAN Routing | ✅ Available |
-| Modules 5 – 6 | Redundant Networks | ✅ Available |
-| Modules 7 – 9 | Available and Reliable Networks | ✅ Available |
-| Modules 10 – 13 | L2 Security and WLANs | ✅ Available |
-| Modules 14 – 16 | Routing Concepts and Configuration | ✅ Available |
-| SRWEv7 Practice Final Exam | CCNA 2 v7 (SRWE) | 🚧 Coming soon |
-| CCNA 2 v7 Course FINAL Exam | Switching, Routing, and Wireless Essentials | ✅ Available |
+| Module                      | Title                                            | Status         |
+| --------------------------- | ------------------------------------------------ | -------------- |
+| System Test                 | —                                                | 🚧 Coming soon |
+| Modules 1 – 4               | Switching Concepts, VLANs, and InterVLAN Routing | ✅ Available   |
+| Modules 5 – 6               | Redundant Networks                               | ✅ Available   |
+| Modules 7 – 9               | Available and Reliable Networks                  | ✅ Available   |
+| Modules 10 – 13             | L2 Security and WLANs                            | ✅ Available   |
+| Modules 14 – 16             | Routing Concepts and Configuration               | ✅ Available   |
+| SRWEv7 Practice Final Exam  | CCNA 2 v7 (SRWE)                                 | 🚧 Coming soon |
+| CCNA 2 v7 Course FINAL Exam | Switching, Routing, and Wireless Essentials      | ✅ Available   |
 
 ### CCNA 1 v7 — ITN
 
@@ -91,19 +91,19 @@ Everything beyond that preview is gated behind a **Cloudflare Worker** (`worker/
 
 Why a Worker: GitHub Pages is static and cannot exchange an OAuth code, hold a client secret, or keep a session. The Worker is the only trusted component; the static site merely asks it who the visitor is.
 
-**The session travels as a Bearer token, not a cookie.** The Worker lives on `*.workers.dev` and the site on `*.github.io`, so a session cookie is *third-party* to the site — Safari/iOS, Firefox, Brave and Chrome's third-party-cookie settings drop it, which used to leave signed-in students stuck on the 5-question preview. Instead, `/auth/callback` puts a short-lived, one-time **handoff token** in the URL fragment (`#s=…`, never sent to a server) and the site redeems it at `POST /auth/exchange` for a session token it keeps in `localStorage` and sends as `Authorization: Bearer`. The cookie is still issued as a first-party fallback, but nothing depends on it.
+**The session travels as a Bearer token, not a cookie.** The Worker lives on `*.workers.dev` and the site on `*.github.io`, so a session cookie is _third-party_ to the site — Safari/iOS, Firefox, Brave and Chrome's third-party-cookie settings drop it, which used to leave signed-in students stuck on the 5-question preview. Instead, `/auth/callback` puts a short-lived, one-time **handoff token** in the URL fragment (`#s=…`, never sent to a server) and the site redeems it at `POST /auth/exchange` for a session token it keeps in `localStorage` and sends as `Authorization: Bearer`. The cookie is still issued as a first-party fallback, but nothing depends on it.
 
 ### Worker API
 
-| Method | Route | Auth | Behavior |
-| --- | --- | --- | --- |
-| `GET` | `/auth/login` | none | Builds `state` + PKCE, 302s to Google. |
-| `GET` | `/auth/callback` | none | Validates `state`, exchanges the code, applies the admission rules, upserts D1 (fail-open), sets the cookie, 302s back to the site with the handoff token in the fragment. |
-| `POST` | `/auth/exchange` | handoff token | Trades a handoff token for a session token. |
-| `GET` | `/auth/session` | bearer or cookie | `{ authenticated, user }`. |
-| `POST` | `/auth/logout` | cookie | Clears this site's cookie, 204. The site drops its stored token. |
-| `GET` | `/admin/users` | admin | Read-only roster for the admin page. |
-| `GET` | `/health` | none | Deployment smoke test. |
+| Method | Route            | Auth             | Behavior                                                                                                                                                                   |
+| ------ | ---------------- | ---------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `GET`  | `/auth/login`    | none             | Builds `state` + PKCE, 302s to Google.                                                                                                                                     |
+| `GET`  | `/auth/callback` | none             | Validates `state`, exchanges the code, applies the admission rules, upserts D1 (fail-open), sets the cookie, 302s back to the site with the handoff token in the fragment. |
+| `POST` | `/auth/exchange` | handoff token    | Trades a handoff token for a session token.                                                                                                                                |
+| `GET`  | `/auth/session`  | bearer or cookie | `{ authenticated, user }`.                                                                                                                                                 |
+| `POST` | `/auth/logout`   | cookie           | Clears this site's cookie, 204. The site drops its stored token.                                                                                                           |
+| `GET`  | `/admin/users`   | admin            | Read-only roster for the admin page.                                                                                                                                       |
+| `GET`  | `/health`        | none             | Deployment smoke test.                                                                                                                                                     |
 
 ### Admins
 
@@ -142,11 +142,11 @@ It generates `worker/.dev.vars` from the root `.env`, applies the local D1 schem
 
 The root `.env` (gitignored) is the single source for local secrets:
 
-| Key | Notes |
-| --- | --- |
-| `GOOGLE_CLIENT_ID` / `GOOGLE_CLIENT_SECRET` | From the Google Cloud console. |
-| `SESSION_SECRET` | Signs the session JWT. Generate with `openssl rand -base64 48`. Without it, `wrangler` fails on the first sign-in with `Imported HMAC key length (0) must be a non-zero value`. |
-| `ADMIN_EMAIL` | Optional comma-separated admin list; overrides `wrangler.toml` locally. |
+| Key                                         | Notes                                                                                                                                                                           |
+| ------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `GOOGLE_CLIENT_ID` / `GOOGLE_CLIENT_SECRET` | From the Google Cloud console.                                                                                                                                                  |
+| `SESSION_SECRET`                            | Signs the session JWT. Generate with `openssl rand -base64 48`. Without it, `wrangler` fails on the first sign-in with `Imported HMAC key length (0) must be a non-zero value`. |
+| `ADMIN_EMAIL`                               | Optional comma-separated admin list; overrides `wrangler.toml` locally.                                                                                                         |
 
 `bun run dev -- --sync` regenerates `worker/.dev.vars` without starting anything. To run one side only, use `npm run dev:site`, or `cd worker && npx wrangler dev --var SITE_ORIGIN:http://localhost:4321`. The ports can be changed with `SITE_PORT` / `WORKER_PORT`.
 

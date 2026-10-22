@@ -6,7 +6,12 @@ export const questions1to41: Question[] = [
     number: 1,
     type: "single",
     text: "Which Layer 2 attack will result in legitimate users not getting valid IP addresses?",
-    options: ["ARP spoofing", "DHCP starvation", "IP address spoofing", "MAC address flooding"],
+    options: [
+      "ARP spoofing",
+      "DHCP starvation",
+      "IP address spoofing",
+      "MAC address flooding",
+    ],
     correct: [1],
     explanation:
       "Explanation: Topic 10.5.5\nThe DHCP starvation attack causes the exhaustion of the IP address pool of a DHCP server before legitimate users can obtain valid IP addresses.",
@@ -164,7 +169,12 @@ export const questions1to41: Question[] = [
     number: 12,
     type: "single",
     text: "Which type of VLAN-hopping attack may be prevented by designating an unused VLAN as the native VLAN?",
-    options: ["DHCP spoofing", "DHCP starvation", "VLAN double-tagging", "DTP spoofing"],
+    options: [
+      "DHCP spoofing",
+      "DHCP starvation",
+      "VLAN double-tagging",
+      "DTP spoofing",
+    ],
     correct: [2],
     explanation:
       "Explanation: Topic 10.5.3\nSpoofing DTP messages forces a switch into trunking mode as part of a VLAN-hopping attack, but VLAN double tagging works even if trunk ports are disabled. Changing the native VLAN from the default to an unused VLAN reduces the possibility of this type of attack. DHCP spoofing and DHCP starvation exploit vulnerabilities in the DHCP message exchange.",
@@ -526,7 +536,7 @@ export const questions1to41: Question[] = [
     ],
     correctPairs: { 0: 2, 1: 0, 2: 3 },
     explanation:
-      "Explanation: Topic 10.2.2\nThe correct pairings are:\n- authentication → proves that users are who they say they are\n- authorization → determines what resources users can access or the operations they are allowed to perform\n- accounting → records what users do and what they access\nThe option \"calculates how much a user must pay for remote access to a device\" is not used.",
+      'Explanation: Topic 10.2.2\nThe correct pairings are:\n- authentication → proves that users are who they say they are\n- authorization → determines what resources users can access or the operations they are allowed to perform\n- accounting → records what users do and what they access\nThe option "calculates how much a user must pay for remote access to a device" is not used.',
   },
   {
     number: 38,
