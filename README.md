@@ -23,6 +23,8 @@ Choose an exam group from the home page and work through its questions with inst
 
 ## Available exams
 
+### CCNA 2 v7 — SRWE
+
 | Module | Title | Status |
 | --- | --- | --- |
 | System Test | — | 🚧 Coming soon |
@@ -33,6 +35,18 @@ Choose an exam group from the home page and work through its questions with inst
 | Modules 14 – 16 | Routing Concepts and Configuration | ✅ Available |
 | SRWEv7 Practice Final Exam | CCNA 2 v7 (SRWE) | 🚧 Coming soon |
 | CCNA 2 v7 Course FINAL Exam | Switching, Routing, and Wireless Essentials | ✅ Available |
+
+### CCNA 1 v7 — ITN
+
+| Module | Title | Status |
+| --- | --- | --- |
+| Modules 1 – 3 | Basic Network Connectivity and Communications | ✅ Available |
+| Modules 4 – 7 | Ethernet Concepts | ✅ Available |
+| Modules 8 – 10 | Communicating Between Networks | 🚧 Coming soon |
+| Modules 11 – 13 | IP Addressing | 🚧 Coming soon |
+| Modules 14 – 15 | Network Application Communications | 🚧 Coming soon |
+| Modules 16 – 17 | Building and Securing a Small Network | 🚧 Coming soon |
+| CCNA 1 v7 Course FINAL Exam | Introduction to Networks | 🚧 Coming soon |
 
 > The deployed site is live at <https://Drakaniia.github.io/ccna2/>.
 
