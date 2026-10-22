@@ -3,13 +3,18 @@ import "../styles/global.css";
 import ExamHeader from "../features/exams/components/ExamHeader.astro";
 import FollowModal from "../features/exams/components/FollowModal.astro";
 import { ArrowRightIcon } from "../features/exams/components/lucide-icons.tsx";
-import { moduleRegistry } from "../features/exams/data";
+import { modulesForCourse } from "../features/exams/data";
+import { courseRegistry } from "../features/exams/data/courses";
 
 // Absolute-path helper that stays correct under a repo-name `base` (GitHub Pages).
 const abs = (p: string) => `${import.meta.env.BASE_URL.replace(/\/?$/, "/")}${p}`;
+
+// Server-rendered default. The inline head script swaps in the remembered course
+// before first paint; the chooser script then syncs the cards and the drawer.
+const defaultCourse = "ccna2";
 ---
 
-<html lang="en">
+<html lang="en" data-course={defaultCourse}>
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
@@ -22,47 +27,95 @@ const abs = (p: string) => `${import.meta.env.BASE_URL.replace(/\/?$/, "/")}${p}
         } catch {
           document.documentElement.dataset.theme = "light";
         }
+        // Apply the remembered course before paint so the wrong exam grid is
+        // never shown, even for a frame. Absent/unreadable storage => CCNA 2.
+        try {
+          const c = localStorage.getItem("ccna-course");
+          document.documentElement.dataset.course = c === "ccna1" ? "ccna1" : "ccna2";
+        } catch {
+          document.documentElement.dataset.course = "ccna2";
+        }
       })();
     </script>
     <link rel="icon" type="image/svg+xml" href={abs("favicon.svg")} />
     <link rel="icon" href={abs("favicon.ico")} />
-    <meta name="description" content="CCNA 2 v7 (SRWE) practice exams — module checkpoint quizzes." />
-    <title>CCNA 2 v7 Practice Exams</title>
+    <meta
+      name="description"
+      content="CCNA 1 (ITN) and CCNA 2 (SRWE) practice exams — module checkpoint quizzes."
+    />
+    <title>CCNA 1 &amp; CCNA 2 Practice Exams</title>
   </head>
   <body>
     <div class="app">
-      <ExamHeader title="CCNA 2 v7 — SRWE Practice Exams" />
+      <ExamHeader title="CCNA Practice Exams" />
       <main class="chooser">
-        <h1>Choose an Exam</h1>
+        <h1>Choose a Course</h1>
         <p class="lead">
-          CCNA 2 v7 — Switching, Routing, and Wireless Essentials (SRWE) module
-          checkpoint exams. Select an exam group to start practicing.
+          Select CCNA 1 or CCNA 2 to view its practice exams and module checkpoints.
         </p>
 
-        <section class="module-grid" aria-label="Exam groups">
+        <section class="course-grid" aria-label="Courses">
           {
-            moduleRegistry.map((m) =>
-              m.available ? (
-                <a class="module-card" href={abs(`exam/${m.id}`)}>
-                  <span class="card-label">{m.groupLabel}</span>
-                  <h2>{m.title}</h2>
-                  <p>{m.subtitle}</p>
-                  <span class="card-cta">
-                    Start exam
-                    <ArrowRightIcon size={15} strokeWidth={2.4} />
-                  </span>
-                </a>
-              ) : (
-                <div class="module-card disabled" aria-disabled="true">
-                  <span class="card-label">{m.groupLabel}</span>
-                  <h2>{m.title}</h2>
-                  <p>{m.subtitle}</p>
-                  <span class="card-badge">Coming soon</span>
-                </div>
-              )
-            )
+            courseRegistry.map((course) => (
+              <button
+                type="button"
+                class:list={["course-card", { "is-selected": course.id === defaultCourse }]}
+                data-course={course.id}
+                aria-pressed={course.id === defaultCourse ? "true" : "false"}
+                aria-controls="examPanels"
+              >
+                <span class="course-kicker">{course.label}</span>
+                <span class="course-title">{course.title}</span>
+                <span class="course-tag">{course.tag}</span>
+                <span class="course-cta course-cta-view">
+                  View exams
+                  <ArrowRightIcon size={15} strokeWidth={2.4} />
+                </span>
+                <span class="course-cta course-cta-current">
+                  Current course
+                  <ArrowRightIcon size={15} strokeWidth={2.4} />
+                </span>
+                <span class="course-badge">Selected</span>
+              </button>
+            ))
           }
         </section>
+
+        <p class="sr-only" id="courseStatus" role="status" aria-live="polite"></p>
+
+        <div id="examPanels">
+          {
+            courseRegistry.map((course) => (
+              <section class="exam-panel" data-course-panel={course.id}>
+                <h2>Choose an Exam</h2>
+                <p class="lead">{course.lead}</p>
+                {course.note && <p class="panel-note">{course.note}</p>}
+                <div class="module-grid" aria-label={`${course.label} exam groups`}>
+                  {modulesForCourse(course.id).map((m) =>
+                    m.available ? (
+                      <a class="module-card" href={abs(`exam/${m.id}`)}>
+                        <span class="card-label">{m.groupLabel}</span>
+                        <h2>{m.title}</h2>
+                        <p>{m.subtitle}</p>
+                        <span class="card-cta">
+                          Start exam
+                          <ArrowRightIcon size={15} strokeWidth={2.4} />
+                        </span>
+                      </a>
+                    ) : (
+                      <div class="module-card disabled" aria-disabled="true">
+                        <span class="card-label">{m.groupLabel}</span>
+                        <h2>{m.title}</h2>
+                        <p>{m.subtitle}</p>
+                        <span class="card-badge">Coming soon</span>
+                      </div>
+                    )
+                  )}
+                </div>
+              </section>
+            ))
+          }
+        </div>
       </main>
       <footer class="site-credit">
         <button type="button" class="site-credit-btn" data-follow-open>
@@ -71,8 +124,111 @@ const abs = (p: string) => `${import.meta.env.BASE_URL.replace(/\/?$/, "/")}${p}
       </footer>
     </div>
     <FollowModal />
+
+    <script>
+      import { getStoredCourse, setStoredCourse } from "../features/exams/lib/course-selection";
+      import { isCourseId, type CourseId } from "../features/exams/data/courses";
+
+      function main(): void {
+        const cards = Array.from(
+          document.querySelectorAll<HTMLButtonElement>(".course-card[data-course]")
+        );
+        if (cards.length === 0) return;
+
+        const panels = Array.from(
+          document.querySelectorAll<HTMLElement>("[data-course-panel]")
+        );
+        const drawerBlocks = Array.from(
+          document.querySelectorAll<HTMLElement>("[data-drawer-course]")
+        );
+        const brands = Array.from(
+          document.querySelectorAll<HTMLElement>("[data-course-brand]")
+        );
+        const status = document.getElementById("courseStatus");
+
+        /** Describe the swapped-in panel for assistive tech (never on load). */
+        function announce(id: CourseId): void {
+          if (!status) return;
+          const panel = panels.find((p) => p.dataset.coursePanel === id);
+          const name = id === "ccna1" ? "CCNA 1" : "CCNA 2";
+          if (!panel) {
+            status.textContent = `Showing ${name} exams.`;
+            return;
+          }
+          const total = panel.querySelectorAll(".module-card").length;
+          const open = panel.querySelectorAll(".module-card:not(.disabled)").length;
+          const soon = total - open;
+          status.textContent =
+            open > 0
+              ? `Showing ${name} exams. ${open} available${
+                  soon > 0 ? `, ${soon} coming soon` : ""
+                }.`
+              : `Showing ${name} exams. ${total} coming soon.`;
+        }
+
+        /**
+         * Selection lives on <html data-course>, which the head script already
+         * set: the panels follow it through CSS, and this keeps the cards, the
+         * drawer and its brand in step.
+         */
+        function applyCourse(id: CourseId, notify: boolean): void {
+          document.documentElement.dataset.course = id;
+          for (const card of cards) {
+            const selected = card.dataset.course === id;
+            card.classList.toggle("is-selected", selected);
+            card.setAttribute("aria-pressed", String(selected));
+          }
+          for (const block of drawerBlocks) block.hidden = block.dataset.drawerCourse !== id;
+          for (const brand of brands) brand.hidden = brand.dataset.courseBrand !== id;
+          if (notify) announce(id);
+        }
+
+        for (const card of cards) {
+          card.addEventListener("click", () => {
+            const id = card.dataset.course;
+            if (!isCourseId(id) || document.documentElement.dataset.course === id) return;
+            setStoredCourse(id);
+            applyCourse(id, true);
+          });
+        }
+
+        applyCourse(getStoredCourse(), false);
+      }
+
+      main();
+    </script>
   </body>
 </html>
+
+<style is:global>
+  /* ---------------------------------------------------------------- panels --
+     Only the selected course's grid is rendered visible. The <html data-course>
+     attribute is set by the inline head script, so the remembered course wins
+     before first paint. With JS disabled the attribute is absent and CCNA 2
+     stays visible, exactly as the static page worked before the chooser. */
+  .exam-panel {
+    display: none;
+  }
+
+  html[data-course="ccna1"] .exam-panel[data-course-panel="ccna1"],
+  html[data-course="ccna2"] .exam-panel[data-course-panel="ccna2"],
+  html:not([data-course]) .exam-panel[data-course-panel="ccna2"] {
+    display: block;
+  }
+
+  /* Announced status text — present for screen readers, not painted. */
+  .sr-only {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    padding: 0;
+    margin: -1px;
+    overflow: hidden;
+    clip: rect(0 0 0 0);
+    white-space: nowrap;
+    border: 0;
+  }
+</style>
 
 <style>
   main.chooser {
@@ -88,7 +244,130 @@ const abs = (p: string) => `${import.meta.env.BASE_URL.replace(/\/?$/, "/")}${p}
   .chooser .lead {
     color: var(--muted);
     font-size: 15px;
-    margin: 0 0 34px;
+    margin: 0 0 24px;
+    line-height: 1.5;
+  }
+
+  /* --------------------------------------------------------------- courses -- */
+
+  .course-grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 18px;
+    margin: 0 0 4px;
+  }
+
+  .course-card {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    text-align: left;
+    position: relative;
+    background: #fff;
+    border: 2px solid var(--border);
+    border-radius: 12px;
+    padding: 20px 24px;
+    min-height: 104px;
+    cursor: pointer;
+    color: var(--text);
+    font: inherit;
+    appearance: none;
+    transition: border-color 0.15s ease, transform 0.15s ease, box-shadow 0.15s ease;
+  }
+
+  .course-card:not(.is-selected):hover {
+    border-color: var(--green);
+    box-shadow: 0 6px 18px rgba(80, 130, 60, 0.15);
+    transform: translateY(-2px);
+  }
+
+  .course-card:focus-visible {
+    outline: 3px solid rgba(18, 160, 198, 0.35);
+    outline-offset: 2px;
+  }
+
+  .course-card.is-selected {
+    border-color: var(--cyan);
+  }
+
+  .course-kicker {
+    font-size: 11px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.8px;
+    color: var(--cyan);
+    margin-bottom: 8px;
+  }
+
+  .course-title {
+    font-size: 20px;
+    font-weight: 700;
+    line-height: 1.25;
+  }
+
+  .course-tag {
+    margin-top: 6px;
+    font-size: 12px;
+    color: var(--muted);
+  }
+
+  .course-cta {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    margin-top: 14px;
+    font-weight: 600;
+    font-size: 14px;
+    color: var(--green-dark);
+  }
+
+  .course-cta svg {
+    display: block;
+  }
+
+  .course-cta-current {
+    display: none;
+  }
+
+  .course-card.is-selected .course-cta-current {
+    display: inline-flex;
+  }
+
+  .course-card.is-selected .course-cta-view {
+    display: none;
+  }
+
+  .course-badge {
+    display: none;
+    position: absolute;
+    top: 16px;
+    right: 16px;
+    font-size: 10.5px;
+    font-weight: 700;
+    letter-spacing: 0.6px;
+    text-transform: uppercase;
+    color: var(--cyan);
+    background: var(--cyan-soft);
+    border-radius: 20px;
+    padding: 4px 10px;
+  }
+
+  .course-card.is-selected .course-badge {
+    display: inline-block;
+  }
+
+  /* ---------------------------------------------------------- exam panels -- */
+
+  .exam-panel h2 {
+    margin: 40px 0 10px;
+    font-size: 22px;
+    font-weight: 700;
+  }
+
+  .panel-note {
+    margin: -14px 0 24px;
+    font-size: 13.5px;
+    color: var(--muted);
     line-height: 1.5;
   }
 
@@ -175,9 +454,42 @@ const abs = (p: string) => `${import.meta.env.BASE_URL.replace(/\/?$/, "/")}${p}
     color: #666;
   }
 
-  .site-credit {
-    position: fixed;
-    bottom: 14px;
-    right: 18px;
+  /* -------------------------------------------------------------- dark mode -- */
+
+  html[data-theme="dark"] .course-card {
+    background: #23272d;
+  }
+
+  html[data-theme="dark"] .course-card:not(.is-selected):hover {
+    box-shadow: 0 6px 18px rgba(0, 0, 0, 0.45);
+  }
+
+  html[data-theme="dark"] .course-badge {
+    background: #1c3b45;
+    color: #7fd2ea;
+  }
+
+  /* ------------------------------------------------------------ responsive -- */
+
+  @media (max-width: 640px) {
+    .course-grid {
+      grid-template-columns: minmax(0, 1fr);
+    }
+
+    .exam-panel h2 {
+      margin-top: 32px;
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .course-card,
+    a.module-card {
+      transition: none;
+    }
+
+    .course-card:not(.is-selected):hover,
+    a.module-card:hover {
+      transform: none;
+    }
   }
 </style>
