@@ -25,7 +25,7 @@ worker/node_modules/
 .DS_Store
 
 # reference sources — not part of the build
-public/reference/
+#public/reference/
 
 # licensed source archive — the extracted cuts in src/styles/fonts/ are committed
 cisco-sans.zip
