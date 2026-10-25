@@ -38,3 +38,9 @@ cisco-sans.zip
 # local agent/browser extraction artifacts
 _extract/
 .omo/
+
+# question generation scripts and artifacts
+scripts/gen-*.mjs
+scripts/smoke-*.mjs
+scripts/*.tmp.mjs
+public/images/itn-modules-*/
