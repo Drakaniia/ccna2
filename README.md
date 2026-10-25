@@ -42,10 +42,10 @@ Choose an exam group from the home page and work through its questions with inst
 | --- | --- | --- |
 | Modules 1 – 3 | Basic Network Connectivity and Communications | ✅ Available |
 | Modules 4 – 7 | Ethernet Concepts | ✅ Available |
-| Modules 8 – 10 | Communicating Between Networks | 🚧 Coming soon |
-| Modules 11 – 13 | IP Addressing | 🚧 Coming soon |
-| Modules 14 – 15 | Network Application Communications | 🚧 Coming soon |
-| Modules 16 – 17 | Building and Securing a Small Network | 🚧 Coming soon |
+| Modules 8 – 10 | Communicating Between Networks | ✅ Available |
+| Modules 11 – 13 | IP Addressing | ✅ Available |
+| Modules 14 – 15 | Network Application Communications | ✅ Available |
+| Modules 16 – 17 | Building and Securing a Small Network | ✅ Available |
 | CCNA 1 v7 Course FINAL Exam | Introduction to Networks | 🚧 Coming soon |
 
 > The deployed site is live at <https://Drakaniia.github.io/ccna2/>.
