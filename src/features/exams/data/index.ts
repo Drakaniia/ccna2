@@ -6,6 +6,10 @@ import { modules1013 } from "./modules-10-13";
 import { modules1416 } from "./modules-14-16";
 import { srweFinalExam } from "./srwe-final-exam";
 import { itnModules47 } from "./itn-modules-4-7";
+import { itnModules810 } from "./itn-modules-8-10";
+import { itnModules1113 } from "./itn-modules-11-13";
+import { itnModules1415 } from "./itn-modules-14-15";
+import { itnModules1617 } from "./itn-modules-16-17";
 import { itnModules13 } from "./itn-modules-1-3";
 import type { CourseId } from "./courses";
 
@@ -121,7 +125,7 @@ export const moduleRegistry: ModuleMeta[] = [
     title: "Modules 8 - 10",
     subtitle: "Communicating Between Networks",
     groupLabel: "Checkpoint Exam",
-    available: false,
+    available: true,
   },
   {
     id: "itn-modules-11-13",
@@ -129,7 +133,7 @@ export const moduleRegistry: ModuleMeta[] = [
     title: "Modules 11 - 13",
     subtitle: "IP Addressing",
     groupLabel: "Checkpoint Exam",
-    available: false,
+    available: true,
   },
   {
     id: "itn-modules-14-15",
@@ -137,7 +141,7 @@ export const moduleRegistry: ModuleMeta[] = [
     title: "Modules 14 - 15",
     subtitle: "Network Application Communications",
     groupLabel: "Checkpoint Exam",
-    available: false,
+    available: true,
   },
   {
     id: "itn-modules-16-17",
@@ -145,7 +149,7 @@ export const moduleRegistry: ModuleMeta[] = [
     title: "Modules 16 - 17",
     subtitle: "Building and Securing a Small Network",
     groupLabel: "Checkpoint Exam",
-    available: false,
+    available: true,
   },
   {
     id: "itn-final-exam",
@@ -166,6 +170,10 @@ export const availableModules: Record<string, ExamModule> = {
   [modules1416.id]: modules1416,
   [srweFinalExam.id]: srweFinalExam,
   [itnModules47.id]: itnModules47,
+  [itnModules810.id]: itnModules810,
+  [itnModules1113.id]: itnModules1113,
+  [itnModules1415.id]: itnModules1415,
+  [itnModules1617.id]: itnModules1617,
   [itnModules13.id]: itnModules13,
 };
 
