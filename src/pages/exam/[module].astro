@@ -349,7 +349,8 @@ const abs = (p: string) => `${import.meta.env.BASE_URL.replace(/\/?$/, "/")}${p}
     </style>
 
     <script>
-      import { availableModules } from "../../features/exams/data";
+      import { availableModules, getModuleCourseId } from "../../features/exams/data";
+      import { setStoredCourse } from "../../features/exams/lib/course-selection";
       import { exhibitList } from "../../features/exams/lib/types";
       import { isQuestionCorrect } from "../../features/exams/lib/scoring";
       import { tabStateFor } from "../../features/exams/lib/tab-state";
@@ -401,6 +402,11 @@ const abs = (p: string) => `${import.meta.env.BASE_URL.replace(/\/?$/, "/")}${p}
         const moduleId = document.body.dataset.module ?? "";
         const mod = availableModules[moduleId];
         if (!mod) return;
+
+        // A deep link teaches the home chooser which course this student is in;
+        // the chooser then reopens on this course next visit.
+        const courseId = getModuleCourseId(moduleId);
+        if (courseId) setStoredCourse(courseId);
 
         /*
          * Signing in part-way through the public preview used to throw those

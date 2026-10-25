@@ -523,7 +523,7 @@ export const questions40to79: Question[] = [
     options: ["Local Server", "Test Server", "File Server", "Cisco Server"],
     correct: [2],
     explanation:
-      "Explanation: Topic 4.2.2\nExamining the configuration of switch SW1 shows that interface Gi0/1 is not configured as a trunk. After the interface is configured with the switchport mode trunk command, PC1 can communicate with Server1, and browsing to 10.10.10.1 displays the File Server page.",
+      "Explanation: Topic 4.2.2\nExamining the configuration of switch SW1 shows that interface Gi0/1 is not configured as a trunk. Issuing the interface configuration command switchport mode trunk on this interface will enable communications between PC1 and Server1.",
   },
   {
     number: 78,
