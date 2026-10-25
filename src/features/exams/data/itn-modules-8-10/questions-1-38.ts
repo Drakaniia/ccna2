@@ -496,7 +496,7 @@ export const questions1to38: Question[] = [
       height: 356,
     },
     left: [
-      "insecure remote access",
+      "unsecure remote access",
       "remote access method that uses encryption",
       "remote access via a dialup connection",
       "preferred out-of-band access method",
