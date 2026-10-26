@@ -8,7 +8,7 @@
    Self-hosted from the licensed files in src/styles/fonts/. They live under
    src/ rather than public/ on purpose: Vite fingerprints them and prefixes the
    `base` from astro.config.mjs, so the URLs stay correct under the
-   /ccna/ GitHub Pages path. A hand-written "/fonts/..." path would 404 in
+   /ccna2/ GitHub Pages path. A hand-written "/fonts/..." path would 404 in
    production because it omits that base.
 
    The family ships five cuts: Thin 100, ExtraLight 200, Regular 400, Bold 700,

@@ -4,7 +4,7 @@
 #   Settings → Pages → Source: "GitHub Actions"
 #   Settings → Actions → General → Workflow permissions: "Read and write permissions"
 #
-# Deployed URL: https://Drakaniia.github.io/ccna/
+# Deployed URL: https://Drakaniia.github.io/ccna2/
 
 name: Deploy to GitHub Pages
 

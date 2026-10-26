@@ -14,7 +14,7 @@ ADMIN_EMAIL = "2401117078@student.buksu.edu.ph,2401115560@student.buksu.edu.ph"
 SITE_ORIGIN = "https://drakaniia.github.io"
 # Local dev: `wrangler dev --var SITE_ORIGIN:http://localhost:4321` so the CORS
 # allowlist matches the Astro dev server instead of the production site.
-SITE_BASE_PATH = "/ccna"
+SITE_BASE_PATH = "/ccna2"
 
 [[d1_databases]]
 binding = "DB"

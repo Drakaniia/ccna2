@@ -48,7 +48,7 @@ Choose an exam group from the home page and work through its questions with inst
 | Modules 16 – 17             | Building and Securing a Small Network         | ✅ Available |
 | CCNA 1 v7 Course FINAL Exam | Introduction to Networks                      | ✅ Available |
 
-> The deployed site is live at <https://Drakaniia.github.io/ccna/>.
+> The deployed site is live at <https://Drakaniia.github.io/ccna2/>.
 
 ## Tech stack
 
@@ -57,7 +57,7 @@ Choose an exam group from the home page and work through its questions with inst
 - [lucide-react](https://lucide.dev) — icons
 - [Cloudflare Workers](https://workers.cloudflare.com) + [Wrangler](https://developers.cloudflare.com/workers/wrangler/) — the auth-only backend (`worker/`) that performs Google OAuth and holds the session
 - [Cloudflare D1](https://developers.cloudflare.com/d1/) — free SQLite database holding the student identity roster
-- Cisco Sans — self-hosted brand typeface (`src/styles/fonts/`, Regular/Bold/Heavy + obliques). Licensed, so the source archive is gitignored and the extracted woff2/woff files are committed. The files live under `src/` rather than `public/` so Vite applies the `/ccna` base path; see the `@font-face` block in `src/styles/global.css` for the weight mapping.
+- Cisco Sans — self-hosted brand typeface (`src/styles/fonts/`, Regular/Bold/Heavy + obliques). Licensed, so the source archive is gitignored and the extracted woff2/woff files are committed. The files live under `src/` rather than `public/` so Vite applies the `/ccna2` base path; see the `@font-face` block in `src/styles/global.css` for the weight mapping.
 
 ## Getting started
 
@@ -68,7 +68,7 @@ npm install
 npm run dev
 ```
 
-Open `http://localhost:4321`. Because the site deploys under the GitHub Pages repo-name base path (`/ccna`), run the dev server from the project's standard workflow:
+Open `http://localhost:4321`. Because the site deploys under the GitHub Pages repo-name base path (`/ccna2`), run the dev server from the project's standard workflow:
 
 ```bash
 astro dev --background   # start the dev server in the background
@@ -107,7 +107,7 @@ Why a Worker: GitHub Pages is static and cannot exchange an OAuth code, hold a c
 
 ### Admins
 
-`ADMIN_EMAIL` in `worker/wrangler.toml` is a **comma-separated** list. Every address on it gets the `admin` role in the session and may open `/ccna/admin/` (the read-only student roster). Everyone else is a `student`. Changing the list is a one-line commit — the Worker deploy workflow applies it.
+`ADMIN_EMAIL` in `worker/wrangler.toml` is a **comma-separated** list. Every address on it gets the `admin` role in the session and may open `/ccna2/admin/` (the read-only student roster). Everyone else is a `student`. Changing the list is a one-line commit — the Worker deploy workflow applies it.
 
 ```toml
 ADMIN_EMAIL = "2401117078@student.buksu.edu.ph,2401115560@student.buksu.edu.ph"

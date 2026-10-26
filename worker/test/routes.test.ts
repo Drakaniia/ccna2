@@ -84,7 +84,7 @@ function makeEnv(overrides: Partial<Env> = {}): { env: Env; calls: DbCall[] } {
     STUDENT_ID_REGEX: "^\\d{10}$",
     ADMIN_EMAIL: "2400000000@student.buksu.edu.ph",
     SITE_ORIGIN,
-    SITE_BASE_PATH: "/ccna",
+    SITE_BASE_PATH: "/ccna2",
     ...overrides,
   } as Env;
   return { env, calls };
@@ -119,7 +119,7 @@ function idToken(overrides: Record<string, unknown> = {}): string {
 }
 
 /** A signed state cookie as `/auth/login` would issue it. */
-function stateCookie(redirect = "/ccna/"): Promise<string> {
+function stateCookie(redirect = "/ccna2/"): Promise<string> {
   return signJwt(
     { state: "state-abc", verifier: "verifier-123", redirect },
     SECRET,
@@ -239,7 +239,7 @@ describe("worker routes — /auth/login", () => {
     const { env } = makeEnv();
 
     const okRes = await worker.fetch(
-      get("/auth/login?redirect=/ccna/exam/1"),
+      get("/auth/login?redirect=/ccna2/exam/1"),
       env,
       ctx,
     );
@@ -247,7 +247,7 @@ describe("worker routes — /auth/login", () => {
       readSetCookie(okRes, STATE_COOKIE)!,
       SECRET,
     ))!;
-    expect(okState.redirect).toBe("/ccna/exam/1");
+    expect(okState.redirect).toBe("/ccna2/exam/1");
 
     const evilRes = await worker.fetch(
       get("/auth/login?redirect=https://evil.example/phish"),
@@ -258,7 +258,7 @@ describe("worker routes — /auth/login", () => {
       readSetCookie(evilRes, STATE_COOKIE)!,
       SECRET,
     ))!;
-    expect(evilState.redirect).toBe("/ccna/");
+    expect(evilState.redirect).toBe("/ccna2/");
   });
 });
 
@@ -305,10 +305,21 @@ describe("worker routes — /auth/callback", () => {
   it("admits a valid student and 302s with the handoff token in the fragment", async () => {
     stubTokenEndpoint({ id_token: idToken() });
     const { env, calls } = makeEnv();
-    const token = await stateCookie("/ccna/exam/2");
+    const login = await worker.fetch(
+      get("/auth/login?redirect=%2Fccna2%2Fexam%2F2"),
+      env,
+      ctx,
+    );
+    const token = readSetCookie(login, STATE_COOKIE)!;
+    const state = new URL(login.headers.get("location")!).searchParams.get(
+      "state",
+    )!;
 
     const res = await worker.fetch(
-      get("/auth/callback?state=state-abc&code=abc", cookieHeader(token)),
+      get(
+        `/auth/callback?state=${encodeURIComponent(state)}&code=abc`,
+        cookieHeader(token),
+      ),
       env,
       ctx,
     );
@@ -317,8 +328,8 @@ describe("worker routes — /auth/callback", () => {
     // auth=ok still marks "just back from sign-in"; the session itself rides in
     // the fragment, which is never sent to a server.
     const location = res.headers.get("location")!;
-    expect(location.startsWith(`${SITE_ORIGIN}/ccna/exam/2?auth=ok#s=`)).toBe(
-      true,
+    expect(location).toMatch(
+      new RegExp(`^${SITE_ORIGIN}/ccna2/exam/2\\?auth=ok#s=`),
     );
 
     const payload = await verifyJwt<{ purpose?: string; user?: SessionUser }>(
