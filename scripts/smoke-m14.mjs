@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 /**
- * Smoke test for /ccna2/exam/modules-1-4.
+ * Smoke test for /ccna/exam/modules-1-4.
  *
  * Drives the real page in Chrome over the DevTools protocol (no Playwright /
  * Puppeteer dependency) and covers both halves of the exam:
@@ -22,7 +22,7 @@ import { join, resolve } from "node:path";
 import * as esbuild from "esbuild";
 
 const SITE = "http://localhost:4321";
-const EXAM_URL = `${SITE}/ccna2/exam/modules-1-4`;
+const EXAM_URL = `${SITE}/ccna/exam/modules-1-4`;
 const CHROME = "C:\\Program Files\\Google\\Chrome\\Application\\chrome.exe";
 const DEBUG_PORT = 9300 + Math.floor(Math.random() * 90);
 const MODULE_ID = "modules-1-4";
@@ -518,7 +518,7 @@ try {
   const statuses = await Promise.all(
     assets.map(async (src) => {
       try {
-        const res = await fetch(`${SITE}/ccna2${src}`);
+        const res = await fetch(`${SITE}/ccna${src}`);
         return { src, status: res.status, type: res.headers.get("content-type") ?? "" };
       } catch (err) {
         return { src, status: -1, type: String(err) };

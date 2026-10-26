@@ -4,7 +4,7 @@
 #   Settings → Pages → Source: "GitHub Actions"
 #   Settings → Actions → General → Workflow permissions: "Read and write permissions"
 #
-# Deployed URL: https://Drakaniia.github.io/ccna2/
+# Deployed URL: https://Drakaniia.github.io/ccna/
 
 name: Deploy to GitHub Pages
 
@@ -42,7 +42,7 @@ jobs:
       - name: Check the auth Worker is up to date
         run: |
           required=2
-          if ! health=$(curl -fsS --max-time 10 https://ccna-auth.floresaybaez574.workers.dev/health); then
+          if ! health=$(curl -fsS --max-time 10 https://ccna-auth.ovpcasss.workers.dev/health); then
             echo "::warning::Could not reach the auth Worker; skipping the auth API version check."
             exit 0
           fi
@@ -61,7 +61,7 @@ jobs:
         uses: withastro/action@v6
         env:
           # Public origin of the Cloudflare Worker that performs Buksu SSO auth.
-          PUBLIC_AUTH_BASE_URL: https://ccna-auth.floresaybaez574.workers.dev
+          PUBLIC_AUTH_BASE_URL: https://ccna-auth.ovpcasss.workers.dev
         # with:
         #   path: . # The root location of your Astro project inside the repository. (optional)
         #   node-version: 24 # The specific version of Node that should be used to build your site. Defaults to 24. (optional)

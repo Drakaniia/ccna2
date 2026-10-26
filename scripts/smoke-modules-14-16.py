@@ -1,8 +1,8 @@
-"""Smoke test for /ccna2/exam/modules-14-16."""
+"""Smoke test for /ccna/exam/modules-14-16."""
 import sys
 from playwright.sync_api import sync_playwright
 
-BASE = "http://localhost:4321/ccna2/exam/modules-14-16"
+BASE = "http://localhost:4321/ccna/exam/modules-14-16"
 failures = []
 
 

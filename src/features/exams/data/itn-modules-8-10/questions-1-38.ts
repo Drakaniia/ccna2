@@ -13,7 +13,8 @@ export const questions1to38: Question[] = [
       "destination data-link address",
     ],
     correct: [1],
-    explanation: "Explanation: Topic 8.5.1\nRouters make forwarding decisions by comparing the destination IP address in the packet header against entries in their routing table. Layer 2 addresses change at every hop, so they are not used to select the path.",
+    explanation:
+      "Explanation: Topic 8.5.1\nRouters make forwarding decisions by comparing the destination IP address in the packet header against entries in their routing table. Layer 2 addresses change at every hop, so they are not used to select the path.",
   },
   {
     number: 2,
@@ -26,7 +27,8 @@ export const questions1to38: Question[] = [
       "The packet will be sent only to the default gateway.",
     ],
     correct: [1],
-    explanation: "Explanation: Topic 8.4.1\nIf the destination host is on the same local network, the source host sends the packet directly to it. The host uses ARP to learn the destination MAC address and encapsulates the packet in a frame addressed to that host; the default gateway is only used for remote networks.",
+    explanation:
+      "Explanation: Topic 8.4.1\nIf the destination host is on the same local network, the source host sends the packet directly to it. The host uses ARP to learn the destination MAC address and encapsulates the packet in a frame addressed to that host; the default gateway is only used for remote networks.",
   },
   {
     number: 3,
@@ -39,20 +41,17 @@ export const questions1to38: Question[] = [
       "look into the routing table to determine if the destination network is in the routing table",
     ],
     correct: [1],
-    explanation: "Explanation: Topic 8.5.1\nA router de-encapsulates the received Layer 2 frame and examines the destination IP address. After selecting the exit interface from the routing table, it encapsulates the packet in a new Layer 2 frame appropriate for that interface and forwards it toward the destination.",
+    explanation:
+      "Explanation: Topic 8.5.1\nA router de-encapsulates the received Layer 2 frame and examines the destination IP address. After selecting the exit interface from the routing table, it encapsulates the packet in a new Layer 2 frame appropriate for that interface and forwards it toward the destination.",
   },
   {
     number: 4,
     type: "single",
     text: "Which IPv4 address can a host use to ping the loopback interface?",
-    options: [
-      "126.0.0.1",
-      "127.0.0.0",
-      "126.0.0.0",
-      "127.0.0.1",
-    ],
+    options: ["126.0.0.1", "127.0.0.0", "126.0.0.0", "127.0.0.1"],
     correct: [3],
-    explanation: "Explanation: Topic 8.4.1\nThe IPv4 loopback address range is 127.0.0.0/8, and 127.0.0.1 is the address commonly used to ping the local TCP/IP stack. A successful reply shows that the host's IP stack is working.",
+    explanation:
+      "Explanation: Topic 8.4.1\nThe IPv4 loopback address range is 127.0.0.0/8, and 127.0.0.1 is the address commonly used to ping the local TCP/IP stack. A successful reply shows that the host's IP stack is working.",
   },
   {
     number: 5,
@@ -65,7 +64,8 @@ export const questions1to38: Question[] = [
       "The computer has an invalid default gateway address.",
     ],
     correct: [3],
-    explanation: "Explanation: Topic 8.4.2\nThe host can reach local devices, so its IP address, subnet mask, and physical connection are functioning. An incorrect default gateway prevents it from sending packets to remote networks, because the host has no valid next-hop address for those destinations.",
+    explanation:
+      "Explanation: Topic 8.4.2\nThe host can reach local devices, so its IP address, subnet mask, and physical connection are functioning. An incorrect default gateway prevents it from sending packets to remote networks, because the host has no valid next-hop address for those destinations.",
   },
   {
     number: 6,
@@ -78,7 +78,8 @@ export const questions1to38: Question[] = [
       "IP relies on upper layer services to handle situations of missing or out-of-order packets.",
     ],
     correct: [3],
-    explanation: "Explanation: Topic 8.1.5\nIP protocol is a connection-less protocol, considered unreliable in terms of end-to-end delivery. It does not provide error control in the cases where receiving packets are out-of-order or in cases of missing packets. It relies on upper layer services, such as TCP, to resolve these issues.",
+    explanation:
+      "Explanation: Topic 8.1.5\nIP protocol is a connection-less protocol, considered unreliable in terms of end-to-end delivery. It does not provide error control in the cases where receiving packets are out-of-order or in cases of missing packets. It relies on upper layer services, such as TCP, to resolve these issues.",
   },
   {
     number: 7,
@@ -91,7 +92,8 @@ export const questions1to38: Question[] = [
       "The end-to-end connectivity problems that are caused by NAT are solved because the number of routes increases with the number of nodes that are connected to the Internet.",
     ],
     correct: [1],
-    explanation: "Explanation: Topic 8.3.2\nThe large number of public IPv6 addresses eliminates the need for NAT. Sites from the largest enterprises to single households can get public IPv6 network addresses. This avoids some of the NAT-induced application problems that are experienced by applications that require end-to-end connectivity.",
+    explanation:
+      "Explanation: Topic 8.3.2\nThe large number of public IPv6 addresses eliminates the need for NAT. Sites from the largest enterprises to single households can get public IPv6 network addresses. This avoids some of the NAT-induced application problems that are experienced by applications that require end-to-end connectivity.",
   },
   {
     number: 8,
@@ -104,7 +106,8 @@ export const questions1to38: Question[] = [
       "the higher gateway IP address to get to the destination network",
     ],
     correct: [0],
-    explanation: "Explanation: Topic 8.5.1\nWhen a routing table has multiple routes to the same destination, the router prefers the route with the lowest metric. The metric represents the cost of reaching that network through a particular path.",
+    explanation:
+      "Explanation: Topic 8.5.1\nWhen a routing table has multiple routes to the same destination, the router prefers the route with the lowest metric. The metric represents the cost of reaching that network through a particular path.",
   },
   {
     number: 9,
@@ -118,8 +121,9 @@ export const questions1to38: Question[] = [
       "placement of frames on the media",
       "collision detection",
     ],
-    correct: [1,2],
-    explanation: "Explanation: Topic 8.1.1\nThe OSI network layer provides several services to allow communication between devices:\naddressing\nencapsulation\nrouting\nde-encapsulation\nError detection, placing frames on the media, and collision detection are all functions of the data ink layer.",
+    correct: [1, 2],
+    explanation:
+      "Explanation: Topic 8.1.1\nThe OSI network layer provides several services to allow communication between devices:\naddressing\nencapsulation\nrouting\nde-encapsulation\nError detection, placing frames on the media, and collision detection are all functions of the data ink layer.",
   },
   {
     number: 10,
@@ -132,7 +136,8 @@ export const questions1to38: Question[] = [
       "It provides a next-hop address for all traffic that flows through the switch.",
     ],
     correct: [2],
-    explanation: "Explanation: Topic 8.4.2\nA default gateway address allows a switch to forward packets that originate on the switch to remote networks. A default gateway address on a switch does not provide Layer 3 routing for PCs that are connected on that switch. A switch can still be accessible from Telnet as long as the source of the Telnet connection is on the local network.",
+    explanation:
+      "Explanation: Topic 8.4.2\nA default gateway address allows a switch to forward packets that originate on the switch to remote networks. A default gateway address on a switch does not provide Layer 3 routing for PCs that are connected on that switch. A switch can still be accessible from Telnet as long as the source of the Telnet connection is on the local network.",
   },
   {
     number: 11,
@@ -145,7 +150,8 @@ export const questions1to38: Question[] = [
       "reliable end-to-end delivery",
     ],
     correct: [0],
-    explanation: "Explanation: Topic 8.1.3\nInternet Protocol (IP) is a network layer protocol that does not require initial exchange of control information to establish an end-to-end connection before packets are forwarded. Thus, IP is connectionless and does not provide reliable end-to-end delivery by itself. IP is media independent. User data segmentation is a service provided at the transport layer.",
+    explanation:
+      "Explanation: Topic 8.1.3\nInternet Protocol (IP) is a network layer protocol that does not require initial exchange of control information to establish an end-to-end connection before packets are forwarded. Thus, IP is connectionless and does not provide reliable end-to-end delivery by itself. IP is media independent. User data segmentation is a service provided at the transport layer.",
   },
   {
     number: 12,
@@ -158,7 +164,8 @@ export const questions1to38: Question[] = [
       "Differentiated Services",
     ],
     correct: [0],
-    explanation: "Explanation: Topic 8.2.2\nThe value of the Time-to-Live (TTL) field in the IPv4 header is used to limit the lifetime of a packet. The sending host sets the initial TTL value; which is decreased by one each time the packet is processed by a router. If the TTL field decrements to zero, the router discards the packet and sends an Internet Control Message Protocol (ICMP) Time Exceeded message to the source IP address. The Differentiated Services (DS) field is used to determine the priority of each packet. Sequence Number and Acknowledgment Number are two fields in the TCP header.",
+    explanation:
+      "Explanation: Topic 8.2.2\nThe value of the Time-to-Live (TTL) field in the IPv4 header is used to limit the lifetime of a packet. The sending host sets the initial TTL value; which is decreased by one each time the packet is processed by a router. If the TTL field decrements to zero, the router discards the packet and sends an Internet Control Message Protocol (ICMP) Time Exceeded message to the source IP address. The Differentiated Services (DS) field is used to determine the priority of each packet. Sequence Number and Acknowledgment Number are two fields in the TCP header.",
   },
   {
     number: 13,
@@ -171,7 +178,8 @@ export const questions1to38: Question[] = [
       "efficient packet handling",
     ],
     correct: [3],
-    explanation: "Explanation: Topic 8.3.3\nThe IPv6 simplified header offers several advantages over IPv4:\nBetter routing efficiency and efficient packet handling for performance and forwarding-rate scalability\nNo requirement for processing checksums\nSimplified and more efficient extension header mechanisms (as opposed to the IPv4 Options field)\nA Flow Label field for per-flow processing with no need to open the transport inner packet to identify the various traffic flows",
+    explanation:
+      "Explanation: Topic 8.3.3\nThe IPv6 simplified header offers several advantages over IPv4:\nBetter routing efficiency and efficient packet handling for performance and forwarding-rate scalability\nNo requirement for processing checksums\nSimplified and more efficient extension header mechanisms (as opposed to the IPv4 Options field)\nA Flow Label field for per-flow processing with no need to open the transport inner packet to identify the various traffic flows",
   },
   {
     number: 14,
@@ -184,7 +192,8 @@ export const questions1to38: Question[] = [
       "Differentiated Services",
     ],
     correct: [0],
-    explanation: "Explanation: Topic 8.2.2\nIt is the Protocol field in the IP header that identifies the upper-layer protocol the packet is carrying. The Version field identifies the IP version. The Differential Services field is used for setting packet priority. The Identification field is used to reorder fragmented packets.",
+    explanation:
+      "Explanation: Topic 8.2.2\nIt is the Protocol field in the IP header that identifies the upper-layer protocol the packet is carrying. The Version field identifies the IP version. The Differential Services field is used for setting packet priority. The Identification field is used to reorder fragmented packets.",
   },
   {
     number: 15,
@@ -225,7 +234,8 @@ export const questions1to38: Question[] = [
       3: 3,
       4: 1,
     },
-    explanation: "Explanation: Topic 8.5.1\nPackets with a destination of 172.17.6.15 are forwarded through Fa0/0. Packets with a destination of 172.17.10.5 are forwarded through Fa1/1. Packets with a destination of 172.17.12.10 are forwarded through Fa1/0. Packets with a destination of 172.17.14.8 are forwarded through Fa0/1. Because network 172.17.8.0 has no entry in the routing table, it will take the gateway of last resort, which means that packets with a destination of 172.17.8.20 are forwarded through Serial0/0/0. Because a gateway of last resort exists, no packets will be dropped.",
+    explanation:
+      "Explanation: Topic 8.5.1\nPackets with a destination of 172.17.6.15 are forwarded through Fa0/0. Packets with a destination of 172.17.10.5 are forwarded through Fa1/1. Packets with a destination of 172.17.12.10 are forwarded through Fa1/0. Packets with a destination of 172.17.14.8 are forwarded through Fa0/1. Because network 172.17.8.0 has no entry in the routing table, it will take the gateway of last resort, which means that packets with a destination of 172.17.8.20 are forwarded through Serial0/0/0. Because a gateway of last resort exists, no packets will be dropped.",
   },
   {
     number: 16,
@@ -239,7 +249,8 @@ export const questions1to38: Question[] = [
       "The device has the correct IP address on the network.",
     ],
     correct: [0],
-    explanation: "Explanation: Topic 8.4.1\nBecause the loopback test sends packets back to the host device, it does not provide information about network connectivity to other hosts. The loopback test verifies that the host NIC, drivers, and TCP/IP stack are functioning.",
+    explanation:
+      "Explanation: Topic 8.4.1\nBecause the loopback test sends packets back to the host device, it does not provide information about network connectivity to other hosts. The loopback test verifies that the host NIC, drivers, and TCP/IP stack are functioning.",
   },
   {
     number: 17,
@@ -252,7 +263,8 @@ export const questions1to38: Question[] = [
       "C and L source routes",
     ],
     correct: [2],
-    explanation: "Explanation: Topic 8.5.4\nRouting table entries for remote routes will have a next hop IP address. The next hop IP address is the address of the router interface of the next device to be used to reach the destination network. Directly-connected and local routes have no next hop, because they do not require going through another router to be reached.",
+    explanation:
+      "Explanation: Topic 8.5.4\nRouting table entries for remote routes will have a next hop IP address. The next hop IP address is the address of the router interface of the next device to be used to reach the destination network. Directly-connected and local routes have no next hop, because they do not require going through another router to be reached.",
   },
   {
     number: 18,
@@ -265,7 +277,8 @@ export const questions1to38: Question[] = [
       "They send a query packet to the default gateway asking for the best route.",
     ],
     correct: [0],
-    explanation: "Explanation: Topic 8.4.4\nHosts must maintain their own local routing table to ensure that network layer packets are directed to the correct destination network. This local table typically contains a route to the loopback interface, a route to the network that the host is connected to, and a local default route, which represents the route that packets must take to reach all remote network addresses.",
+    explanation:
+      "Explanation: Topic 8.4.4\nHosts must maintain their own local routing table to ensure that network layer packets are directed to the correct destination network. This local table typically contains a route to the loopback interface, a route to the network that the host is connected to, and a local default route, which represents the route that packets must take to reach all remote network addresses.",
   },
   {
     number: 19,
@@ -278,7 +291,8 @@ export const questions1to38: Question[] = [
       "Differentiated Services",
     ],
     correct: [1],
-    explanation: "Explanation: Topic 8.3.4\nThe Flow Label in IPv6 header is a 20-bit field that provides a special service for real-time applications. This field can be used to inform routers and switches to maintain the same path for the packet flow so that packets will not be reordered.",
+    explanation:
+      "Explanation: Topic 8.3.4\nThe Flow Label in IPv6 header is a 20-bit field that provides a special service for real-time applications. This field can be used to inform routers and switches to maintain the same path for the packet flow so that packets will not be reordered.",
   },
   {
     number: 20,
@@ -291,7 +305,8 @@ export const questions1to38: Question[] = [
       "ARP is used to discover the MAC address of any host on the local network.",
     ],
     correct: [3],
-    explanation: "Explanation: Topic 9.2.1\nWhen a PC wants to send data on the network, it always knows the IP address of the destination. However, it also needs to discover the MAC address of the destination. ARP is the protocol that is used to discover the MAC address of a host that belongs to the same network.",
+    explanation:
+      "Explanation: Topic 9.2.1\nWhen a PC wants to send data on the network, it always knows the IP address of the destination. However, it also needs to discover the MAC address of the destination. ARP is the protocol that is used to discover the MAC address of a host that belongs to the same network.",
   },
   {
     number: 21,
@@ -305,8 +320,9 @@ export const questions1to38: Question[] = [
       "The source address in the frame is a multicast address.",
       "The destination address in the frame is a known unicast address.",
     ],
-    correct: [0,1],
-    explanation: "Explanation: Topic 9.2.3\nA switch will flood a frame out of every port, except the one that the frame was received from, under two circumstances. Either the frame has the broadcast address as the destination address, or the destination address is unknown to the switch.",
+    correct: [0, 1],
+    explanation:
+      "Explanation: Topic 9.2.3\nA switch will flood a frame out of every port, except the one that the frame was received from, under two circumstances. Either the frame has the broadcast address as the destination address, or the destination address is unknown to the switch.",
   },
   {
     number: 22,
@@ -319,7 +335,8 @@ export const questions1to38: Question[] = [
       "They are received and processed only by the target device.",
     ],
     correct: [1],
-    explanation: "Explanation: Topic 9.2.8\nOne of the negative issues with ARP requests is that they are sent as a broadcast. This means all devices on the local link must receive and process the request.",
+    explanation:
+      "Explanation: Topic 9.2.8\nOne of the negative issues with ARP requests is that they are sent as a broadcast. This means all devices on the local link must receive and process the request.",
   },
   {
     number: 23,
@@ -333,7 +350,8 @@ export const questions1to38: Question[] = [
       "the physical address of the destination host",
     ],
     correct: [2],
-    explanation: "Explanation: Topic 9.2.3\nThe purpose of an ARP request is to find the MAC address of the destination host on an Ethernet LAN. The ARP process sends a Layer 2 broadcast to all devices on the Ethernet LAN. The frame contains the IP address of the destination and the broadcast MAC address, FFFF.FFFF.FFFF. The host with the IP address that matches the IP address in the ARP request will reply with a unicast frame that includes the MAC address of the host. Thus the original sending host will obtain the destination IP and MAC address pair to continue the encapsulation process for data transmission.",
+    explanation:
+      "Explanation: Topic 9.2.3\nThe purpose of an ARP request is to find the MAC address of the destination host on an Ethernet LAN. The ARP process sends a Layer 2 broadcast to all devices on the Ethernet LAN. The frame contains the IP address of the destination and the broadcast MAC address, FFFF.FFFF.FFFF. The host with the IP address that matches the IP address in the ARP request will reply with a unicast frame that includes the MAC address of the host. Thus the original sending host will obtain the destination IP and MAC address pair to continue the encapsulation process for data transmission.",
   },
   {
     number: 24,
@@ -346,7 +364,8 @@ export const questions1to38: Question[] = [
       "The ARP cache is synchronized with the router interface.",
     ],
     correct: [0],
-    explanation: "Explanation: Topic 9.2.6\nIssuing the arp –d * command on a PC will clear the ARP cache content. This is helpful when a network technician wants to ensure the cache is populated with updated information.",
+    explanation:
+      "Explanation: Topic 9.2.6\nIssuing the arp –d * command on a PC will clear the ARP cache content. This is helpful when a network technician wants to ensure the cache is populated with updated information.",
   },
   {
     number: 25,
@@ -366,7 +385,8 @@ export const questions1to38: Question[] = [
       "The switch will forward the frame only to ports 1 and 3.",
     ],
     correct: [2],
-    explanation: "Explanation: Topic 9.2.8\nThe MAC address of PC3 is not present in the MAC table of the switch. Because the switch does not know where to send the frame that is addressed to PC3, it will forward the frame to all the switch ports, except for port 4, which is the incoming port.",
+    explanation:
+      "Explanation: Topic 9.2.8\nThe MAC address of PC3 is not present in the MAC table of the switch. Because the switch does not know where to send the frame that is addressed to PC3, it will forward the frame to all the switch ports, except for port 4, which is the incoming port.",
   },
   {
     number: 26,
@@ -381,8 +401,9 @@ export const questions1to38: Question[] = [
       "neighbor solicitation",
       "neighbor advertisement",
     ],
-    correct: [4,5],
-    explanation: "Explanation: Topic 9.3.2\nIPv6 does not use ARP. Instead, ICMPv6 neighbor discovery is used by sending neighbor solicitation and neighbor advertisement messages.",
+    correct: [4, 5],
+    explanation:
+      "Explanation: Topic 9.3.2\nIPv6 does not use ARP. Instead, ICMPv6 neighbor discovery is used by sending neighbor solicitation and neighbor advertisement messages.",
   },
   {
     number: 27,
@@ -395,7 +416,8 @@ export const questions1to38: Question[] = [
       "to overwhelm network hosts with ARP requests",
     ],
     correct: [2],
-    explanation: "Explanation: Topic 9.2.8\nIn an ARP spoofing attack, a malicious host intercepts ARP requests and replies to them so that network hosts will map an IP address to the MAC address of the malicious host.",
+    explanation:
+      "Explanation: Topic 9.2.8\nIn an ARP spoofing attack, a malicious host intercepts ARP requests and replies to them so that network hosts will map an IP address to the MAC address of the malicious host.",
   },
   {
     number: 28,
@@ -415,7 +437,8 @@ export const questions1to38: Question[] = [
       "the MAC address of File_server1",
     ],
     correct: [1],
-    explanation: "Explanation: Topic 9.2.5\nPC1 must have a MAC address to use as a destination Layer 2 address. PC1 will send an ARP request as a broadcast and R1 will send back an ARP reply with its G0/0 interface MAC address. PC1 can then forward the packet to the MAC address of the default gateway, R1.",
+    explanation:
+      "Explanation: Topic 9.2.5\nPC1 must have a MAC address to use as a destination Layer 2 address. PC1 will send an ARP request as a broadcast and R1 will send back an ARP reply with its G0/0 interface MAC address. PC1 can then forward the packet to the MAC address of the default gateway, R1.",
   },
   {
     number: 29,
@@ -428,7 +451,8 @@ export const questions1to38: Question[] = [
       "MAC address table",
     ],
     correct: [1],
-    explanation: "Explanation: Topic 9.2.2\nThe ARP cache is used to store IPv4 addresses and the Ethernet physical addresses or MAC addresses to which the IPv4 addresses are mapped. Incorrect mappings of IP addresses to MAC addresses can result in loss of end-to-end connectivity.",
+    explanation:
+      "Explanation: Topic 9.2.2\nThe ARP cache is used to store IPv4 addresses and the Ethernet physical addresses or MAC addresses to which the IPv4 addresses are mapped. Incorrect mappings of IP addresses to MAC addresses can result in loss of end-to-end connectivity.",
   },
   {
     number: 30,
@@ -442,7 +466,8 @@ export const questions1to38: Question[] = [
       "destination IP address",
     ],
     correct: [2],
-    explanation: "Explanation: Topic 9.1.1\nThe Layer 2 device, such as a switch, uses the destination MAC address to determine which path (interface or port) should be used to send the data onward to the destination device.",
+    explanation:
+      "Explanation: Topic 9.1.1\nThe Layer 2 device, such as a switch, uses the destination MAC address to determine which path (interface or port) should be used to send the data onward to the destination device.",
   },
   {
     number: 31,
@@ -469,7 +494,8 @@ export const questions1to38: Question[] = [
       1: 2,
       2: 1,
     },
-    explanation: "Explanation: Topic 10.1.1\nThe correct pairings are:\n- provides security on the console → Router(config-line)# password class\n- configures a name on the router → Router(config)# hostname CL1\n- displays a message after accessing the router → Router(config)# banner motd #",
+    explanation:
+      "Explanation: Topic 10.1.1\nThe correct pairings are:\n- provides security on the console → Router(config-line)# password class\n- configures a name on the router → Router(config)# hostname CL1\n- displays a message after accessing the router → Router(config)# banner motd #",
   },
   {
     number: 32,
@@ -483,7 +509,8 @@ export const questions1to38: Question[] = [
       "Exit privileged EXEC mode and press Enter.",
     ],
     correct: [4],
-    explanation: "Explanation: Topic 10.1.1\nWhile at the privileged mode prompt such as Router#, type exit,press Enter, and the banner message appears. Power cycling a network device that has had the banner motd command issued will also display the banner message, but this is not a quick way to test the configuration.",
+    explanation:
+      "Explanation: Topic 10.1.1\nWhile at the privileged mode prompt such as Router#, type exit,press Enter, and the banner message appears. Power cycling a network device that has had the banner motd command issued will also display the banner message, but this is not a quick way to test the configuration.",
   },
   {
     number: 33,
@@ -501,19 +528,15 @@ export const questions1to38: Question[] = [
       "remote access via a dialup connection",
       "preferred out-of-band access method",
     ],
-    right: [
-      "console",
-      "Telnet",
-      "AUX",
-      "SSH",
-    ],
+    right: ["console", "Telnet", "AUX", "SSH"],
     correctPairs: {
       0: 1,
       1: 3,
       2: 2,
       3: 0,
     },
-    explanation: "Explanation: Topic 10.1.1\nBoth the console and AUX ports can be used to directly connect to a Cisco network device for management purposes. However, it is more common to use the console port. The AUX port is more often used for remote access via a dial up connection. SSH and Telnet are both remote access methods that depend on an active network connection. SSH uses a stronger password authentication than Telnet uses and also uses encryption on transmitted data.",
+    explanation:
+      "Explanation: Topic 10.1.1\nBoth the console and AUX ports can be used to directly connect to a Cisco network device for management purposes. However, it is more common to use the console port. The AUX port is more often used for remote access via a dial up connection. SSH and Telnet are both remote access methods that depend on an active network connection. SSH uses a stronger password authentication than Telnet uses and also uses encryption on transmitted data.",
   },
   {
     number: 34,
@@ -525,11 +548,7 @@ export const questions1to38: Question[] = [
       width: 1325,
       height: 306,
     },
-    left: [
-      "phase 1",
-      "phase 3",
-      "phase 2",
-    ],
+    left: ["phase 1", "phase 3", "phase 2"],
     right: [
       "perform the POST and load the bootstrap program",
       "locate and load the startup configuration file",
@@ -540,7 +559,8 @@ export const questions1to38: Question[] = [
       1: 1,
       2: 2,
     },
-    explanation: "Explanation: Topic 10.1.1\nThere are three major phases to the bootup process of a Cisco router:\nPerform the POST and load the bootstrap program.\nLocate and load the Cisco IOS software.\nLocate and load the startup configuration file\nIf a startup configuration file cannot be located, the router will enter setup mode by displaying the setup mode prompt.",
+    explanation:
+      "Explanation: Topic 10.1.1\nThere are three major phases to the bootup process of a Cisco router:\nPerform the POST and load the bootstrap program.\nLocate and load the Cisco IOS software.\nLocate and load the startup configuration file\nIf a startup configuration file cannot be located, the router will enter setup mode by displaying the setup mode prompt.",
   },
   {
     number: 35,
@@ -559,13 +579,7 @@ export const questions1to38: Question[] = [
       "enable",
       "copy running-config startup-config",
     ],
-    right: [
-      "R1#",
-      "R1(config-if)#",
-      "R1(config)#",
-      "R1(config-line)#",
-      "R1>",
-    ],
+    right: ["R1#", "R1(config-if)#", "R1(config)#", "R1(config-line)#", "R1>"],
     correctPairs: {
       0: 1,
       1: 3,
@@ -573,7 +587,8 @@ export const questions1to38: Question[] = [
       3: 4,
       4: 0,
     },
-    explanation: "Explanation: Topic 10.1.1\nThe enable command is entered in R1> mode. The login command is entered in R1(config-line)# mode. The copy running-config startup-config command is entered in R1# mode. The ip address 192.168.4.4 255.255.255.0 command is entered in R1(config-if)# mode. The service password-encryption command is entered in global configuration mode.",
+    explanation:
+      "Explanation: Topic 10.1.1\nThe enable command is entered in R1> mode. The login command is entered in R1(config-line)# mode. The copy running-config startup-config command is entered in R1# mode. The ip address 192.168.4.4 255.255.255.0 command is entered in R1(config-if)# mode. The service password-encryption command is entered in global configuration mode.",
   },
   {
     number: 36,
@@ -587,8 +602,9 @@ export const questions1to38: Question[] = [
       "to contain the running configuration file",
       "to store the ARP table",
     ],
-    correct: [1,2],
-    explanation: "Explanation: Topic 10.1.1\nNVRAM is permanent memory storage, so the startup configuration file is preserved even if the router loses power.",
+    correct: [1, 2],
+    explanation:
+      "Explanation: Topic 10.1.1\nNVRAM is permanent memory storage, so the startup configuration file is preserved even if the router loses power.",
   },
   {
     number: 37,
@@ -601,7 +617,8 @@ export const questions1to38: Question[] = [
       "The POST process has detected hardware failure.",
     ],
     correct: [2],
-    explanation: "Explanation: Topic 10.1.1\nIf a router cannot locate the startup-config file in NVRAM, it will enter setup mode to allow the configuration to be entered from the console device.",
+    explanation:
+      "Explanation: Topic 10.1.1\nIf a router cannot locate the startup-config file in NVRAM, it will enter setup mode to allow the configuration to be entered from the console device.",
   },
   {
     number: 38,
@@ -614,6 +631,7 @@ export const questions1to38: Question[] = [
       "The switch is limited to sending and receiving frames to and from the gateway 172.16.100.1.",
     ],
     correct: [1],
-    explanation: "Explanation: Topic 10.3.2\nA default gateway address is typically configured on all devices to allow them to communicate beyond just their local network.In a switch this is achieved using the command ip default-gateway ip-address.",
+    explanation:
+      "Explanation: Topic 10.3.2\nA default gateway address is typically configured on all devices to allow them to communicate beyond just their local network.In a switch this is achieved using the command ip default-gateway ip-address.",
   },
 ];

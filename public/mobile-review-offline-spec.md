@@ -399,7 +399,7 @@ work rather than spacing tweaks.
 ### 6.2 App shell (always)
 
 - `public/manifest.webmanifest` — name, short name, `start_url` respecting the
-  `/ccna2` base, `display: standalone`, theme/background colours, 192/512 icons
+  `/ccna` base, `display: standalone`, theme/background colours, 192/512 icons
   (+ maskable). The site deploys under a repo-name base path, so **every
   manifest path and SW scope must be base-aware.**
 - `<link rel="manifest">` + `theme-color` on every page (or at minimum the

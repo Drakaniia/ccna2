@@ -1,4 +1,4 @@
-export type CourseId = "ccna1" | "ccna2";
+export type CourseId = "ccna1" | "ccna";
 
 export interface CourseMeta {
   id: CourseId;
@@ -31,7 +31,7 @@ export const courseRegistry: CourseMeta[] = [
     note: "More CCNA 1 exams are being prepared — check back soon.",
   },
   {
-    id: "ccna2",
+    id: "ccna",
     label: "CCNA 2",
     title: "Switching, Routing & Wireless",
     tag: "SRWE · v7",
@@ -43,10 +43,13 @@ export const courseRegistry: CourseMeta[] = [
 const coursesById = new Map(courseRegistry.map((c) => [c.id, c]));
 
 export function isCourseId(value: unknown): value is CourseId {
-  return value === "ccna1" || value === "ccna2";
+  return value === "ccna1" || value === "ccna";
 }
 
 /** Course metadata by id; falls back to CCNA 2 for unknown ids. */
 export function getCourseMeta(id: string | null | undefined): CourseMeta {
-  return (id ? coursesById.get(id as CourseId) : undefined) ?? coursesById.get("ccna2")!;
+  return (
+    (id ? coursesById.get(id as CourseId) : undefined) ??
+    coursesById.get("ccna")!
+  );
 }

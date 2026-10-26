@@ -11,7 +11,7 @@ const abs = (p: string) => `${import.meta.env.BASE_URL.replace(/\/?$/, "/")}${p}
 
 // Server-rendered default. The inline head script swaps in the remembered course
 // before first paint; the chooser script then syncs the cards and the drawer.
-const defaultCourse = "ccna2";
+const defaultCourse = "ccna";
 ---
 
 <html lang="en" data-course={defaultCourse}>
@@ -31,9 +31,9 @@ const defaultCourse = "ccna2";
         // never shown, even for a frame. Absent/unreadable storage => CCNA 2.
         try {
           const c = localStorage.getItem("ccna-course");
-          document.documentElement.dataset.course = c === "ccna1" ? "ccna1" : "ccna2";
+          document.documentElement.dataset.course = c === "ccna1" ? "ccna1" : "ccna";
         } catch {
-          document.documentElement.dataset.course = "ccna2";
+          document.documentElement.dataset.course = "ccna";
         }
       })();
     </script>
@@ -221,8 +221,8 @@ const defaultCourse = "ccna2";
   }
 
   html[data-course="ccna1"] .exam-panel[data-course-panel="ccna1"],
-  html[data-course="ccna2"] .exam-panel[data-course-panel="ccna2"],
-  html:not([data-course]) .exam-panel[data-course-panel="ccna2"] {
+  html[data-course="ccna"] .exam-panel[data-course-panel="ccna"],
+  html:not([data-course]) .exam-panel[data-course-panel="ccna"] {
     display: block;
   }
 

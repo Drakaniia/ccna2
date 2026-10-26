@@ -38,17 +38,17 @@ Choose an exam group from the home page and work through its questions with inst
 
 ### CCNA 1 v7 — ITN
 
-| Module | Title | Status |
-| --- | --- | --- |
-| Modules 1 – 3 | Basic Network Connectivity and Communications | ✅ Available |
-| Modules 4 – 7 | Ethernet Concepts | ✅ Available |
-| Modules 8 – 10 | Communicating Between Networks | ✅ Available |
-| Modules 11 – 13 | IP Addressing | ✅ Available |
-| Modules 14 – 15 | Network Application Communications | ✅ Available |
-| Modules 16 – 17 | Building and Securing a Small Network | ✅ Available |
-| CCNA 1 v7 Course FINAL Exam | Introduction to Networks | 🚧 Coming soon |
+| Module                      | Title                                         | Status       |
+| --------------------------- | --------------------------------------------- | ------------ |
+| Modules 1 – 3               | Basic Network Connectivity and Communications | ✅ Available |
+| Modules 4 – 7               | Ethernet Concepts                             | ✅ Available |
+| Modules 8 – 10              | Communicating Between Networks                | ✅ Available |
+| Modules 11 – 13             | IP Addressing                                 | ✅ Available |
+| Modules 14 – 15             | Network Application Communications            | ✅ Available |
+| Modules 16 – 17             | Building and Securing a Small Network         | ✅ Available |
+| CCNA 1 v7 Course FINAL Exam | Introduction to Networks                      | ✅ Available |
 
-> The deployed site is live at <https://Drakaniia.github.io/ccna2/>.
+> The deployed site is live at <https://Drakaniia.github.io/ccna/>.
 
 ## Tech stack
 
@@ -57,7 +57,7 @@ Choose an exam group from the home page and work through its questions with inst
 - [lucide-react](https://lucide.dev) — icons
 - [Cloudflare Workers](https://workers.cloudflare.com) + [Wrangler](https://developers.cloudflare.com/workers/wrangler/) — the auth-only backend (`worker/`) that performs Google OAuth and holds the session
 - [Cloudflare D1](https://developers.cloudflare.com/d1/) — free SQLite database holding the student identity roster
-- Cisco Sans — self-hosted brand typeface (`src/styles/fonts/`, Regular/Bold/Heavy + obliques). Licensed, so the source archive is gitignored and the extracted woff2/woff files are committed. The files live under `src/` rather than `public/` so Vite applies the `/ccna2` base path; see the `@font-face` block in `src/styles/global.css` for the weight mapping.
+- Cisco Sans — self-hosted brand typeface (`src/styles/fonts/`, Regular/Bold/Heavy + obliques). Licensed, so the source archive is gitignored and the extracted woff2/woff files are committed. The files live under `src/` rather than `public/` so Vite applies the `/ccna` base path; see the `@font-face` block in `src/styles/global.css` for the weight mapping.
 
 ## Getting started
 
@@ -68,7 +68,7 @@ npm install
 npm run dev
 ```
 
-Open `http://localhost:4321`. Because the site deploys under the GitHub Pages repo-name base path (`/ccna2`), run the dev server from the project's standard workflow:
+Open `http://localhost:4321`. Because the site deploys under the GitHub Pages repo-name base path (`/ccna`), run the dev server from the project's standard workflow:
 
 ```bash
 astro dev --background   # start the dev server in the background
@@ -107,7 +107,7 @@ Why a Worker: GitHub Pages is static and cannot exchange an OAuth code, hold a c
 
 ### Admins
 
-`ADMIN_EMAIL` in `worker/wrangler.toml` is a **comma-separated** list. Every address on it gets the `admin` role in the session and may open `/ccna2/admin/` (the read-only student roster). Everyone else is a `student`. Changing the list is a one-line commit — the Worker deploy workflow applies it.
+`ADMIN_EMAIL` in `worker/wrangler.toml` is a **comma-separated** list. Every address on it gets the `admin` role in the session and may open `/ccna/admin/` (the read-only student roster). Everyone else is a `student`. Changing the list is a one-line commit — the Worker deploy workflow applies it.
 
 ```toml
 ADMIN_EMAIL = "2401117078@student.buksu.edu.ph,2401115560@student.buksu.edu.ph"
@@ -123,11 +123,11 @@ ADMIN_EMAIL = "2401117078@student.buksu.edu.ph,2401115560@student.buksu.edu.ph"
    npx wrangler secret put GOOGLE_CLIENT_ID
    npx wrangler secret put GOOGLE_CLIENT_SECRET
    openssl rand -base64 48 | npx wrangler secret put SESSION_SECRET
-   npx wrangler secret put WORKER_URL   # https://ccna-auth.floresaybaez574.workers.dev
+   npx wrangler secret put WORKER_URL   # https://ccna-auth.ovpcasss.workers.dev
    ```
    `wrangler secret put` requires the Worker to already exist on the account, so run `npx wrangler deploy` once (from step 5) before setting secrets on a fresh setup.
-5. `npx wrangler deploy` — the Worker is live at `https://ccna-auth.floresaybaez574.workers.dev`.
-6. In the Google Cloud console, add the redirect URI `https://ccna-auth.floresaybaez574.workers.dev/auth/callback` (and the JavaScript origin `https://ccna-auth.floresaybaez574.workers.dev`) and publish the consent screen (or add test users).
+5. `npx wrangler deploy` — the Worker is live at `https://ccna-auth.ovpcasss.workers.dev`.
+6. In the Google Cloud console, add the redirect URI `https://ccna-auth.ovpcasss.workers.dev/auth/callback` (and the JavaScript origin `https://ccna-auth.ovpcasss.workers.dev`) and publish the consent screen (or add test users).
 7. Set the OAuth consent screen's **App name** to something students recognise (e.g. `CCNA 2 v7 Practice Exams`), add an **App logo**, a **support email**, a **privacy policy URL**, and list `buksu.edu.ph` as an **Authorized domain**. Until the app is published, only added test users can sign in — Google shows "Access blocked" for everyone else.
 
 ### Local development

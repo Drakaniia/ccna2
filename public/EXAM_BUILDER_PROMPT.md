@@ -57,7 +57,7 @@ WordPress dump is reference-only source material — never edit it.
 6. **Verify before finishing**:
    - `npm run build` must pass cleanly.
    - Smoke-test the exam at the dev server route `/exam/{module-id}` (server URL includes
-     the `/ccna2` base path): tab count equals the question count; a choice question checks
+     the `/ccna` base path): tab count equals the question count; a choice question checks
      on selection and shows its explanation; a pair question pairs, checks, and shows the
      "Correct matches" table; a True/False question works; multi-line code options keep
      their line breaks; exhibits load; the submit → score-gauge flow works; the home chooser

@@ -13,7 +13,8 @@ export const questions39to76: Question[] = [
       "The switch requires remote connections via a proprietary client software.",
     ],
     correct: [1],
-    explanation: "Explanation: Topic 10.1.1\nThe transport input ssh command when entered on the switch vty (virtual terminal lines) will encrypt all inbound controlled telnet connections.",
+    explanation:
+      "Explanation: Topic 10.1.1\nThe transport input ssh command when entered on the switch vty (virtual terminal lines) will encrypt all inbound controlled telnet connections.",
   },
   {
     number: 40,
@@ -33,7 +34,8 @@ export const questions39to76: Question[] = [
       "172.20.1.18",
     ],
     correct: [2],
-    explanation: "Explanation: Topic 10.3.1\nThe first hop in the traceroute output is 172.20.0.254, which is the local router interface that serves PC1's network. A host uses that address as its default gateway to forward traffic destined for remote networks.",
+    explanation:
+      "Explanation: Topic 10.3.1\nThe first hop in the traceroute output is 172.20.0.254, which is the local router interface that serves PC1's network. A host uses that address as its default gateway to forward traffic destined for remote networks.",
   },
   {
     number: 41,
@@ -45,12 +47,7 @@ export const questions39to76: Question[] = [
       width: 1082,
       height: 356,
     },
-    left: [
-      "R1>",
-      "R1(config-line)#",
-      "R1#",
-      "R1(config)#",
-    ],
+    left: ["R1>", "R1(config-line)#", "R1#", "R1(config)#"],
     right: [
       "interface fastethernet 0/0",
       "login",
@@ -63,7 +60,8 @@ export const questions39to76: Question[] = [
       2: 2,
       3: 0,
     },
-    explanation: "Explanation: Topic 10.2.1\nThe enable command is entered at the R1> prompt. The login command is entered at the R1(config-line)# prompt. The copy running-config startup-config command is entered at the R1# prompt. The interface fastethernet 0/0 command is entered at the R1(config)# prompt.",
+    explanation:
+      "Explanation: Topic 10.2.1\nThe enable command is entered at the R1> prompt. The login command is entered at the R1(config-line)# prompt. The copy running-config startup-config command is entered at the R1# prompt. The interface fastethernet 0/0 command is entered at the R1(config)# prompt.",
   },
   {
     number: 42,
@@ -78,8 +76,9 @@ export const questions39to76: Question[] = [
       "login",
       "password cisco",
     ],
-    correct: [2,4,5],
-    explanation: "Explanation: Topic 10.1.1\nThe three commands needed to password protect the console port are as follows:\nline console 0\npassword cisco\nlogin\nThe interface fastethernet 0/0 command is commonly used to access the configuration mode used to apply specific parameters such as the IP address to the Fa0/0 port. The line vty 0 4 command is used to access the configuration mode for Telnet. The0and 4 parameters specify ports 0 through 4, or a maximum of five simultaneous Telnet connections. The enable secret command is used to apply a password used on the router to access the privileged mode.",
+    correct: [2, 4, 5],
+    explanation:
+      "Explanation: Topic 10.1.1\nThe three commands needed to password protect the console port are as follows:\nline console 0\npassword cisco\nlogin\nThe interface fastethernet 0/0 command is commonly used to access the configuration mode used to apply specific parameters such as the IP address to the Fa0/0 port. The line vty 0 4 command is used to access the configuration mode for Telnet. The0and 4 parameters specify ports 0 through 4, or a maximum of five simultaneous Telnet connections. The enable secret command is used to apply a password used on the router to access the privileged mode.",
   },
   {
     number: 43,
@@ -98,7 +97,8 @@ export const questions39to76: Question[] = [
       "It is the IP address of the ISP network device located in the cloud.",
     ],
     correct: [1],
-    explanation: "Explanation: Topic 10.3.1\nThe default gateway is used to route packets destined for remote networks. The default gateway IP address is the address of the first Layer 3 device (the router interface) that connects to the same network.",
+    explanation:
+      "Explanation: Topic 10.3.1\nThe default gateway is used to route packets destined for remote networks. The default gateway IP address is the address of the first Layer 3 device (the router interface) that connects to the same network.",
   },
   {
     number: 44,
@@ -112,8 +112,9 @@ export const questions39to76: Question[] = [
       "path selection",
       "flow control",
     ],
-    correct: [0,3],
-    explanation: "Explanation: Topic 8.1.1\nA router accepts a packet and accesses its routing table to determine the appropriate exit interface based on the destination address. The router then forwards the packet out of that interface.",
+    correct: [0, 3],
+    explanation:
+      "Explanation: Topic 8.1.1\nA router accepts a packet and accesses its routing table to determine the appropriate exit interface based on the destination address. The router then forwards the packet out of that interface.",
   },
   {
     number: 45,
@@ -126,7 +127,8 @@ export const questions39to76: Question[] = [
       "The contents of flash will change.",
     ],
     correct: [2],
-    explanation: "Explanation: Topic 10.1.1\nThe command copy running-config startup-config copies the running-configuration file from RAM into NVRAM and saves it as the startup-configuration file. Since NVRAM is none-volatile memory it will be able to retain the configuration details when the router is powered off.",
+    explanation:
+      "Explanation: Topic 10.1.1\nThe command copy running-config startup-config copies the running-configuration file from RAM into NVRAM and saves it as the startup-configuration file. Since NVRAM is none-volatile memory it will be able to retain the configuration details when the router is powered off.",
   },
   {
     number: 46,
@@ -140,7 +142,8 @@ export const questions39to76: Question[] = [
       "A ping from the host to 127.0.0.1 would not be successful.",
     ],
     correct: [3],
-    explanation: "Explanation: Topic 10.3.1\nWhen a host needs to send a message to another host located on the same network, it can forward the message directly. However, when a host needs to send a message to a remote network, it must use the router, also known as the default gateway. This is because the data link frame address of the remote destination host cannot be used directly. Instead, the IP packet has to be sent to the router (default gateway) and the router will forward the packet toward its destination. Therefore, if the default gateway is incorrectly configured, the host can communicate with other hosts on the same network, but not with hosts on remote networks.",
+    explanation:
+      "Explanation: Topic 10.3.1\nWhen a host needs to send a message to another host located on the same network, it can forward the message directly. However, when a host needs to send a message to a remote network, it must use the router, also known as the default gateway. This is because the data link frame address of the remote destination host cannot be used directly. Instead, the IP packet has to be sent to the router (default gateway) and the router will forward the packet toward its destination. Therefore, if the default gateway is incorrectly configured, the host can communicate with other hosts on the same network, but not with hosts on remote networks.",
   },
   {
     number: 47,
@@ -154,8 +157,9 @@ export const questions39to76: Question[] = [
       "Large numbers of ARP request broadcasts could cause the host MAC address table to overflow and prevent the host from communicating on the network.",
       "Multiple ARP replies result in the switch MAC address table containing entries that match the MAC addresses of hosts that are connected to the relevant switch port.",
     ],
-    correct: [1,2],
-    explanation: "Explanation: Topic 9.2.8\nLarge numbers of ARP broadcast messages could cause momentary data communications delays. Network attackers could manipulate MAC address and IP address mappings in ARP messages with the intent to intercept network traffic. ARP requests and replies cause entries to be made into the ARP table, not the MAC address table. ARP table overflows are very unlikely. Manually configuring static ARP associations is a way to prevent, not facilitate, ARP poisoning and MAC address spoofing. Multiple ARP replies resulting in the switch MAC address table containing entries that match the MAC addresses of connected nodes and are associated with the relevant switch port are required for normal switch frame forwarding operations. It is not an ARP caused network problem.",
+    correct: [1, 2],
+    explanation:
+      "Explanation: Topic 9.2.8\nLarge numbers of ARP broadcast messages could cause momentary data communications delays. Network attackers could manipulate MAC address and IP address mappings in ARP messages with the intent to intercept network traffic. ARP requests and replies cause entries to be made into the ARP table, not the MAC address table. ARP table overflows are very unlikely. Manually configuring static ARP associations is a way to prevent, not facilitate, ARP poisoning and MAC address spoofing. Multiple ARP replies resulting in the switch MAC address table containing entries that match the MAC addresses of connected nodes and are associated with the relevant switch port are required for normal switch frame forwarding operations. It is not an ARP caused network problem.",
   },
   {
     number: 48,
@@ -174,7 +178,8 @@ export const questions39to76: Question[] = [
       "R1: G0/0 and S0/0/1\nR2: G0/1 and S0/0/1",
     ],
     correct: [2],
-    explanation: "Explanation: Topic 10.2.4\nThe command to use for this activity is show ip interface brief in each router. The active and operational interfaces are represented by the value \"up\" in the \"Status\" and \"Protocol\" columns. The interfaces in R1 with these characteristics are G0/0 and S0/0/0. In R2 they are G0/1 and S0/0/0.",
+    explanation:
+      'Explanation: Topic 10.2.4\nThe command to use for this activity is show ip interface brief in each router. The active and operational interfaces are represented by the value "up" in the "Status" and "Protocol" columns. The interfaces in R1 with these characteristics are G0/0 and S0/0/0. In R2 they are G0/1 and S0/0/0.',
   },
   {
     number: 49,
@@ -187,7 +192,8 @@ export const questions39to76: Question[] = [
       "TTL",
     ],
     correct: [0],
-    explanation: "Explanation: Topic 8.2.2\nThe protocol field in the IPv4 packet header is an 8-bit field used to identify the specific upper-layer protocol (Transport layer or next level) carried inside the packet's payload. Once the destination host receives the Layer 3 packet and completes its processing, it inspects this field to determine which particular protocol handler or service should receive the de-encapsulated data. Common predefined decimal values used in this field include 6 for TCP, 17 for UDP, and 1 for ICMP, which enables seamless multiplexing between the Network and Transport layers.",
+    explanation:
+      "Explanation: Topic 8.2.2\nThe protocol field in the IPv4 packet header is an 8-bit field used to identify the specific upper-layer protocol (Transport layer or next level) carried inside the packet's payload. Once the destination host receives the Layer 3 packet and completes its processing, it inspects this field to determine which particular protocol handler or service should receive the de-encapsulated data. Common predefined decimal values used in this field include 6 for TCP, 17 for UDP, and 1 for ICMP, which enables seamless multiplexing between the Network and Transport layers.",
   },
   {
     number: 50,
@@ -200,7 +206,8 @@ export const questions39to76: Question[] = [
       "protocol",
     ],
     correct: [0],
-    explanation: "Explanation: Topic 8.2.2\nThe Differentiated Services (DS) field is an 8-bit value in the IPv4 header used to mark packets so that devices can determine their priority or class of service. It is not used for addressing, protocol identification, or TTL.",
+    explanation:
+      "Explanation: Topic 8.2.2\nThe Differentiated Services (DS) field is an 8-bit value in the IPv4 header used to mark packets so that devices can determine their priority or class of service. It is not used for addressing, protocol identification, or TTL.",
   },
   {
     number: 51,
@@ -213,20 +220,17 @@ export const questions39to76: Question[] = [
       "TTL",
     ],
     correct: [0],
-    explanation: "Explanation: Topic 8.2.2\nThe source IPv4 address is a 32-bit field within the IPv4 packet header that identifies the logical address of the interface on the sending device. When a host transmits data across a network, it inserts its own IP address into this field. This allows the destination device to identify the origin of the packet, ensuring it knows exactly where to send any subsequent return traffic, acknowledgments, or error messages.",
+    explanation:
+      "Explanation: Topic 8.2.2\nThe source IPv4 address is a 32-bit field within the IPv4 packet header that identifies the logical address of the interface on the sending device. When a host transmits data across a network, it inserts its own IP address into this field. This allows the destination device to identify the origin of the packet, ensuring it knows exactly where to send any subsequent return traffic, acknowledgments, or error messages.",
   },
   {
     number: 52,
     type: "single",
     text: "Which term describes a field in the IPv4 packet header used to detect corruption in the IPv4 header?",
-    options: [
-      "header checksum",
-      "source IPv4 address",
-      "protocol",
-      "TTL",
-    ],
+    options: ["header checksum", "source IPv4 address", "protocol", "TTL"],
     correct: [0],
-    explanation: "Explanation: Topic 8.2.2\nThe header checksum field is a 16-bit field in the IPv4 header used to verify the integrity of the header data. During transmission, the sending device calculates a checksum value based on the fields within the IP header. When the packet arrives at its destination, the receiving device performs the same calculation. If the calculated value does not match the received value, the packet is considered corrupted and is discarded immediately by the receiving node.",
+    explanation:
+      "Explanation: Topic 8.2.2\nThe header checksum field is a 16-bit field in the IPv4 header used to verify the integrity of the header data. During transmission, the sending device calculates a checksum value based on the fields within the IP header. When the packet arrives at its destination, the receiving device performs the same calculation. If the calculated value does not match the received value, the packet is considered corrupted and is discarded immediately by the receiving node.",
   },
   {
     number: 53,
@@ -241,46 +245,35 @@ export const questions39to76: Question[] = [
       "10.27.15.17",
     ],
     correct: [0],
-    explanation: "Explanation: Topic 10.3.1\nA host's default gateway must always correspond to the IP address of the local router interface that is directly attached to its specific network segment. By examining the configuration output in the exhibit, it is evident that interface gi0/0 is configured with the description description Connects to the Payroll LAN. The unique IP address assigned to this interface is 10.27.14.148. Consequently, any new host deployed on the \"Payroll LAN\" must use this exact IP address as its default gateway to successfully communicate with destinations on remote networks.",
+    explanation:
+      'Explanation: Topic 10.3.1\nA host\'s default gateway must always correspond to the IP address of the local router interface that is directly attached to its specific network segment. By examining the configuration output in the exhibit, it is evident that interface gi0/0 is configured with the description description Connects to the Payroll LAN. The unique IP address assigned to this interface is 10.27.14.148. Consequently, any new host deployed on the "Payroll LAN" must use this exact IP address as its default gateway to successfully communicate with destinations on remote networks.',
   },
   {
     number: 54,
     type: "single",
     text: "Which term describes a field in the IPv4 packet header that contains a unicast, multicast, or broadcast address?",
-    options: [
-      "destination IPv4 address",
-      "protocol",
-      "TTL",
-      "header checksum",
-    ],
+    options: ["destination IPv4 address", "protocol", "TTL", "header checksum"],
     correct: [0],
-    explanation: "Explanation: Topic 8.2.2\nThe destination IPv4 address is a 32-bit field in the IP header that specifies the logical address of the end device to which the packet is being sent. This field can hold a unicast address (for a specific single host), a multicast address (for a specific group of hosts), or a broadcast address (for all hosts on the local network segment). Routers inspect this address to perform route lookups in their routing tables, ensuring the packet is forwarded out of the appropriate interface toward the intended destination.",
+    explanation:
+      "Explanation: Topic 8.2.2\nThe destination IPv4 address is a 32-bit field in the IP header that specifies the logical address of the end device to which the packet is being sent. This field can hold a unicast address (for a specific single host), a multicast address (for a specific group of hosts), or a broadcast address (for all hosts on the local network segment). Routers inspect this address to perform route lookups in their routing tables, ensuring the packet is forwarded out of the appropriate interface toward the intended destination.",
   },
   {
     number: 55,
     type: "single",
     text: "Which term describes a field in the IPv4 packet header used to limit the lifetime of a packet?",
-    options: [
-      "TTL",
-      "source IPv4 address",
-      "protocol",
-      "header checksum",
-    ],
+    options: ["TTL", "source IPv4 address", "protocol", "header checksum"],
     correct: [0],
-    explanation: "Explanation: Topic 8.2.2\nThe TTL (Time-to-Live) field is an 8-bit value in the IPv4 header used to prevent a packet from circulating endlessly in a network (for instance, due to a routing loop). The originating host sets an initial value; every time a router processes the packet, it decrements this value by one. If the TTL reaches zero before reaching its destination, the router discards the packet and sends an ICMP \"Time Exceeded\" message back to the source.",
+    explanation:
+      'Explanation: Topic 8.2.2\nThe TTL (Time-to-Live) field is an 8-bit value in the IPv4 header used to prevent a packet from circulating endlessly in a network (for instance, due to a routing loop). The originating host sets an initial value; every time a router processes the packet, it decrements this value by one. If the TTL reaches zero before reaching its destination, the router discards the packet and sends an ICMP "Time Exceeded" message back to the source.',
   },
   {
     number: 56,
     type: "single",
     text: "Which term describes a field in the IPv4 packet header that contains a 4-bit binary value set to 0100?",
-    options: [
-      "version",
-      "source IPv4 address",
-      "protocol",
-      "TTL",
-    ],
+    options: ["version", "source IPv4 address", "protocol", "TTL"],
     correct: [0],
-    explanation: "Explanation: Topic 8.2.2\nThe version field in the IPv4 packet header is a 4-bit field that identifies which internet protocol version is being used to format the Layer 3 data. The binary value 0100 directly translates to the decimal number 4, which explicitly instructs routers and receiving network devices to process the incoming packet according to IPv4 structural standards and specifications. Conversely, a binary value of 0110 (decimal 6) in this exact field would signify an IPv6 packet architecture.",
+    explanation:
+      "Explanation: Topic 8.2.2\nThe version field in the IPv4 packet header is a 4-bit field that identifies which internet protocol version is being used to format the Layer 3 data. The binary value 0100 directly translates to the decimal number 4, which explicitly instructs routers and receiving network devices to process the incoming packet according to IPv4 structural standards and specifications. Conversely, a binary value of 0110 (decimal 6) in this exact field would signify an IPv6 packet architecture.",
   },
   {
     number: 57,
@@ -293,20 +286,17 @@ export const questions39to76: Question[] = [
       "header checksum",
     ],
     correct: [0],
-    explanation: "Explanation: Topic 8.2.2\nThe protocol field in the IPv4 packet header is an 8-bit field used to identify the specific upper-layer protocol (Transport layer or next level) carried inside the packet's payload. Once the destination host receives the Layer 3 packet and completes its processing, it inspects this field to determine which particular protocol handler or service should receive the de-encapsulated data. Common predefined decimal values used in this field include 6 for TCP, 17 for UDP, and 1 for ICMP, which enables seamless multiplexing between the Network and Transport layers.",
+    explanation:
+      "Explanation: Topic 8.2.2\nThe protocol field in the IPv4 packet header is an 8-bit field used to identify the specific upper-layer protocol (Transport layer or next level) carried inside the packet's payload. Once the destination host receives the Layer 3 packet and completes its processing, it inspects this field to determine which particular protocol handler or service should receive the de-encapsulated data. Common predefined decimal values used in this field include 6 for TCP, 17 for UDP, and 1 for ICMP, which enables seamless multiplexing between the Network and Transport layers.",
   },
   {
     number: 58,
     type: "single",
     text: "Which term describes a field in the IPv4 packet header that contains a 4-bit binary value set to 0100?",
-    options: [
-      "version",
-      "differentiated services",
-      "header checksum",
-      "TTL",
-    ],
+    options: ["version", "differentiated services", "header checksum", "TTL"],
     correct: [0],
-    explanation: "Explanation: Topic 8.2.2\nThe version field in the IPv4 packet header is a 4-bit field that identifies which internet protocol version is being used to format the Layer 3 data. The binary value 0100 directly translates to the decimal number 4, which explicitly instructs routers and receiving network devices to process the incoming packet according to IPv4 structural standards and specifications. Conversely, a binary value of 0110 (decimal 6) in this exact field would signify an IPv6 packet architecture.",
+    explanation:
+      "Explanation: Topic 8.2.2\nThe version field in the IPv4 packet header is a 4-bit field that identifies which internet protocol version is being used to format the Layer 3 data. The binary value 0100 directly translates to the decimal number 4, which explicitly instructs routers and receiving network devices to process the incoming packet according to IPv4 structural standards and specifications. Conversely, a binary value of 0110 (decimal 6) in this exact field would signify an IPv6 packet architecture.",
   },
   {
     number: 59,
@@ -319,7 +309,8 @@ export const questions39to76: Question[] = [
       "The port-to-MAC address table on a switch has the same entries as the ARP table on the switch.",
     ],
     correct: [0],
-    explanation: "Explanation: Topic 9.2.4\nDynamic ARP entries are time-stamped, and the timer is refreshed when the mapping is used. The entry remains in the ARP cache until the timeout expires, after which it is purged so stale mappings do not persist.",
+    explanation:
+      "Explanation: Topic 9.2.4\nDynamic ARP entries are time-stamped, and the timer is refreshed when the mapping is used. The entry remains in the ARP cache until the timeout expires, after which it is purged so stale mappings do not persist.",
   },
   {
     number: 60,
@@ -332,7 +323,8 @@ export const questions39to76: Question[] = [
       "The port-to-MAC address table on a switch has the same entries as the ARP table on the switch.",
     ],
     correct: [0],
-    explanation: "Explanation: Topic 9.2.4\nA static IP-to-MAC mapping can be entered manually in the ARP table. Static entries do not age out, so the MAC address of a frequently used server stays fixed in the cache.",
+    explanation:
+      "Explanation: Topic 9.2.4\nA static IP-to-MAC mapping can be entered manually in the ARP table. Static entries do not age out, so the MAC address of a frequently used server stays fixed in the cache.",
   },
   {
     number: 61,
@@ -345,7 +337,8 @@ export const questions39to76: Question[] = [
       "The port-to-MAC address table on a switch has the same entries as the ARP table on the switch.",
     ],
     correct: [0],
-    explanation: "Explanation: Topic 9.2.4\nBy default, ARP table entries are dynamic and include an aging timer, which purges them automatically to ensure that the mapping information remains current. However, for critical devices like frequently used servers, a network administrator can configure a static entry. Because these are manually defined, they are not subject to aging timers and remain \"fixed\" in the device's memory until they are explicitly deleted or the device is rebooted, which ensures immediate and reliable address resolution without the overhead of ARP requests.",
+    explanation:
+      'Explanation: Topic 9.2.4\nBy default, ARP table entries are dynamic and include an aging timer, which purges them automatically to ensure that the mapping information remains current. However, for critical devices like frequently used servers, a network administrator can configure a static entry. Because these are manually defined, they are not subject to aging timers and remain "fixed" in the device\'s memory until they are explicitly deleted or the device is rebooted, which ensures immediate and reliable address resolution without the overhead of ARP requests.',
   },
   {
     number: 62,
@@ -358,7 +351,8 @@ export const questions39to76: Question[] = [
       "The port-to-MAC address table on a switch has the same entries as the ARP table on the switch.",
     ],
     correct: [0],
-    explanation: "Explanation: Topic 9.2.4\nWhen a local host wants to send data to a device on a remote network, the Layer 3 IP packet contains the ultimate destination IP address. However, to deliver the frame over the local network medium at Layer 2, the host must encapsulate and address the frame to its default gateway (the local router). Since the host initially only knows the default gateway's IPv4 address, it relies on ARP to dynamically discover its corresponding hardware MAC address. Once this MAC address is learned, the local host can successfully forward the traffic to the router for further internetwork routing.",
+    explanation:
+      "Explanation: Topic 9.2.4\nWhen a local host wants to send data to a device on a remote network, the Layer 3 IP packet contains the ultimate destination IP address. However, to deliver the frame over the local network medium at Layer 2, the host must encapsulate and address the frame to its default gateway (the local router). Since the host initially only knows the default gateway's IPv4 address, it relies on ARP to dynamically discover its corresponding hardware MAC address. Once this MAC address is learned, the local host can successfully forward the traffic to the router for further internetwork routing.",
   },
   {
     number: 63,
@@ -373,7 +367,8 @@ export const questions39to76: Question[] = [
       "192.168.234.114",
     ],
     correct: [0],
-    explanation: "Explanation: Topic 10.3.1\nA host's default gateway must correspond to the IP address of the local router interface that is directly attached to its specific network segment. Based on the configuration snippet provided, the gi0/1 interface is configured with the description descripction Se conecta al Registrador LAN and has been assigned the IP address 192.168.235.234. Consequently, any host connected to the \"Registrar LAN\" must use this specific IP address as its default gateway to successfully route traffic to remote networks.",
+    explanation:
+      'Explanation: Topic 10.3.1\nA host\'s default gateway must correspond to the IP address of the local router interface that is directly attached to its specific network segment. Based on the configuration snippet provided, the gi0/1 interface is configured with the description descripction Se conecta al Registrador LAN and has been assigned the IP address 192.168.235.234. Consequently, any host connected to the "Registrar LAN" must use this specific IP address as its default gateway to successfully route traffic to remote networks.',
   },
   {
     number: 64,
@@ -386,7 +381,8 @@ export const questions39to76: Question[] = [
       "ARP replies are broadcast on the network when a host receives an ARP request.",
     ],
     correct: [0],
-    explanation: "Explanation: Topic 9.2.3\nThe ARP protocol relies on Layer 2 broadcast frames to discover the MAC address of a target device when only its IP address is known. To ensure that an ARP request reaches every device within a local network segment, the frame must use the broadcast address FF:FF:FF:FF:FF:FF as the destination MAC address. By standard hardware design, every Ethernet network interface card (NIC) is mandated to accept and pass the data portion of any frame addressed to this specific broadcast address up to the ARP process for examination.",
+    explanation:
+      "Explanation: Topic 9.2.3\nThe ARP protocol relies on Layer 2 broadcast frames to discover the MAC address of a target device when only its IP address is known. To ensure that an ARP request reaches every device within a local network segment, the frame must use the broadcast address FF:FF:FF:FF:FF:FF as the destination MAC address. By standard hardware design, every Ethernet network interface card (NIC) is mandated to accept and pass the data portion of any frame addressed to this specific broadcast address up to the ARP process for examination.",
   },
   {
     number: 65,
@@ -399,7 +395,8 @@ export const questions39to76: Question[] = [
       "ARP replies are broadcast on the network when a host receives an ARP request.",
     ],
     correct: [0],
-    explanation: "Explanation: Topic 9.2.3\nWhen a host sends an ARP request, it is broadcast to all devices on the local network. To ensure the destination host knows where to send the reply, the Ethernet frame header containing the ARP request includes the source MAC address of the requesting host. Upon receiving and processing the request, the target host uses this specific source MAC address to send an ARP reply directly (unicast) to the original requester, rather than broadcasting the reply to the entire network.",
+    explanation:
+      "Explanation: Topic 9.2.3\nWhen a host sends an ARP request, it is broadcast to all devices on the local network. To ensure the destination host knows where to send the reply, the Ethernet frame header containing the ARP request includes the source MAC address of the requesting host. Upon receiving and processing the request, the target host uses this specific source MAC address to send an ARP reply directly (unicast) to the original requester, rather than broadcasting the reply to the entire network.",
   },
   {
     number: 66,
@@ -412,7 +409,8 @@ export const questions39to76: Question[] = [
       "ARP replies are broadcast on the network when a host receives an ARP request.",
     ],
     correct: [0],
-    explanation: "Explanation: Topic 9.2.3\nWhen a host needs to discover the MAC address of another device, it sends an ARP request. Since it does not know the physical address of the destination, it sends it as a Layer 2 broadcast frame. The destination MAC address used for this purpose is FF-FF-FF-FF-FF-FF. By design, switches flood any frame addressed to this broadcast address out of all active ports, except the port where the frame was received, ensuring that every device on the local network segment receives the ARP request.",
+    explanation:
+      "Explanation: Topic 9.2.3\nWhen a host needs to discover the MAC address of another device, it sends an ARP request. Since it does not know the physical address of the destination, it sends it as a Layer 2 broadcast frame. The destination MAC address used for this purpose is FF-FF-FF-FF-FF-FF. By design, switches flood any frame addressed to this broadcast address out of all active ports, except the port where the frame was received, ensuring that every device on the local network segment receives the ARP request.",
   },
   {
     number: 67,
@@ -425,7 +423,8 @@ export const questions39to76: Question[] = [
       "ARP replies are broadcast on the network when a host receives an ARP request.",
     ],
     correct: [0],
-    explanation: "Explanation: Topic 9.2.3\nThe Ethernet II frame header contains a 2-byte field known as the Type field (or EtherType). This field is responsible for specifying which upper-layer protocol or local subsystem should receive the payload enclosed within the frame. Every network protocol has a distinct hexadecimal identifier; for the Address Resolution Protocol (ARP), this specific code is 0x0806. When a receiving network interface card (NIC) decapsulates an incoming frame and reads 0x0806 in the Type field, it instantly recognizes that the contents belong to an ARP message. As a result, the NIC bypasses the standard network stacks like IPv4 (0x0800) or IPv6 (0x86DD) and hands the data portion directly to the operating system's internal ARP process.",
+    explanation:
+      "Explanation: Topic 9.2.3\nThe Ethernet II frame header contains a 2-byte field known as the Type field (or EtherType). This field is responsible for specifying which upper-layer protocol or local subsystem should receive the payload enclosed within the frame. Every network protocol has a distinct hexadecimal identifier; for the Address Resolution Protocol (ARP), this specific code is 0x0806. When a receiving network interface card (NIC) decapsulates an incoming frame and reads 0x0806 in the Type field, it instantly recognizes that the contents belong to an ARP message. As a result, the NIC bypasses the standard network stacks like IPv4 (0x0800) or IPv6 (0x86DD) and hands the data portion directly to the operating system's internal ARP process.",
   },
   {
     number: 68,
@@ -438,7 +437,8 @@ export const questions39to76: Question[] = [
       "The port-to-MAC address table on a switch has the same entries as the ARP table on the switch.",
     ],
     correct: [0],
-    explanation: "Explanation: Topic 9.2.3\nThe Ethernet II frame header contains a 2-byte field known as the Type field (or EtherType). This field is responsible for specifying which upper-layer protocol or local subsystem should receive the payload enclosed within the frame. Every network protocol has a distinct hexadecimal identifier; for the Address Resolution Protocol (ARP), this specific code is 0x0806. When a receiving network interface card (NIC) decapsulates an incoming frame and reads 0x0806 in the Type field, it instantly recognizes that the contents belong to an ARP message. As a result, the NIC bypasses the standard network stacks like IPv4 (0x0800) or IPv6 (0x86DD) and hands the data portion directly to the operating system's internal ARP process.",
+    explanation:
+      "Explanation: Topic 9.2.3\nThe Ethernet II frame header contains a 2-byte field known as the Type field (or EtherType). This field is responsible for specifying which upper-layer protocol or local subsystem should receive the payload enclosed within the frame. Every network protocol has a distinct hexadecimal identifier; for the Address Resolution Protocol (ARP), this specific code is 0x0806. When a receiving network interface card (NIC) decapsulates an incoming frame and reads 0x0806 in the Type field, it instantly recognizes that the contents belong to an ARP message. As a result, the NIC bypasses the standard network stacks like IPv4 (0x0800) or IPv6 (0x86DD) and hands the data portion directly to the operating system's internal ARP process.",
   },
   {
     number: 69,
@@ -453,7 +453,8 @@ export const questions39to76: Question[] = [
       "172.29.156.36",
     ],
     correct: [0],
-    explanation: "Explanation: Topic 10.3.1\nThe default gateway for hosts on the Service LAN must be the IP address of the router interface connected to that LAN. In the exhibit, interface gi0/1 is described as connecting to the Service LAN and is configured with 172.29.157.156.",
+    explanation:
+      "Explanation: Topic 10.3.1\nThe default gateway for hosts on the Service LAN must be the IP address of the router interface connected to that LAN. In the exhibit, interface gi0/1 is described as connecting to the Service LAN and is configured with 172.29.157.156.",
   },
   {
     number: 70,
@@ -468,7 +469,8 @@ export const questions39to76: Question[] = [
       "192.168.190.70",
     ],
     correct: [0],
-    explanation: "Explanation: Topic 10.3.1\nBy examining the configuration of the BldgA router, we can see that interface gi0/1 is configured with the description description Connects to the Medical LAN. The IP address assigned to this interface is 192.168.191.189. Consequently, any device connected to the Medical LAN must be configured with this IP address as its default gateway, allowing the router to properly route its traffic toward remote networks.",
+    explanation:
+      "Explanation: Topic 10.3.1\nBy examining the configuration of the BldgA router, we can see that interface gi0/1 is configured with the description description Connects to the Medical LAN. The IP address assigned to this interface is 192.168.191.189. Consequently, any device connected to the Medical LAN must be configured with this IP address as its default gateway, allowing the router to properly route its traffic toward remote networks.",
   },
   {
     number: 71,
@@ -483,7 +485,8 @@ export const questions39to76: Question[] = [
       "192.168.224.103",
     ],
     correct: [0],
-    explanation: "Explanation: Topic 10.3.1\nA host's default gateway must always be the IP address of the local router interface that is directly attached to its specific network segment. By examining the configuration output provided, it is evident that interface gi0/1 is configured with the description description Connects to the Registrar LAN. The IP address assigned to this specific interface is 192.168.225.223. Consequently, any new host deployed on the \"Registrar LAN\" must be configured with this exact IP address as its default gateway to successfully route traffic to remote networks.",
+    explanation:
+      'Explanation: Topic 10.3.1\nA host\'s default gateway must always be the IP address of the local router interface that is directly attached to its specific network segment. By examining the configuration output provided, it is evident that interface gi0/1 is configured with the description description Connects to the Registrar LAN. The IP address assigned to this specific interface is 192.168.225.223. Consequently, any new host deployed on the "Registrar LAN" must be configured with this exact IP address as its default gateway to successfully route traffic to remote networks.',
   },
   {
     number: 72,
@@ -498,7 +501,8 @@ export const questions39to76: Question[] = [
       "10.118.63.65",
     ],
     correct: [0],
-    explanation: "Explanation: Topic 10.3.1\nA host's default gateway must be the IP address of the local router interface that is directly attached to its specific network segment. Based on the provided configuration for the \"Manager LAN\" (interface gi0/0), the administrator has assigned the IP address 10.118.62.196. Consequently, any new device connected to this network segment must be configured with this exact IP address as its default gateway to successfully route traffic to remote networks.",
+    explanation:
+      'Explanation: Topic 10.3.1\nA host\'s default gateway must be the IP address of the local router interface that is directly attached to its specific network segment. Based on the provided configuration for the "Manager LAN" (interface gi0/0), the administrator has assigned the IP address 10.118.62.196. Consequently, any new device connected to this network segment must be configured with this exact IP address as its default gateway to successfully route traffic to remote networks.',
   },
   {
     number: 73,
@@ -513,7 +517,8 @@ export const questions39to76: Question[] = [
       "172.19.99.99",
     ],
     correct: [0],
-    explanation: "Explanation: Topic 10.3.1\nA host's default gateway must be the IP address of the local router interface that is attached to its specific network segment. By examining the configuration output provided in the exhibit, we can see that the administrator configured interface gi0/0 with a description explicitly stating it connects to the Store LAN (description Connects to the Store LAN). The IP address assigned to this particular interface is 172.19.98.230. Therefore, any new host connecting to the \"Store LAN\" must use this exact IP address as its default gateway in order to successfully route traffic to remote or external networks.",
+    explanation:
+      'Explanation: Topic 10.3.1\nA host\'s default gateway must be the IP address of the local router interface that is attached to its specific network segment. By examining the configuration output provided in the exhibit, we can see that the administrator configured interface gi0/0 with a description explicitly stating it connects to the Store LAN (description Connects to the Store LAN). The IP address assigned to this particular interface is 172.19.98.230. Therefore, any new host connecting to the "Store LAN" must use this exact IP address as its default gateway in order to successfully route traffic to remote or external networks.',
   },
   {
     number: 74,
@@ -528,7 +533,8 @@ export const questions39to76: Question[] = [
       "172.20.133.132",
     ],
     correct: [0],
-    explanation: "Explanation: Topic 10.3.1\nThe default gateway for hosts on the Store LAN must be the IP address of the router interface connected to that LAN. In the exhibit, interface gi0/0 connects to the Store LAN and is configured with 172.20.132.13.",
+    explanation:
+      "Explanation: Topic 10.3.1\nThe default gateway for hosts on the Store LAN must be the IP address of the router interface connected to that LAN. In the exhibit, interface gi0/0 connects to the Store LAN and is configured with 172.20.132.13.",
   },
   {
     number: 75,
@@ -543,7 +549,8 @@ export const questions39to76: Question[] = [
       "192.168.166.46",
     ],
     correct: [0],
-    explanation: "Explanation: Topic 10.3.1\nA default gateway is the local router interface IP address responsible for handling traffic from a specific subnet to forward it toward remote networks. By examining the configuration of the Main router in the exhibit, we can see that interface gi0/1 is assigned the description description Connects to the S (referring to the Service LAN). The IP address configured on this specific interface is 192.168.167.166. Consequently, any new host connecting to this Service LAN must be configured with this IP address as its default gateway to successfully communicate beyond its local segment.",
+    explanation:
+      "Explanation: Topic 10.3.1\nA default gateway is the local router interface IP address responsible for handling traffic from a specific subnet to forward it toward remote networks. By examining the configuration of the Main router in the exhibit, we can see that interface gi0/1 is assigned the description description Connects to the S (referring to the Service LAN). The IP address configured on this specific interface is 192.168.167.166. Consequently, any new host connecting to this Service LAN must be configured with this IP address as its default gateway to successfully communicate beyond its local segment.",
   },
   {
     number: 76,
@@ -558,6 +565,7 @@ export const questions39to76: Question[] = [
       "192.168.200.80",
     ],
     correct: [0],
-    explanation: "Explanation: Topic 10.3.1\nA host's default gateway must always be the specific IP address assigned to the local router interface that is directly connected to the host's network segment. In this configuration scenario, the interface on the local router (labeled as BldgA) that services the Medical LAN is configured with the IP address 192.168.201.200. Consequently, any new device deployed within the Medical LAN domain must be explicitly configured with this exact IP address as its default gateway to successfully route traffic outside of the local area network.",
+    explanation:
+      "Explanation: Topic 10.3.1\nA host's default gateway must always be the specific IP address assigned to the local router interface that is directly connected to the host's network segment. In this configuration scenario, the interface on the local router (labeled as BldgA) that services the Medical LAN is configured with the IP address 192.168.201.200. Consequently, any new device deployed within the Medical LAN domain must be explicitly configured with this exact IP address as its default gateway to successfully route traffic outside of the local area network.",
   },
 ];

@@ -111,10 +111,10 @@ export function registerServiceWorker(): void {
   const register = (): void => {
     // `BASE_URL` carries no trailing slash under this build, so it is normalised
     // the same way the pages' `abs()` helper does — otherwise the worker URL
-    // comes out as `/ccna2sw.js` and the registration silently 404s.
+    // comes out as `/ccnasw.js` and the registration silently 404s.
     const base = import.meta.env.BASE_URL.replace(/\/?$/, "/");
     // Default scope is the worker's own directory — the base root — which is
-    // exactly the whole site under the `/ccna2` deploy.
+    // exactly the whole site under the `/ccna` deploy.
     void navigator.serviceWorker.register(`${base}sw.js`).catch(() => {
       /* no worker: the site still works online */
     });

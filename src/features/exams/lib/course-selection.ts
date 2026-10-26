@@ -11,7 +11,7 @@ import { isCourseId, type CourseId } from "../data/courses";
  */
 
 const KEY = "ccna-course";
-export const DEFAULT_COURSE: CourseId = "ccna2";
+export const DEFAULT_COURSE: CourseId = "ccna";
 
 export function getStoredCourse(): CourseId {
   if (typeof localStorage === "undefined") return DEFAULT_COURSE;

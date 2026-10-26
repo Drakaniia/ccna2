@@ -23,7 +23,7 @@ const { title, currentId, course } = Astro.props;
 const currentModule = currentId ? availableModules[currentId] : undefined;
 const maxQuestions = currentModule?.questions.length ?? undefined;
 const activeCourse: CourseId =
-  course ?? (currentId ? getModuleCourseId(currentId) : undefined) ?? "ccna2";
+  course ?? (currentId ? getModuleCourseId(currentId) : undefined) ?? "ccna";
 
 // Absolute-path helper that stays correct under a repo-name `base` (GitHub Pages).
 const abs = (p: string) => `${import.meta.env.BASE_URL.replace(/\/?$/, "/")}${p}`;

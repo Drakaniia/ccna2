@@ -13,15 +13,22 @@ export const questions1to31: Question[] = [
       "The client sends a synchronization segment to begin the session.",
     ],
     correct: [2],
-    explanation: "Explanation: Topic 14.7.4\nUDP is connectionless: a client with datagrams to send simply places a randomly chosen source port number and the destination port number of the service in the UDP header and sends them. UDP sets no window size, sends no initial sequence number, and performs no three-way handshake or synchronization, so the other options describe TCP behavior.",
+    explanation:
+      "Explanation: Topic 14.7.4\nUDP is connectionless: a client with datagrams to send simply places a randomly chosen source port number and the destination port number of the service in the UDP header and sends them. UDP sets no window size, sends no initial sequence number, and performs no three-way handshake or synchronization, so the other options describe TCP behavior.",
   },
   {
     number: 2,
     type: "single",
     text: "Which transport layer feature is used to guarantee session establishment?",
-    options: ["UDP ACK flag", "TCP 3-way handshake", "UDP sequence number", "TCP port number"],
+    options: [
+      "UDP ACK flag",
+      "TCP 3-way handshake",
+      "UDP sequence number",
+      "TCP port number",
+    ],
     correct: [1],
-    explanation: "Explanation: Topic 14.5.2\nTCP establishes a session with the three-way handshake: the client sends a SYN, the server replies with SYN and ACK, and the client answers with an ACK. UDP is connectionless and has no flags, sequence numbers, or session state, so it cannot guarantee that a session is established.",
+    explanation:
+      "Explanation: Topic 14.5.2\nTCP establishes a session with the three-way handshake: the client sends a SYN, the server replies with SYN and ACK, and the client answers with an ACK. UDP is connectionless and has no flags, sequence numbers, or session state, so it cannot guarantee that a session is established.",
   },
   {
     number: 3,
@@ -29,7 +36,8 @@ export const questions1to31: Question[] = [
     text: "What is the complete range of TCP and UDP well-known ports?",
     options: ["0 to 255", "0 to 1023", "256 - 1023", "1024 - 49151"],
     correct: [1],
-    explanation: "Explanation: Topic 14.4.3\nThe TCP and UDP port numbers fall into three ranges: well-known ports (0 to 1023), registered ports (1024 to 49151), and dynamic or private ports (49152 to 65535).",
+    explanation:
+      "Explanation: Topic 14.4.3\nThe TCP and UDP port numbers fall into three ranges: well-known ports (0 to 1023), registered ports (1024 to 49151), and dynamic or private ports (49152 to 65535).",
   },
   {
     number: 4,
@@ -42,7 +50,8 @@ export const questions1to31: Question[] = [
       "the combination of the source and destination sequence numbers and port numbers",
     ],
     correct: [1],
-    explanation: "Explanation: Topic 14.4.2\nA socket is the combination of an IP address and a port number. The source socket and the destination socket together uniquely identify a conversation between two applications across an IP network.",
+    explanation:
+      "Explanation: Topic 14.4.2\nA socket is the combination of an IP address and a port number. The source socket and the destination socket together uniquely identify a conversation between two applications across an IP network.",
   },
   {
     number: 5,
@@ -50,7 +59,8 @@ export const questions1to31: Question[] = [
     text: "A PC is downloading a large file from a server. The TCP window is 1000 bytes. The server is sending the file using 100-byte segments. How many segments will the server send before it requires an acknowledgment from the PC?",
     options: ["1 segment", "10 segments", "100 segments", "1000 segments"],
     correct: [1],
-    explanation: "Explanation: Topic 14.6.5\nWith a window of 1000 bytes, the destination host accepts segments until all 1000 bytes of data have been received. Then the destination host sends an acknowledgment.",
+    explanation:
+      "Explanation: Topic 14.6.5\nWith a window of 1000 bytes, the destination host accepts segments until all 1000 bytes of data have been received. Then the destination host sends an acknowledgment.",
   },
   {
     number: 6,
@@ -63,7 +73,8 @@ export const questions1to31: Question[] = [
       "the amount of data the source is capable of sending at one time",
     ],
     correct: [2],
-    explanation: "Explanation: Topic 14.6.5\nWindow is the number of bytes that the sender will send prior to expecting an acknowledgement from the destination device. The initial window is agreed upon during the session startup via the three-way handshake between source and destination. It is determined by how much data the destination device of a TCP session is able to accept and process at one time.",
+    explanation:
+      "Explanation: Topic 14.6.5\nWindow is the number of bytes that the sender will send prior to expecting an acknowledgement from the destination device. The initial window is agreed upon during the session startup via the three-way handshake between source and destination. It is determined by how much data the destination device of a TCP session is able to accept and process at one time.",
   },
   {
     number: 7,
@@ -76,7 +87,8 @@ export const questions1to31: Question[] = [
       "It sends to the server a segment with the SYN flag set to synchronize the conversation.",
     ],
     correct: [0],
-    explanation: "Explanation: Topic 14.1.5\nWhen a client has UDP datagrams to send, it just sends the datagrams.",
+    explanation:
+      "Explanation: Topic 14.1.5\nWhen a client has UDP datagrams to send, it just sends the datagrams.",
   },
   {
     number: 8,
@@ -92,7 +104,8 @@ export const questions1to31: Question[] = [
       "Sequence Number",
     ],
     correct: [1, 2, 4],
-    explanation: "Explanation: Topic 14.3.2\nA UDP header consists of only the Source Port, Destination Port, Length, and Checksum fields. Sequence Number, Acknowledgment Number, and Window Size are TCP header fields.",
+    explanation:
+      "Explanation: Topic 14.3.2\nA UDP header consists of only the Source Port, Destination Port, Length, and Checksum fields. Sequence Number, Acknowledgment Number, and Window Size are TCP header fields.",
   },
   {
     number: 9,
@@ -107,15 +120,22 @@ export const questions1to31: Question[] = [
       "providing the interface between applications and the underlying network over which messages are transmitted",
     ],
     correct: [0, 1],
-    explanation: "Explanation: Topic 14.1.1\nThe transport layer has several responsibilities. The primary responsibilities include the following:\nTracking the individual communication streams between applications on the source and destination hosts\nSegmenting data at the source and reassembling the data at the destination\nIdentifying the proper application for each communication stream through the use of port numbers",
+    explanation:
+      "Explanation: Topic 14.1.1\nThe transport layer has several responsibilities. The primary responsibilities include the following:\nTracking the individual communication streams between applications on the source and destination hosts\nSegmenting data at the source and reassembling the data at the destination\nIdentifying the proper application for each communication stream through the use of port numbers",
   },
   {
     number: 10,
     type: "single",
     text: "What information is used by TCP to reassemble and reorder received segments?",
-    options: ["port numbers", "sequence numbers", "acknowledgment numbers", "fragment numbers"],
+    options: [
+      "port numbers",
+      "sequence numbers",
+      "acknowledgment numbers",
+      "fragment numbers",
+    ],
     correct: [1],
-    explanation: "Explanation: Topic 14.6.1\nAt the transport layer, TCP uses the sequence numbers in the header of each TCP segment to reassemble the segments into the correct order.",
+    explanation:
+      "Explanation: Topic 14.6.1\nAt the transport layer, TCP uses the sequence numbers in the header of each TCP segment to reassemble the segments into the correct order.",
   },
   {
     number: 11,
@@ -128,7 +148,8 @@ export const questions1to31: Question[] = [
       "destination and source logical network addresses",
     ],
     correct: [1],
-    explanation: "Explanation: Topic 14.4.1\nThe destination and source port numbers are used to identify exactly which protocol and process is requesting or responding to a request.",
+    explanation:
+      "Explanation: Topic 14.4.1\nThe destination and source port numbers are used to identify exactly which protocol and process is requesting or responding to a request.",
   },
   {
     number: 12,
@@ -143,7 +164,8 @@ export const questions1to31: Question[] = [
       "Unacknowledged data packets are retransmitted.",
     ],
     correct: [0, 3],
-    explanation: "Explanation: Topic 14.7.1\nTCP:\nProvides tracking of transmitted data segments\nDestination devices will acknowledge received data.\nSource devices will retransmit unacknowledged data.\nUDP\nDestination devices will not acknowledge received data\nHeaders use very little overhead and cause minimal delay.",
+    explanation:
+      "Explanation: Topic 14.7.1\nTCP:\nProvides tracking of transmitted data segments\nDestination devices will acknowledge received data.\nSource devices will retransmit unacknowledged data.\nUDP\nDestination devices will not acknowledge received data\nHeaders use very little overhead and cause minimal delay.",
   },
   {
     number: 13,
@@ -178,7 +200,8 @@ export const questions1to31: Question[] = [
       2: 4,
       3: 0,
     },
-    explanation: "Explanation: Topic 14.5.3\nIn order to terminate a TCP session, the client sends to the server a segment with the FIN flag set. The server acknowledges the client by sending a segment with the ACK flag set. The server sends a FIN to the client to terminate the server to client session. The client acknowledges the termination by sending a segment with the ACK flag set. A FIN from the client and the server's ACK come first; the SYN messages belong to session establishment, not termination, so they are not used.",
+    explanation:
+      "Explanation: Topic 14.5.3\nIn order to terminate a TCP session, the client sends to the server a segment with the FIN flag set. The server acknowledges the client by sending a segment with the ACK flag set. The server sends a FIN to the client to terminate the server to client session. The client acknowledges the termination by sending a segment with the ACK flag set. A FIN from the client and the server's ACK come first; the SYN messages belong to session establishment, not termination, so they are not used.",
   },
   {
     number: 14,
@@ -186,7 +209,8 @@ export const questions1to31: Question[] = [
     text: "Which flag in the TCP header is used in response to a received FIN in order to terminate connectivity between two network devices?",
     options: ["FIN", "ACK", "SYN", "RST"],
     correct: [1],
-    explanation: "Explanation: Topic 14.5.3\nIn a TCP session, when a device has no more data to send, it will send a segment with the FIN flag set. The connected device that receives the segment will respond with an ACK to acknowledge that segment. The device that sent the ACK will then send a FIN message to close the connection it has with the other device. The sending of the FIN should be followed with the receipt of an ACK from the other device.",
+    explanation:
+      "Explanation: Topic 14.5.3\nIn a TCP session, when a device has no more data to send, it will send a segment with the FIN flag set. The connected device that receives the segment will respond with an ACK to acknowledge that segment. The device that sent the ACK will then send a FIN message to close the connection it has with the other device. The sending of the FIN should be followed with the receipt of an ACK from the other device.",
   },
   {
     number: 15,
@@ -194,7 +218,8 @@ export const questions1to31: Question[] = [
     text: "Which protocol or service uses UDP for a client-to-server communication and TCP for server-to-server communication?",
     options: ["HTTP", "FTP", "DNS", "SMTP"],
     correct: [2],
-    explanation: "Explanation: Topic 14.4.3\nSome applications may use both TCP and UDP. DNS uses UDP when clients send requests to a DNS server, and TCP when two DNS servers communicate directly.",
+    explanation:
+      "Explanation: Topic 14.4.3\nSome applications may use both TCP and UDP. DNS uses UDP when clients send requests to a DNS server, and TCP when two DNS servers communicate directly.",
   },
   {
     number: 16,
@@ -207,7 +232,8 @@ export const questions1to31: Question[] = [
       "UDP only passes data to the network when the destination is ready to receive the data.",
     ],
     correct: [2],
-    explanation: "Explanation: Topic 14.7.2\nUDP has no way to reorder the datagrams into their transmission order, so UDP simply reassembles the data in the order it was received and forwards it to the application.",
+    explanation:
+      "Explanation: Topic 14.7.2\nUDP has no way to reorder the datagrams into their transmission order, so UDP simply reassembles the data in the order it was received and forwards it to the application.",
   },
   {
     number: 17,
@@ -215,7 +241,8 @@ export const questions1to31: Question[] = [
     text: "What kind of port must be requested from IANA in order to be used with a specific application?",
     options: ["registered port", "private port", "dynamic port", "source port"],
     correct: [0],
-    explanation: "Explanation: Topic 14.4.3\nRegistered ports (numbers 1024 to 49151) are assigned by IANA to a requesting entity to use with specific processes or applications. These processes are primarily individual applications that a user has chosen to install, rather than common applications that would receive a well-known port number. For example, Cisco has registered port 1985 for its Hot Standby Routing Protocol (HSRP) process.",
+    explanation:
+      "Explanation: Topic 14.4.3\nRegistered ports (numbers 1024 to 49151) are assigned by IANA to a requesting entity to use with specific processes or applications. These processes are primarily individual applications that a user has chosen to install, rather than common applications that would receive a well-known port number. For example, Cisco has registered port 1985 for its Hot Standby Routing Protocol (HSRP) process.",
   },
   {
     number: 18,
@@ -224,7 +251,8 @@ export const questions1to31: Question[] = [
     text: "Which three application layer protocols use TCP? (Choose three.)",
     options: ["SMTP", "FTP", "SNMP", "HTTP", "TFTP", "DHCP"],
     correct: [0, 1, 3],
-    explanation: "Explanation: Topic 14.2.4\nSome protocols require the reliable data transport that is provided by TCP. In addition, these protocols do not have real time communication requirements and can tolerate some data loss while minimizing protocol overhead. Examples of these protocols are SMTP, FTP, and HTTP.",
+    explanation:
+      "Explanation: Topic 14.2.4\nSome protocols require the reliable data transport that is provided by TCP. In addition, these protocols do not have real time communication requirements and can tolerate some data loss while minimizing protocol overhead. Examples of these protocols are SMTP, FTP, and HTTP.",
   },
   {
     number: 19,
@@ -240,16 +268,24 @@ export const questions1to31: Question[] = [
       "UDP provides sophisticated flow control mechanisms.",
     ],
     correct: [0, 2, 3],
-    explanation: "Explanation: Topic 14.7.1\nUDP is a simple protocol that provides the basic transport layer functions. It has much lower overhead than TCP because it is not connection-oriented and does not offer the sophisticated retransmission, sequencing, and flow control mechanisms that provide reliability.",
+    explanation:
+      "Explanation: Topic 14.7.1\nUDP is a simple protocol that provides the basic transport layer functions. It has much lower overhead than TCP because it is not connection-oriented and does not offer the sophisticated retransmission, sequencing, and flow control mechanisms that provide reliability.",
   },
   {
     number: 20,
     type: "multi",
     choose: 2,
     text: "Which two fields are included in the TCP header but not in the UDP header? (Choose two.)",
-    options: ["window", "checksum", "source port", "destination port", "sequence number"],
+    options: [
+      "window",
+      "checksum",
+      "source port",
+      "destination port",
+      "sequence number",
+    ],
     correct: [0, 4],
-    explanation: "Explanation: Topic 14.2.3\nThe sequence number and window fields are included in the TCP header but not in the UDP header.",
+    explanation:
+      "Explanation: Topic 14.2.3\nThe sequence number and window fields are included in the TCP header but not in the UDP header.",
   },
   {
     number: 21,
@@ -257,7 +293,8 @@ export const questions1to31: Question[] = [
     text: "Which field in the TCP header indicates the status of the three-way handshake process?",
     options: ["window", "reserved", "checksum", "control bits"],
     correct: [3],
-    explanation: "Explanation: Topic 14.5.4\nThe value in the control bits field of the TCP header indicates the progress and status of the connection.",
+    explanation:
+      "Explanation: Topic 14.5.4\nThe value in the control bits field of the TCP header indicates the progress and status of the connection.",
   },
   {
     number: 22,
@@ -270,7 +307,8 @@ export const questions1to31: Question[] = [
       "because HTTP requires reliable delivery",
     ],
     correct: [3],
-    explanation: "Explanation: Topic 14.1.6\nWhen a host requests a web page, transmission reliability and completeness must be guaranteed. Therefore, HTTP uses TCP as its transport layer protocol.",
+    explanation:
+      "Explanation: Topic 14.1.6\nWhen a host requests a web page, transmission reliability and completeness must be guaranteed. Therefore, HTTP uses TCP as its transport layer protocol.",
   },
   {
     number: 23,
@@ -285,7 +323,8 @@ export const questions1to31: Question[] = [
       "applications that can tolerate some data loss, but require little or no delay",
     ],
     correct: [2, 4],
-    explanation: "Explanation: Topic 14.1.6\nApplications that can tolerate some data loss, require a simple request and reply, and handle reliability themselves are best suited for UDP. UDP has low overhead and no requirement of reliability. TCP provides services for reliability, controlling data flow, and the reordering of segments.",
+    explanation:
+      "Explanation: Topic 14.1.6\nApplications that can tolerate some data loss, require a simple request and reply, and handle reliability themselves are best suited for UDP. UDP has low overhead and no requirement of reliability. TCP provides services for reliability, controlling data flow, and the reordering of segments.",
   },
   {
     number: 24,
@@ -298,7 +337,8 @@ export const questions1to31: Question[] = [
       "Destination port numbers are assigned automatically and cannot be changed.",
     ],
     correct: [2],
-    explanation: "Explanation: Topic 14.4.1\nBoth UDP and TCP use port numbers to provide a unique identifier for each conversation. Source port numbers are randomly generated and are used to track different conversations. Destination port numbers identify specific services by using either a default port number for the service or a port number that is assigned manually by a system administrator.",
+    explanation:
+      "Explanation: Topic 14.4.1\nBoth UDP and TCP use port numbers to provide a unique identifier for each conversation. Source port numbers are randomly generated and are used to track different conversations. Destination port numbers identify specific services by using either a default port number for the service or a port number that is assigned manually by a system administrator.",
   },
   {
     number: 25,
@@ -313,7 +353,8 @@ export const questions1to31: Question[] = [
       "when destination port numbers are dynamic",
     ],
     correct: [1, 3],
-    explanation: "Explanation: Topic 14.1.6\nUDP is a very simple transport layer protocol that does not guarantee delivery. Devices on both ends of the conversation are not required to keep track of the conversation. UDP is used as the transport protocol for applications that need a speedy, best-effort delivery.",
+    explanation:
+      "Explanation: Topic 14.1.6\nUDP is a very simple transport layer protocol that does not guarantee delivery. Devices on both ends of the conversation are not required to keep track of the conversation. UDP is used as the transport protocol for applications that need a speedy, best-effort delivery.",
   },
   {
     number: 26,
@@ -329,7 +370,8 @@ export const questions1to31: Question[] = [
       "conducting error detection of the contents in frames",
     ],
     correct: [0, 1, 2],
-    explanation: "Explanation: Topic 14.1.2\nThe transport layer has several responsibilities. Some of the primary responsibilities include the following:\nTracking the individual communication streams between applications on the source and destination hosts\nSegmenting data at the source and reassembling the data at the destination\nIdentifying the proper application for each communication stream through the use of port numbers\nMultiplexing the communications of multiple users or applications over a single network\nManaging the reliability requirements of applications",
+    explanation:
+      "Explanation: Topic 14.1.2\nThe transport layer has several responsibilities. Some of the primary responsibilities include the following:\nTracking the individual communication streams between applications on the source and destination hosts\nSegmenting data at the source and reassembling the data at the destination\nIdentifying the proper application for each communication stream through the use of port numbers\nMultiplexing the communications of multiple users or applications over a single network\nManaging the reliability requirements of applications",
   },
   {
     number: 27,
@@ -345,7 +387,8 @@ export const questions1to31: Question[] = [
       "Only the DHCP server receives the message.",
     ],
     correct: [1, 3, 4],
-    explanation: "Explanation: Topic 15.4.7\nWhen a host configured to use DHCP powers up on a network it sends a DHCPDISCOVER message. FF-FF-FF-FF-FF-FF is the L2 broadcast address. A DHCP server replies with a unicast DHCPOFFER message back to the host.",
+    explanation:
+      "Explanation: Topic 15.4.7\nWhen a host configured to use DHCP powers up on a network it sends a DHCPDISCOVER message. FF-FF-FF-FF-FF-FF is the L2 broadcast address. A DHCP server replies with a unicast DHCPOFFER message back to the host.",
   },
   {
     number: 28,
@@ -354,7 +397,8 @@ export const questions1to31: Question[] = [
     text: "Which two protocols may devices use in the application process that sends email? (Choose two.)",
     options: ["HTTP", "SMTP", "POP", "IMAP", "DNS", "POP3"],
     correct: [1, 4],
-    explanation: "Explanation: Topic 15.3.2\nPOP, POP3, and IMAP are protocols that are used to retrieve email from servers. SMTP is the default protocol that is used to send email. DNS may be used by the sender email server to find the address of the destination email server.",
+    explanation:
+      "Explanation: Topic 15.3.2\nPOP, POP3, and IMAP are protocols that are used to retrieve email from servers. SMTP is the default protocol that is used to send email. DNS may be used by the sender email server to find the address of the destination email server.",
   },
   {
     number: 29,
@@ -367,7 +411,8 @@ export const questions1to31: Question[] = [
       "SMB uses the FTP protocol for communication.",
     ],
     correct: [1],
-    explanation: "Explanation: Topic 15.5.2\nThe Server Message Block protocol is a protocol for file, printer, and directory sharing. Clients establish a long term connection to servers and when the connection is active, the resources can be accessed. Every SMB message has the same format. The use of SMB differs from FTP mainly in the length of the sessions. SMB messages can authenticate sessions.",
+    explanation:
+      "Explanation: Topic 15.5.2\nThe Server Message Block protocol is a protocol for file, printer, and directory sharing. Clients establish a long term connection to servers and when the connection is active, the resources can be accessed. Every SMB message has the same format. The use of SMB differs from FTP mainly in the length of the sessions. SMB messages can authenticate sessions.",
   },
   {
     number: 30,
@@ -380,7 +425,8 @@ export const questions1to31: Question[] = [
       "to retrieve client email from an email server using TCP port 110",
     ],
     correct: [0],
-    explanation: "Explanation: Topic 15.3.2\nThere are three common HTTP message types:\nGET - used by clients to request data from the web server\nPOST - used by clients to upload data to a web server\nPUT - used by clients to upload data to a web server",
+    explanation:
+      "Explanation: Topic 15.3.2\nThere are three common HTTP message types:\nGET - used by clients to request data from the web server\nPOST - used by clients to upload data to a web server\nPUT - used by clients to upload data to a web server",
   },
   {
     number: 31,
@@ -388,6 +434,7 @@ export const questions1to31: Question[] = [
     text: "Which OSI layer provides the interface between the applications used to communicate and the underlying network over which messages are transmitted?",
     options: ["application", "presentation", "session", "transport"],
     correct: [0],
-    explanation: "Explanation: Topic 15.1.1\nThe application layer is the layer that is closest to the end user and provides the interface between the underlying network and the applications used to communicate.",
+    explanation:
+      "Explanation: Topic 15.1.1\nThe application layer is the layer that is closest to the end user and provides the interface between the underlying network and the applications used to communicate.",
   },
 ];

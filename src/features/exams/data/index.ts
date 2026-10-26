@@ -11,11 +11,12 @@ import { itnModules1113 } from "./itn-modules-11-13";
 import { itnModules1415 } from "./itn-modules-14-15";
 import { itnModules1617 } from "./itn-modules-16-17";
 import { itnModules13 } from "./itn-modules-1-3";
+import { itnFinalExam } from "./itn-final-exam";
 import type { CourseId } from "./courses";
 
 export interface ModuleMeta {
   id: string;
-  courseId: CourseId; // "ccna2" — the course this exam group belongs to
+  courseId: CourseId; // "ccna" — the course this exam group belongs to
   title: string; // "Modules 1 - 4"
   subtitle: string; // "Switching Concepts, VLANs, and InterVLAN Routing"
   groupLabel: string; // "Checkpoint Exam"
@@ -34,7 +35,7 @@ export interface ModuleMeta {
 export const moduleRegistry: ModuleMeta[] = [
   {
     id: "system-test",
-    courseId: "ccna2",
+    courseId: "ccna",
     title: "System Test Exam",
     subtitle: "",
     groupLabel: "Course Exam",
@@ -42,7 +43,7 @@ export const moduleRegistry: ModuleMeta[] = [
   },
   {
     id: "modules-1-4",
-    courseId: "ccna2",
+    courseId: "ccna",
     title: "Modules 1 - 4",
     subtitle: "Switching Concepts, VLANs, and InterVLAN Routing",
     groupLabel: "Checkpoint Exam",
@@ -50,7 +51,7 @@ export const moduleRegistry: ModuleMeta[] = [
   },
   {
     id: "modules-5-6",
-    courseId: "ccna2",
+    courseId: "ccna",
     title: "Modules 5 - 6",
     subtitle: "Redundant Networks",
     groupLabel: "Checkpoint Exam",
@@ -58,7 +59,7 @@ export const moduleRegistry: ModuleMeta[] = [
   },
   {
     id: "modules-7-9",
-    courseId: "ccna2",
+    courseId: "ccna",
     title: "Modules 7 - 9",
     subtitle: "Available and Reliable Networks",
     groupLabel: "Checkpoint Exam",
@@ -66,7 +67,7 @@ export const moduleRegistry: ModuleMeta[] = [
   },
   {
     id: "modules-10-13",
-    courseId: "ccna2",
+    courseId: "ccna",
     title: "Modules 10 - 13",
     subtitle: "L2 Security and WLANs",
     groupLabel: "Checkpoint Exam",
@@ -74,7 +75,7 @@ export const moduleRegistry: ModuleMeta[] = [
   },
   {
     id: "modules-14-16",
-    courseId: "ccna2",
+    courseId: "ccna",
     title: "Modules 14 - 16",
     subtitle: "Routing Concepts and Configuration",
     groupLabel: "Checkpoint Exam",
@@ -82,7 +83,7 @@ export const moduleRegistry: ModuleMeta[] = [
   },
   {
     id: "srwe-practice-final",
-    courseId: "ccna2",
+    courseId: "ccna",
     title: "SRWEv7 Practice Final Exam",
     subtitle: "CCNA 2 v7 (SRWE)",
     groupLabel: "Practice Exam",
@@ -90,7 +91,7 @@ export const moduleRegistry: ModuleMeta[] = [
   },
   {
     id: "srwe-final-exam",
-    courseId: "ccna2",
+    courseId: "ccna",
     title: "CCNA 2 v7 Course FINAL Exam",
     subtitle: "Switching, Routing, and Wireless Essentials",
     groupLabel: "Final Exam",
@@ -157,7 +158,7 @@ export const moduleRegistry: ModuleMeta[] = [
     title: "CCNA 1 v7 Course FINAL Exam",
     subtitle: "Introduction to Networks",
     groupLabel: "Final Exam",
-    available: false,
+    available: true,
   },
 ];
 
@@ -175,6 +176,7 @@ export const availableModules: Record<string, ExamModule> = {
   [itnModules1415.id]: itnModules1415,
   [itnModules1617.id]: itnModules1617,
   [itnModules13.id]: itnModules13,
+  [itnFinalExam.id]: itnFinalExam,
 };
 
 /** Registry lookup helper for the module chooser. */

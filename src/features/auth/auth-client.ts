@@ -28,7 +28,7 @@ export const AUTH_BASE_URL: string = (
 /** Site root including the repo-name base path, without a trailing slash. */
 export const SITE_BASE: string = import.meta.env.BASE_URL.replace(/\/+$/, "");
 
-/** Build an absolute site path that respects the `/ccna2` base. */
+/** Build an absolute site path that respects the `/ccna` base. */
 export function sitePath(path = ""): string {
   const clean = path.replace(/^\/+/, "");
   return clean ? `${SITE_BASE}/${clean}` : `${SITE_BASE}/`;
